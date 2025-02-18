@@ -11,7 +11,7 @@ class CustomBuildHook(BuildHookInterface):
     def initialize(self, version, build_data):
         super().initialize(version, build_data)
         stderr.write(">>> Building Open Webui frontend\n")
-        npm = shutil.which("npm")
+        npm = shutil.which("pnpm")
         if npm is None:
             raise RuntimeError(
                 "NodeJS `npm` is required for building Open Webui but it was not found"
