@@ -1,7 +1,7 @@
 <script lang="ts">
   import { tick, getContext } from 'svelte';
   import { goto } from '$app/navigation';
-  import { page } from '$app/state';
+  import { page } from '$app/stores';
 
   import dayjs from 'dayjs';
 
@@ -11,6 +11,7 @@
   import { getChatByShareId, cloneSharedChatById } from '$lib/apis/chats';
 
   import Messages from '$lib/components/chat/Messages.svelte';
+  import Navbar from '$lib/components/layout/Navbar.svelte';
 
   import { getUserById } from '$lib/apis/users';
   import { getModels } from '$lib/apis';
