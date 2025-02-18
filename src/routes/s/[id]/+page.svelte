@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, tick, getContext } from 'svelte';
+	import { tick, getContext } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
@@ -25,10 +25,7 @@
 
 	let autoScroll = true;
 	let processing = '';
-	let messagesContainerElement: HTMLDivElement;
 
-	// let chatId = $page.params.id;
-	let showModelSelector = false;
 	let selectedModels = [''];
 
 	let chat = null;
@@ -173,7 +170,7 @@
 			</div>
 
 			<div
-				class="absolute bottom-0 right-0 left-0 flex justify-center w-full bg-gradient-to-b from-transparent to-white dark:to-gray-900"
+				class="absolute bottom-0 right-0 left-0 flex justify-center w-full bg-linear-to-b from-transparent to-white dark:to-gray-900"
 			>
 				<div class="pb-5">
 					<button

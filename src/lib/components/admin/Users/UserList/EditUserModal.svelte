@@ -102,7 +102,7 @@
 
 							<div class="flex-1">
 								<input
-									class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-500 outline-none"
+									class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
 									type="email"
 									bind:value={_user.email}
 									autocomplete="off"
@@ -117,7 +117,7 @@
 
 							<div class="flex-1">
 								<input
-									class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
+									class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-hidden"
 									type="text"
 									bind:value={_user.name}
 									autocomplete="off"
@@ -131,7 +131,7 @@
 
 							<div class="flex-1">
 								<input
-									class="w-full rounded py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-none"
+									class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-hidden"
 									type="password"
 									bind:value={_user.password}
 									autocomplete="new-password"

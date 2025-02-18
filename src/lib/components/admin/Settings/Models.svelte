@@ -199,7 +199,7 @@
 						<Search className="size-3.5" />
 					</div>
 					<input
-						class=" w-full text-sm py-1 rounded-r-xl outline-none bg-transparent"
+						class=" w-full text-sm py-1 rounded-r-xl outline-hidden bg-transparent"
 						bind:value={searchValue}
 						placeholder={$i18n.t('Search Models')}
 					/>
@@ -238,7 +238,7 @@
 							<div class=" flex-1 self-center {(model?.is_active ?? true) ? '' : 'text-gray-500'}">
 								<Tooltip
 									content={marked.parse(
-										!!model?.meta?.description
+										model?.meta?.description
 											? model?.meta?.description
 											: model?.ollama?.digest
 												? `${model?.ollama?.digest} **(${model?.ollama?.modified_at})**`
@@ -251,7 +251,7 @@
 								</Tooltip>
 								<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1 text-gray-500">
 									<span class=" line-clamp-1">
-										{!!model?.meta?.description
+										{model?.meta?.description
 											? model?.meta?.description
 											: model?.ollama?.digest
 												? `${model.id} (${model?.ollama?.digest})`

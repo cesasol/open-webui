@@ -1,38 +1,35 @@
 <script lang="ts">
 	import { SvelteFlowProvider } from '@xyflow/svelte';
-	import { slide } from 'svelte/transition';
 	import { Pane, PaneResizer } from 'paneforge';
 
 	import { onDestroy, onMount, tick } from 'svelte';
-	import { mobile, showControls, showCallOverlay, showOverview, showArtifacts } from '$lib/stores';
+	import { showControls, showCallOverlay, showOverview, showArtifacts } from '$lib/stores';
 
-	import Modal from '../common/Modal.svelte';
 	import Controls from './Controls/Controls.svelte';
 	import CallOverlay from './MessageInput/CallOverlay.svelte';
 	import Drawer from '../common/Drawer.svelte';
 	import Overview from './Overview.svelte';
 	import EllipsisVertical from '../icons/EllipsisVertical.svelte';
 	import Artifacts from './Artifacts.svelte';
-	import { min } from '@floating-ui/utils';
 
 	export let history;
-	export let models = [];
+	export let models: string[] = [];
 
 	export let chatId = null;
 
-	export let chatFiles = [];
+	export let chatFiles: string[] = [];
 	export let params = {};
 
 	export let eventTarget: EventTarget;
 	export let submitPrompt: Function;
 	export let stopResponse: Function;
 	export let showMessage: Function;
-	export let files;
+	export let files: string[];
 	export let modelId;
 
-	export let pane;
+	export let pane: Pane;
 
-	let mediaQuery;
+	let mediaQuery: string = '';
 	let largeScreen = false;
 	let dragged = false;
 
@@ -195,7 +192,7 @@
 
 		{#if $showControls}
 			<PaneResizer class="relative flex w-2 items-center justify-center bg-background group">
-				<div class="z-10 flex h-7 w-5 items-center justify-center rounded-sm">
+				<div class="z-10 flex h-7 w-5 items-center justify-center rounded-xs">
 					<EllipsisVertical className="size-4 invisible group-hover:visible" />
 				</div>
 			</PaneResizer>

@@ -49,7 +49,6 @@ ARG GID
 ## Basis ##
 ENV ENV=prod \
     PORT=8080 \
-    # pass build args to the build
     USE_OLLAMA_DOCKER=${USE_OLLAMA} \
     USE_CUDA_DOCKER=${USE_CUDA} \
     USE_CUDA_DOCKER_VER=${USE_CUDA_VER} \
@@ -92,7 +91,9 @@ ENV TORCH_EXTENSIONS_DIR="/.cache/torch_extensions"
 WORKDIR /app/backend
 
 ENV HOME=/root
+
 # Create user and group if not root
+
 RUN if [ $UID -ne 0 ]; then \
     if [ $GID -ne 0 ]; then \
     addgroup --gid $GID app; \
