@@ -393,7 +393,7 @@
       </div>
     </div>
 
-    <hr class="dark:border-gray-850" />
+    <hr class="border-gray-100 dark:border-gray-850" />
 
     <div class="space-y-2" />
     <div>
@@ -550,7 +550,7 @@
       {/if}
     </div>
 
-    <hr class=" dark:border-gray-850" />
+    <hr class=" border-gray-100 dark:border-gray-850" />
 
     <div class="">
       <div class="text-sm font-medium mb-1">{$i18n.t('Content Extraction')}</div>
@@ -584,7 +584,7 @@
       {/if}
     </div>
 
-    <hr class=" dark:border-gray-850" />
+    <hr class=" border-gray-100 dark:border-gray-850" />
 
     <div class="text-sm font-medium mb-1">{$i18n.t('Google Drive')}</div>
 
@@ -597,7 +597,7 @@
       </div>
     </div>
 
-    <hr class=" dark:border-gray-850" />
+    <hr class=" border-gray-100 dark:border-gray-850" />
 
     <div class=" ">
       <div class=" text-sm font-medium mb-1">{$i18n.t('Query Params')}</div>
@@ -662,7 +662,7 @@
       </div>
     </div>
 
-    <hr class=" dark:border-gray-850" />
+    <hr class=" border-gray-100 dark:border-gray-850" />
 
     <div class=" ">
       <div class="mb-1 text-sm font-medium">{$i18n.t('Chunk Params')}</div>
@@ -726,7 +726,7 @@
       </div>
     </div>
 
-    <hr class=" dark:border-gray-850" />
+    <hr class=" border-gray-100 dark:border-gray-850" />
 
     <div class="">
       <div class="text-sm font-medium mb-1">{$i18n.t('Files')}</div>
@@ -781,7 +781,7 @@
       </div>
     </div>
 
-    <hr class=" dark:border-gray-850" />
+    <hr class=" border-gray-100 dark:border-gray-850" />
 
     <div>
       <button

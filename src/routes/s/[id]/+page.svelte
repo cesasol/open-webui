@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { tick, getContext } from 'svelte';
+  import { onMount, tick, getContext } from 'svelte';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
 
@@ -25,7 +25,10 @@
 
   let autoScroll = true;
   let processing = '';
+  let messagesContainerElement: HTMLDivElement;
 
+  // let chatId = $page.params.id;
+  let showModelSelector = false;
   let selectedModels = [''];
 
   let chat = null;

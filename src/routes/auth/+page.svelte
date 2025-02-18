@@ -3,7 +3,7 @@
 
   import { onMount, getContext } from 'svelte';
   import { goto } from '$app/navigation';
-  import { page } from '$app/state';
+  import { page } from '$app/stores';
 
   import { getBackendConfig } from '$lib/apis';
   import { ldapUserSignIn, getSessionUser, userSignIn, userSignUp } from '$lib/apis/auths';
@@ -82,10 +82,10 @@
   };
 
   const checkOauthCallback = async () => {
-    if (!page.url.hash) {
+    if (!$page.url.hash) {
       return;
     }
-    const hash = page.url.hash.substring(1);
+    const hash = $page.url.hash.substring(1);
     if (!hash) {
       return;
     }

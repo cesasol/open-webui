@@ -69,9 +69,13 @@
     }}
   >
     <div class="  overflow-y-scroll scrollbar-hidden h-full pr-1.5">
-      <div>
-        <div class=" mb-2.5 text-sm font-medium flex items-center">
-          <div class=" mr-1">{$i18n.t('Set Task Model')}</div>
+      <div class="mb-3.5">
+        <div class=" mb-2.5 text-base font-medium">{$i18n.t('Tasks')}</div>
+
+        <hr class=" border-gray-100 dark:border-gray-850 my-2" />
+
+        <div class=" mb-1 font-medium flex items-center">
+          <div class=" text-xs mr-1">{$i18n.t('Set Task Model')}</div>
           <Tooltip
             content={$i18n.t(
               'A task model is used when performing tasks such as generating titles for chats and web search queries'
@@ -93,7 +97,8 @@
             </svg>
           </Tooltip>
         </div>
-        <div class="flex w-full gap-2">
+
+        <div class=" mb-2.5 flex w-full gap-2">
           <div class="flex-1">
             <div class=" text-xs mb-1">{$i18n.t('Local Models')}</div>
             <select
@@ -139,9 +144,7 @@
           </div>
         </div>
 
-        <hr class=" border-gray-50 dark:border-gray-850 my-3" />
-
-        <div class="my-3 flex w-full items-center justify-between">
+        <div class="mb-2.5 flex w-full items-center justify-between">
           <div class=" self-center text-xs font-medium">
             {$i18n.t('Title Generation')}
           </div>
@@ -150,8 +153,8 @@
         </div>
 
         {#if taskConfig.ENABLE_TITLE_GENERATION}
-          <div class="mt-3">
-            <div class=" mb-2.5 text-xs font-medium">{$i18n.t('Title Generation Prompt')}</div>
+          <div class="mb-2.5">
+            <div class=" mb-1 text-xs font-medium">{$i18n.t('Title Generation Prompt')}</div>
 
             <Tooltip
               content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
@@ -167,8 +170,50 @@
           </div>
         {/if}
 
-        <div class="mt-3">
-          <div class=" mb-2.5 text-xs font-medium">{$i18n.t('Image Prompt Generation Prompt')}</div>
+        <div class="mb-2.5 flex w-full items-center justify-between">
+          <div class=" self-center text-xs font-medium">
+            {$i18n.t('Tags Generation')}
+          </div>
+
+          <Switch bind:state={taskConfig.ENABLE_TAGS_GENERATION} />
+        </div>
+
+        {#if taskConfig.ENABLE_TAGS_GENERATION}
+          <div class="mb-2.5">
+            <div class=" mb-1 text-xs font-medium">{$i18n.t('Tags Generation Prompt')}</div>
+
+            <Tooltip
+              content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
+              placement="top-start"
+            >
+              <Textarea
+                placeholder={$i18n.t(
+                  'Leave empty to use the default prompt, or enter a custom prompt'
+                )}
+                bind:value={taskConfig.TAGS_GENERATION_PROMPT_TEMPLATE}
+              />
+            </Tooltip>
+          </div>
+        {/if}
+
+        <div class="mb-2.5 flex w-full items-center justify-between">
+          <div class=" self-center text-xs font-medium">
+            {$i18n.t('Retrieval Query Generation')}
+          </div>
+
+          <Switch bind:state={taskConfig.ENABLE_RETRIEVAL_QUERY_GENERATION} />
+        </div>
+
+        <div class="mb-2.5 flex w-full items-center justify-between">
+          <div class=" self-center text-xs font-medium">
+            {$i18n.t('Web Search Query Generation')}
+          </div>
+
+          <Switch bind:state={taskConfig.ENABLE_SEARCH_QUERY_GENERATION} />
+        </div>
+
+        <div class="mb-2.5">
+          <div class=" mb-1 text-xs font-medium">{$i18n.t('Query Generation Prompt')}</div>
 
           <Tooltip
             content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
@@ -178,14 +223,12 @@
               placeholder={$i18n.t(
                 'Leave empty to use the default prompt, or enter a custom prompt'
               )}
-              bind:value={taskConfig.IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE}
+              bind:value={taskConfig.QUERY_GENERATION_PROMPT_TEMPLATE}
             />
           </Tooltip>
         </div>
 
-        <hr class=" border-gray-50 dark:border-gray-850 my-3" />
-
-        <div class="my-3 flex w-full items-center justify-between">
+        <div class="mb-2.5 flex w-full items-center justify-between">
           <div class=" self-center text-xs font-medium">
             {$i18n.t('Autocomplete Generation')}
           </div>
@@ -196,8 +239,8 @@
         </div>
 
         {#if taskConfig.ENABLE_AUTOCOMPLETE_GENERATION}
-          <div class="mt-3">
-            <div class=" mb-2.5 text-xs font-medium">
+          <div class="mb-2.5">
+            <div class=" mb-1 text-xs font-medium">
               {$i18n.t('Autocomplete Generation Input Max Length')}
             </div>
 
@@ -214,54 +257,8 @@
           </div>
         {/if}
 
-        <hr class=" border-gray-50 dark:border-gray-850 my-3" />
-
-        <div class="my-3 flex w-full items-center justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Tags Generation')}
-          </div>
-
-          <Switch bind:state={taskConfig.ENABLE_TAGS_GENERATION} />
-        </div>
-
-        {#if taskConfig.ENABLE_TAGS_GENERATION}
-          <div class="mt-3">
-            <div class=" mb-2.5 text-xs font-medium">{$i18n.t('Tags Generation Prompt')}</div>
-
-            <Tooltip
-              content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
-              placement="top-start"
-            >
-              <Textarea
-                placeholder={$i18n.t(
-                  'Leave empty to use the default prompt, or enter a custom prompt'
-                )}
-                bind:value={taskConfig.TAGS_GENERATION_PROMPT_TEMPLATE}
-              />
-            </Tooltip>
-          </div>
-        {/if}
-
-        <hr class=" border-gray-50 dark:border-gray-850 my-3" />
-
-        <div class="my-3 flex w-full items-center justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Retrieval Query Generation')}
-          </div>
-
-          <Switch bind:state={taskConfig.ENABLE_RETRIEVAL_QUERY_GENERATION} />
-        </div>
-
-        <div class="my-3 flex w-full items-center justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Web Search Query Generation')}
-          </div>
-
-          <Switch bind:state={taskConfig.ENABLE_SEARCH_QUERY_GENERATION} />
-        </div>
-
-        <div class="">
-          <div class=" mb-2.5 text-xs font-medium">{$i18n.t('Query Generation Prompt')}</div>
+        <div class="mb-2.5">
+          <div class=" mb-1 text-xs font-medium">{$i18n.t('Image Prompt Generation Prompt')}</div>
 
           <Tooltip
             content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
@@ -271,152 +268,55 @@
               placeholder={$i18n.t(
                 'Leave empty to use the default prompt, or enter a custom prompt'
               )}
-              bind:value={taskConfig.QUERY_GENERATION_PROMPT_TEMPLATE}
+              bind:value={taskConfig.IMAGE_PROMPT_GENERATION_PROMPT_TEMPLATE}
+            />
+          </Tooltip>
+        </div>
+
+        <div class="mb-2.5">
+          <div class=" mb-1 text-xs font-medium">{$i18n.t('Tools Function Calling Prompt')}</div>
+
+          <Tooltip
+            content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
+            placement="top-start"
+          >
+            <Textarea
+              placeholder={$i18n.t(
+                'Leave empty to use the default prompt, or enter a custom prompt'
+              )}
+              bind:value={taskConfig.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE}
             />
           </Tooltip>
         </div>
       </div>
 
-      <div class="mt-3">
-        <div class=" mb-2.5 text-xs font-medium">{$i18n.t('Tools Function Calling Prompt')}</div>
+      <div class="mb-3.5">
+        <div class=" mb-2.5 text-base font-medium">{$i18n.t('UI')}</div>
 
-        <Tooltip
-          content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
-          placement="top-start"
-        >
-          <Textarea
-            placeholder={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
-            bind:value={taskConfig.TOOLS_FUNCTION_CALLING_PROMPT_TEMPLATE}
-          />
-        </Tooltip>
-      </div>
+        <hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-      <hr class=" border-gray-50 dark:border-gray-850 my-3" />
-
-      <div
-        class=" space-y-3"
-        class:mb-3={banners.length > 0}
-      >
-        <div class="flex w-full justify-between">
-          <div class=" self-center text-sm font-semibold">
-            {$i18n.t('Banners')}
-          </div>
-
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              if (banners.length === 0 || banners.at(-1).content !== '') {
-                banners = [
-                  ...banners,
-                  {
-                    id: uuidv4(),
-                    type: '',
-                    title: '',
-                    content: '',
-                    dismissible: true,
-                    timestamp: Math.floor(Date.now() / 1000)
-                  }
-                ];
-              }
-            }}
-          >
-            <svg
-              class="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-            </svg>
-          </button>
-        </div>
-        <div class="flex flex-col space-y-1">
-          {#each banners as banner, bannerIdx}
-            <div class=" flex justify-between">
-              <div class="flex flex-row flex-1 border rounded-xl dark:border-gray-800">
-                <select
-                  class="w-fit capitalize rounded-xl py-2 px-4 text-xs bg-transparent outline-hidden"
-                  required
-                  bind:value={banner.type}
-                >
-                  {#if banner.type == ''}
-                    <option
-                      class="text-gray-900"
-                      disabled
-                      selected
-                      value=""
-                    >{$i18n.t('Type')}</option>
-                  {/if}
-                  <option
-                    class="text-gray-900"
-                    value="info"
-                  >{$i18n.t('Info')}</option>
-                  <option
-                    class="text-gray-900"
-                    value="warning"
-                  >{$i18n.t('Warning')}</option>
-                  <option
-                    class="text-gray-900"
-                    value="error"
-                  >{$i18n.t('Error')}</option>
-                  <option
-                    class="text-gray-900"
-                    value="success"
-                  >{$i18n.t('Success')}</option>
-                </select>
-
-                <input
-                  class="pr-5 py-1.5 text-xs w-full bg-transparent outline-hidden"
-                  placeholder={$i18n.t('Content')}
-                  bind:value={banner.content}
-                />
-
-                <div class="relative top-1.5 -left-2">
-                  <Tooltip
-                    className="flex h-fit items-center"
-                    content={$i18n.t('Dismissible')}
-                  >
-                    <Switch bind:state={banner.dismissible} />
-                  </Tooltip>
-                </div>
-              </div>
-
-              <button
-                class="px-2"
-                type="button"
-                on:click={() => {
-                  banners.splice(bannerIdx, 1);
-                  banners = banners;
-                }}
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                </svg>
-              </button>
-            </div>
-          {/each}
-        </div>
-      </div>
-
-      {#if $user.role === 'admin'}
-        <div class=" space-y-3">
-          <div class="flex w-full justify-between mb-2">
+        <div class:mb-3={banners.length > 0}>
+          <div class="mb-2.5 flex w-full justify-between">
             <div class=" self-center text-sm font-semibold">
-              {$i18n.t('Default Prompt Suggestions')}
+              {$i18n.t('Banners')}
             </div>
 
             <button
               class="p-1 px-3 text-xs flex rounded-sm transition"
               type="button"
               on:click={() => {
-                if (promptSuggestions.length === 0 || promptSuggestions.at(-1).content !== '') {
-                  promptSuggestions = [...promptSuggestions, { content: '', title: ['', ''] }];
+                if (banners.length === 0 || banners.at(-1).content !== '') {
+                  banners = [
+                    ...banners,
+                    {
+                      id: uuidv4(),
+                      type: '',
+                      title: '',
+                      content: '',
+                      dismissible: true,
+                      timestamp: Math.floor(Date.now() / 1000)
+                    }
+                  ];
                 }
               }}
             >
@@ -430,38 +330,64 @@
               </svg>
             </button>
           </div>
-          <div class="grid lg:grid-cols-2 flex-col gap-1.5">
-            {#each promptSuggestions as prompt, promptIdx}
-              <div class=" flex border border-gray-100 dark:border-none dark:bg-gray-850 rounded-xl py-1.5">
-                <div class="flex flex-col flex-1 pl-1">
-                  <div class="flex border-b border-gray-100 dark:border-gray-800 w-full">
-                    <input
-                      class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-800"
-                      placeholder={$i18n.t('Title (e.g. Tell me a fun fact)')}
-                      bind:value={prompt.title[0]}
-                    />
 
-                    <input
-                      class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-800"
-                      placeholder={$i18n.t('Subtitle (e.g. about the Roman Empire)')}
-                      bind:value={prompt.title[1]}
-                    />
-                  </div>
+          <div class=" flex flex-col space-y-1">
+            {#each banners as banner, bannerIdx}
+              <div class=" flex justify-between">
+                <div class="flex flex-row flex-1 border rounded-xl border-gray-100 dark:border-gray-850">
+                  <select
+                    class="w-fit capitalize rounded-xl py-2 px-4 text-xs bg-transparent outline-hidden"
+                    required
+                    bind:value={banner.type}
+                  >
+                    {#if banner.type == ''}
+                      <option
+                        class="text-gray-900"
+                        disabled
+                        selected
+                        value=""
+                      >{$i18n.t('Type')}</option>
+                    {/if}
+                    <option
+                      class="text-gray-900"
+                      value="info"
+                    >{$i18n.t('Info')}</option>
+                    <option
+                      class="text-gray-900"
+                      value="warning"
+                    >{$i18n.t('Warning')}</option>
+                    <option
+                      class="text-gray-900"
+                      value="error"
+                    >{$i18n.t('Error')}</option>
+                    <option
+                      class="text-gray-900"
+                      value="success"
+                    >{$i18n.t('Success')}</option>
+                  </select>
 
-                  <textarea
-                    class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-800 resize-none"
-                    placeholder={$i18n.t('Prompt (e.g. Tell me a fun fact about the Roman Empire)')}
-                    rows="3"
-                    bind:value={prompt.content}
+                  <input
+                    class="pr-5 py-1.5 text-xs w-full bg-transparent outline-hidden"
+                    placeholder={$i18n.t('Content')}
+                    bind:value={banner.content}
                   />
+
+                  <div class="relative top-1.5 -left-2">
+                    <Tooltip
+                      className="flex h-fit items-center"
+                      content={$i18n.t('Dismissible')}
+                    >
+                      <Switch bind:state={banner.dismissible} />
+                    </Tooltip>
+                  </div>
                 </div>
 
                 <button
-                  class="px-3"
+                  class="px-2"
                   type="button"
                   on:click={() => {
-                    promptSuggestions.splice(promptIdx, 1);
-                    promptSuggestions = promptSuggestions;
+                    banners.splice(bannerIdx, 1);
+                    banners = banners;
                   }}
                 >
                   <svg
@@ -476,14 +402,91 @@
               </div>
             {/each}
           </div>
-
-          {#if promptSuggestions.length > 0}
-            <div class="text-xs text-left w-full mt-2">
-              {$i18n.t('Adjusting these settings will apply changes universally to all users.')}
-            </div>
-          {/if}
         </div>
-      {/if}
+
+        {#if $user.role === 'admin'}
+          <div class=" space-y-3">
+            <div class="flex w-full justify-between mb-2">
+              <div class=" self-center text-sm font-semibold">
+                {$i18n.t('Default Prompt Suggestions')}
+              </div>
+
+              <button
+                class="p-1 px-3 text-xs flex rounded-sm transition"
+                type="button"
+                on:click={() => {
+                  if (promptSuggestions.length === 0 || promptSuggestions.at(-1).content !== '') {
+                    promptSuggestions = [...promptSuggestions, { content: '', title: ['', ''] }];
+                  }
+                }}
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
+              </button>
+            </div>
+            <div class="grid lg:grid-cols-2 flex-col gap-1.5">
+              {#each promptSuggestions as prompt, promptIdx}
+                <div class=" flex border border-gray-100 dark:border-none dark:bg-gray-850 rounded-xl py-1.5">
+                  <div class="flex flex-col flex-1 pl-1">
+                    <div class="flex border-b border-gray-100 dark:border-gray-850 w-full">
+                      <input
+                        class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850"
+                        placeholder={$i18n.t('Title (e.g. Tell me a fun fact)')}
+                        bind:value={prompt.title[0]}
+                      />
+
+                      <input
+                        class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850"
+                        placeholder={$i18n.t('Subtitle (e.g. about the Roman Empire)')}
+                        bind:value={prompt.title[1]}
+                      />
+                    </div>
+
+                    <textarea
+                      class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850 resize-none"
+                      placeholder={$i18n.t(
+                        'Prompt (e.g. Tell me a fun fact about the Roman Empire)'
+                      )}
+                      rows="3"
+                      bind:value={prompt.content}
+                    />
+                  </div>
+
+                  <button
+                    class="px-3"
+                    type="button"
+                    on:click={() => {
+                      promptSuggestions.splice(promptIdx, 1);
+                      promptSuggestions = promptSuggestions;
+                    }}
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                    </svg>
+                  </button>
+                </div>
+              {/each}
+            </div>
+
+            {#if promptSuggestions.length > 0}
+              <div class="text-xs text-left w-full mt-2">
+                {$i18n.t('Adjusting these settings will apply changes universally to all users.')}
+              </div>
+            {/if}
+          </div>
+        {/if}
+      </div>
     </div>
 
     <div class="flex justify-end text-sm font-medium">

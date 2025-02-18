@@ -64,7 +64,7 @@
           <div class="text-left text-sm w-full mb-4 overflow-y-scroll">
             <div class="relative overflow-x-auto">
               <table class="w-full text-sm text-left text-gray-600 dark:text-gray-400 table-auto">
-                <thead class="text-xs text-gray-700 uppercase bg-transparent dark:text-gray-200 border-b-2 dark:border-gray-800">
+                <thead class="text-xs text-gray-700 uppercase bg-transparent dark:text-gray-200 border-b-2 dark:border-gray-850">
                   <tr>
                     <th
                       class="px-3 py-2"
@@ -84,7 +84,7 @@
                 </thead>
                 <tbody>
                   {#each memories as memory}
-                    <tr class="border-b dark:border-gray-800 items-center">
+                    <tr class="border-b dark:border-gray-850 items-center">
                       <td class="px-3 py-1">
                         <div class="line-clamp-1">
                           {memory.content}

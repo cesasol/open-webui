@@ -51,6 +51,8 @@
     temperature: null,
     reasoning_effort: null,
     frequency_penalty: null,
+    presence_penalty: null,
+    repeat_penalty: null,
     repeat_last_n: null,
     mirostat: null,
     mirostat_eta: null,
@@ -141,12 +143,10 @@
       }
     }
 
-    console.log(_theme);
-  };
+    if (typeof window !== 'undefined' && window.applyTheme) {
+      window.applyTheme();
+    }
 
-  const themeChangeHandler = (_theme: string) => {
-    theme.set(_theme);
-    localStorage.setItem('theme', _theme);
     if (_theme.includes('oled')) {
       document.documentElement.style.setProperty('--color-gray-800', '#101010');
       document.documentElement.style.setProperty('--color-gray-850', '#050505');
@@ -154,6 +154,13 @@
       document.documentElement.style.setProperty('--color-gray-950', '#000000');
       document.documentElement.classList.add('dark');
     }
+
+    console.log(_theme);
+  };
+
+  const themeChangeHandler = (_theme: string) => {
+    theme.set(_theme);
+    localStorage.setItem('theme', _theme);
     applyTheme(_theme);
   };
 </script>
@@ -235,12 +242,12 @@
     </div>
 
     {#if $user.role === 'admin' || $user?.permissions.chat?.controls}
-      <hr class=" dark:border-gray-850 my-3" />
+      <hr class="border-gray-100 dark:border-gray-850 my-3" />
 
       <div>
         <div class=" my-2.5 text-sm font-medium">{$i18n.t('System Prompt')}</div>
         <textarea
-          class="w-full rounded-lg p-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-hidden resize-none"
+          class="w-full rounded-lg p-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-hidden resize-none"
           rows="4"
           bind:value={system}
         />
@@ -263,7 +270,7 @@
             admin={$user?.role === 'admin'}
             bind:params
           />
-          <hr class=" dark:border-gray-850" />
+          <hr class=" border-gray-100 dark:border-gray-850" />
 
           <div class=" py-1 w-full justify-between">
             <div class="flex w-full justify-between">
@@ -345,6 +352,10 @@
             reasoning_effort:
               params.reasoning_effort !== null ? params.reasoning_effort : undefined,
             frequency_penalty:
+              params.frequency_penalty !== null ? params.frequency_penalty : undefined,
+            presence_penalty:
+              params.frequency_penalty !== null ? params.frequency_penalty : undefined,
+            repeat_penalty:
               params.frequency_penalty !== null ? params.frequency_penalty : undefined,
             repeat_last_n: params.repeat_last_n !== null ? params.repeat_last_n : undefined,
             mirostat: params.mirostat !== null ? params.mirostat : undefined,

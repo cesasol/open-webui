@@ -827,7 +827,7 @@
       messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
     }
   };
-  const chatCompletedHandler = async (oChatId, modelId, responseMessageId, messages) => {
+  const chatCompletedHandler = async (chatId, modelId, responseMessageId, messages) => {
     const res = await chatCompleted(localStorage.token, {
       model: modelId,
       messages: messages.map((m) => ({
@@ -867,9 +867,9 @@
 
     await tick();
 
-    if ($chatId == oChatId) {
+    if ($chatId == chatId) {
       if (!$temporaryChatEnabled) {
-        chat = await updateChatById(localStorage.token, oChatId, {
+        chat = await updateChatById(localStorage.token, chatId, {
           models: selectedModels,
           messages: messages,
           history: history,
@@ -883,7 +883,7 @@
     }
   };
 
-  const chatActionHandler = async (oChatId, actionId, modelId, responseMessageId, event = null) => {
+  const chatActionHandler = async (chatId, actionId, modelId, responseMessageId, event = null) => {
     const messages = createMessagesList(history, responseMessageId);
 
     const res = await chatAction(localStorage.token, actionId, {
@@ -898,7 +898,7 @@
       })),
       ...(event ? { event: event } : {}),
       model_item: $models.find((m) => m.id === modelId),
-      chat_id: oChatId,
+      chat_id: chatId,
       session_id: $socket?.id,
       id: responseMessageId
     }).catch((error) => {
@@ -920,9 +920,9 @@
       }
     }
 
-    if ($chatId == oChatId) {
+    if ($chatId == chatId) {
       if (!$temporaryChatEnabled) {
-        chat = await updateChatById(localStorage.token, oChatId, {
+        chat = await updateChatById(localStorage.token, chatId, {
           models: selectedModels,
           messages: messages,
           history: history,
@@ -1241,7 +1241,7 @@
       // Response not done
       return;
     }
-    if (messages.length != 0 && messages.at(-1).error) {
+    if (messages.length != 0 && messages.at(-1).error && !messages.at(-1).content) {
       // Error in response
       toast.error($i18n.t(`Oops! There was an error in the previous response.`));
       return;
@@ -1899,7 +1899,7 @@
           : ''} top-0 left-0 w-full h-full bg-cover bg-center bg-no-repeat"
       />
 
-      <div class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-[#171717]/90 z-0" />
+      <div class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-gray-900/90 z-0" />
     {/if}
 
     <Navbar
@@ -1978,10 +1978,10 @@
                   {selectedModels}
                   {sendPrompt}
                   {showMessage}
-                  {submitMessage}
                   bind:history
                   bind:autoScroll
                   bind:prompt
+                  {submitMessage}
                 />
               </div>
             </div>

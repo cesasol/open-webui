@@ -298,7 +298,7 @@
           </div>
         </div>
       </div>
-      <hr class=" dark:border-gray-850" />
+      <hr class=" border-gray-100 dark:border-gray-850" />
 
       <div class="flex flex-col gap-2">
         {#if (config?.engine ?? 'automatic1111') === 'automatic1111'}
@@ -534,7 +534,7 @@
                 />
 
                 <button
-                  class="w-full text-sm font-medium py-2 bg-transparent hover:bg-gray-100 border border-dashed dark:border-gray-800 dark:hover:bg-gray-850 text-center rounded-xl"
+                  class="w-full text-sm font-medium py-2 bg-transparent hover:bg-gray-100 border border-dashed dark:border-gray-850 dark:hover:bg-gray-850 text-center rounded-xl"
                   type="button"
                   on:click={() => {
                     document.getElementById('upload-comfyui-workflow-input')?.click();
@@ -616,7 +616,7 @@
       </div>
 
       {#if config?.enabled}
-        <hr class=" dark:border-gray-850" />
+        <hr class=" border-gray-100 dark:border-gray-850" />
 
         <div>
           <div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Default Model')}</div>

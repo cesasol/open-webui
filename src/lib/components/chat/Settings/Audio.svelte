@@ -290,7 +290,7 @@
       </div>
     </div>
 
-    <hr class=" dark:border-gray-850" />
+    <hr class=" border-gray-100 dark:border-gray-850" />
 
     {#if TTSEngine === 'browser-kokoro'}
       {#if TTSModel}
@@ -299,7 +299,7 @@
           <div class="flex w-full">
             <div class="flex-1">
               <input
-                class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+                class="w-full rounded-lg py-2 px-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-hidden"
                 list="voice-list"
                 placeholder="Select a voice"
                 bind:value={voice}
@@ -337,7 +337,7 @@
         <div class="flex w-full">
           <div class="flex-1">
             <select
-              class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+              class="w-full rounded-lg py-2 px-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-hidden"
               bind:value={voice}
             >
               <option
@@ -370,7 +370,7 @@
         <div class="flex w-full">
           <div class="flex-1">
             <input
-              class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+              class="w-full rounded-lg py-2 px-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-hidden"
               list="voice-list"
               placeholder="Select a voice"
               bind:value={voice}

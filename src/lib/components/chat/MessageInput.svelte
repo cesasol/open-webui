@@ -249,7 +249,9 @@
         return;
       }
 
-      if (['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(file['type'])) {
+      if (
+        ['image/gif', 'image/webp', 'image/jpeg', 'image/png', 'image/avif'].includes(file['type'])
+      ) {
         if (visionCapableModels.length === 0) {
           toast.error($i18n.t('Selected model(s) do not support image inputs'));
           return;
@@ -1124,7 +1126,7 @@
                               class="px-1.5 @sm:px-2.5 py-1.5 flex gap-1.5 items-center text-sm rounded-full font-medium transition-colors duration-300 focus:outline-hidden max-w-full overflow-hidden {webSearchEnabled ||
                                 ($settings?.webSearch ?? false) === 'always'
                                 ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-500 dark:text-blue-400'
-                                : 'bg-transparent text-gray-600 dark:text-gray-400 border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}"
+                                : 'bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}"
                               type="button"
                               on:click|preventDefault={() => (webSearchEnabled = !webSearchEnabled)}
                             >

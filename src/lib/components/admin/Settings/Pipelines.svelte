@@ -275,7 +275,7 @@
               />
 
               <button
-                class="w-full text-sm font-medium py-2 bg-transparent hover:bg-gray-100 border border-dashed dark:border-gray-800 dark:hover:bg-gray-850 text-center rounded-xl"
+                class="w-full text-sm font-medium py-2 bg-transparent hover:bg-gray-100 border border-dashed dark:border-gray-850 dark:hover:bg-gray-850 text-center rounded-xl"
                 type="button"
                 on:click={() => {
                   document.getElementById('pipelines-upload-input')?.click();
@@ -412,7 +412,7 @@
           </div>
         </div>
 
-        <hr class=" dark:border-gray-800 my-3 w-full" />
+        <hr class="border-gray-100 dark:border-gray-850 my-3 w-full" />
 
         {#if pipelines !== null}
           {#if pipelines.length > 0}

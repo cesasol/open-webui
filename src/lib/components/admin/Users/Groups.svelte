@@ -198,7 +198,7 @@
           <div class="w-full" />
         </div>
 
-        <hr class="mt-1.5 border-gray-50 dark:border-gray-850" />
+        <hr class="mt-1.5 border-gray-100 dark:border-gray-850" />
 
         {#each filteredGroups as group}
           <div class="my-2">
@@ -212,7 +212,7 @@
       </div>
     {/if}
 
-    <hr class="mb-2 border-gray-50 dark:border-gray-850" />
+    <hr class="mb-2 border-gray-100 dark:border-gray-850" />
 
     <GroupModal
       custom={false}

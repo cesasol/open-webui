@@ -152,7 +152,7 @@
             <textarea
               bind:this={textCompletionAreaElement}
               id="text-completion-textarea"
-              class="w-full h-full p-3 bg-transparent border border-gray-50 dark:border-gray-850 outline-hidden resize-none rounded-lg text-sm"
+              class="w-full h-full p-3 bg-transparent border border-gray-100 dark:border-gray-850 outline-hidden resize-none rounded-lg text-sm"
               placeholder={$i18n.t("You're a helpful assistant.")}
               bind:value={text}
             />

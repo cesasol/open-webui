@@ -165,7 +165,7 @@
           </div>
 
           {#if documentIdx !== mergedDocuments.length - 1}
-            <hr class=" dark:border-gray-850 my-3" />
+            <hr class="border-gray-100 dark:border-gray-850 my-3" />
           {/if}
         {/each}
       </div>

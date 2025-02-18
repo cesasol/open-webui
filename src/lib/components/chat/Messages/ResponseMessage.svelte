@@ -15,7 +15,7 @@
   import { getChatById } from '$lib/apis/chats';
   import { generateTags } from '$lib/apis';
 
-  import { config, models, settings, TTSWorker, user } from '$lib/stores';
+  import { config, models, settings, temporaryChatEnabled, TTSWorker, user } from '$lib/stores';
   import { synthesizeOpenAISpeech } from '$lib/apis/audio';
   import { imageGenerations } from '$lib/apis/images';
   import {
@@ -37,6 +37,9 @@
   import Spinner from '$lib/components/common/Spinner.svelte';
   import WebSearchResults from './ResponseMessage/WebSearchResults.svelte';
   import Sparkles from '$lib/components/icons/Sparkles.svelte';
+
+  import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+
   import Error from './Error.svelte';
   import Citations from './Citations.svelte';
   import CodeExecutions from './CodeExecutions.svelte';
@@ -125,6 +128,8 @@
 
   export let isLastMessage = true;
   export let readOnly = false;
+
+  let showDeleteConfirm = false;
 
   let model = null;
   $: model = $models.find((m) => m.id === message.model);
@@ -515,6 +520,14 @@
     await tick();
   });
 </script>
+
+<DeleteConfirmDialog
+  title={$i18n.t('Delete message?')}
+  bind:show={showDeleteConfirm}
+  on:confirm={() => {
+    deleteMessageHandler();
+  }}
+/>
 
 {#key message.id}
   <div
@@ -1134,7 +1147,7 @@
                 {/if}
 
                 {#if !readOnly}
-                  {#if $config?.features.enable_message_rating ?? true}
+                  {#if !$temporaryChatEnabled && ($config?.features.enable_message_rating ?? true)}
                     <Tooltip
                       content={$i18n.t('Good Response')}
                       placement="bottom"
@@ -1303,7 +1316,7 @@
                           : 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition regenerate-response-button"
                         type="button"
                         on:click={() => {
-                          deleteMessageHandler();
+                          showDeleteConfirm = true;
                         }}
                       >
                         <svg

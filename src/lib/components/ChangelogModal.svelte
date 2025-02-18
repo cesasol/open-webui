@@ -5,7 +5,7 @@
   import { WEBUI_NAME, config, settings } from '$lib/stores';
 
   import { WEBUI_VERSION } from '$lib/constants';
-  import { getChangelog } from '$lib/apis';
+  import { getChangelog, type Changelog, ChangelogKeys } from '$lib/apis';
 
   import Modal from './common/Modal.svelte';
   import { updateUserSettings } from '$lib/apis/users';
@@ -13,8 +13,7 @@
   const i18n = getContext('i18n');
 
   export let show = false;
-
-  let changelog = null;
+  let changelog: Changelog | null = null;
 
   onMount(async () => {
     const res = await getChangelog();
@@ -38,8 +37,12 @@
       </div>
       <button
         class="self-center"
+        aria-label="Accept version"
+        type="button"
         on:click={() => {
-          localStorage.version = $config.version;
+          if ($config) {
+            localStorage.version = $config.version;
+          }
           show = false;
         }}
       >
@@ -66,15 +69,15 @@
     <div class=" overflow-y-scroll max-h-96 scrollbar-hidden">
       <div class="mb-3">
         {#if changelog}
-          {#each Object.keys(changelog) as version}
+          {#each Object.keys(changelog) as version (version)}
             <div class=" mb-3 pr-2">
               <div class="font-semibold text-xl mb-1 dark:text-white">
                 v{version} - {changelog[version].date}
               </div>
 
-              <hr class=" dark:border-gray-800 my-2" />
+              <hr class="border-gray-100 dark:border-gray-850 my-2" />
 
-              {#each Object.keys(changelog[version]).filter((section) => section !== 'date') as section}
+              {#each (Object.keys(changelog[version]) as ChangelogKeys[]).filter((section) => section !== 'date') as section  (section)}
                 <div class="">
                   <div
                     class="font-semibold uppercase text-xs {section === 'added'
@@ -91,7 +94,7 @@
                   </div>
 
                   <div class="my-2.5 px-1.5">
-                    {#each Object.keys(changelog[version][section]) as item}
+                    {#each Object.keys(changelog[version][section]) as item (item)}
                       <div class="text-sm mb-2">
                         <div class="font-semibold uppercase">
                           {changelog[version][section][item].title}
@@ -110,6 +113,7 @@
     <div class="flex justify-end pt-3 text-sm font-medium">
       <button
         class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+        type="button"
         on:click={async () => {
           localStorage.version = $config.version;
           await settings.set({ ...$settings, ...{ version: $config.version } });

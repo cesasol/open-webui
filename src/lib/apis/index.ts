@@ -964,7 +964,11 @@ export const getBackendConfig = async () => {
 	return res;
 };
 
-export const getChangelog = async () => {
+export type ChangelogKeys = 'date' | 'added' | 'changed' | 'fixed' | 'removed'
+
+export type Changelog = Record<string, Record<ChangelogKeys, Record<string, {title: string, content: string}>>> 
+
+export const getChangelog = async (): Promise<Changelog> => {
 	let error = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/changelog`, {

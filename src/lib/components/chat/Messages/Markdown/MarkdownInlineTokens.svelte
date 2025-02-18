@@ -19,7 +19,7 @@
   export let onSourceClick: Function = () => {};
 </script>
 
-{#each tokens as token (token)}
+{#each tokens as token}
   {#if token.type === 'escape'}
     {unescapeHtml(token.text)}
   {:else if token.type === 'html'}
@@ -64,21 +64,17 @@
       src={token.href}
     />
   {:else if token.type === 'strong'}
-    <strong>
-      <svelte:self
-        id={`${id}-strong`}
-        {onSourceClick}
-        tokens={token.tokens}
-      />
-    </strong>
+    <strong><svelte:self
+      id={`${id}-strong`}
+      {onSourceClick}
+      tokens={token.tokens}
+    /></strong>
   {:else if token.type === 'em'}
-    <em>
-      <svelte:self
-        id={`${id}-em`}
-        {onSourceClick}
-        tokens={token.tokens}
-      />
-    </em>
+    <em><svelte:self
+      id={`${id}-em`}
+      {onSourceClick}
+      tokens={token.tokens}
+    /></em>
   {:else if token.type === 'codespan'}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
@@ -92,13 +88,11 @@
   {:else if token.type === 'br'}
     <br />
   {:else if token.type === 'del'}
-    <del>
-      <svelte:self
-        id={`${id}-del`}
-        {onSourceClick}
-        tokens={token.tokens}
-      />
-    </del>
+    <del><svelte:self
+      id={`${id}-del`}
+      {onSourceClick}
+      tokens={token.tokens}
+    /></del>
   {:else if token.type === 'inlineKatex'}
     {#if token.text}
       <KatexRenderer
@@ -109,15 +103,11 @@
   {:else if token.type === 'iframe'}
     <iframe
       frameborder="0"
+      onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
       src="{WEBUI_BASE_URL}/api/v1/files/{token.fileId}/content"
       title={token.fileId}
       width="100%"
-      on:load={(e) => {
-        e.currentTarget.style.height=(e.currentTarget.contentWindow.document.body.scrollHeight+20)+'px';
-      }}
-    >
-      <!--  -->
-    </iframe>
+    />
   {:else if token.type === 'text'}
     {token.raw}
   {/if}

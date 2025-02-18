@@ -66,7 +66,7 @@
         </svg>
       </button>
     </div>
-    <hr class=" dark:border-gray-800" />
+    <hr class="border-gray-100 dark:border-gray-850" />
 
     <div class="flex flex-col md:flex-row w-full p-5 md:space-x-4 dark:text-gray-200">
       <div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
@@ -95,7 +95,7 @@
             </div>
           </div>
 
-          <hr class=" dark:border-gray-800 my-3 w-full" />
+          <hr class="border-gray-100 dark:border-gray-850 my-3 w-full" />
 
           <div class=" flex flex-col space-y-1.5">
             <div class="flex flex-col w-full">

@@ -259,7 +259,7 @@
         </button>
       </div>
     {:else}
-      <div class="py-1 flex dark:text-gray-100 bg-gray-50 dark:bg-gray-800 border dark:border-gray-800 w-72 rounded-full shadow-xl">
+      <div class="py-1 flex dark:text-gray-100 bg-gray-50 dark:bg-gray-800 border dark:border-gray-850 w-72 rounded-full shadow-xl">
         <input
           id="floating-message-input"
           class="ml-5 bg-transparent outline-hidden w-full flex-1 text-sm"

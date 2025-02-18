@@ -201,7 +201,7 @@
             </div>
           </div>
 
-          <hr class=" dark:border-gray-850 my-2" />
+          <hr class="border-gray-100 dark:border-gray-850 my-2" />
 
           <div>
             <div class=" mb-1.5 text-sm font-medium">{$i18n.t('STT Model')}</div>
@@ -230,7 +230,7 @@
             </div>
           </div>
 
-          <hr class=" dark:border-gray-850 my-2" />
+          <hr class="border-gray-100 dark:border-gray-850 my-2" />
 
           <div>
             <div class=" mb-1.5 text-sm font-medium">{$i18n.t('STT Model')}</div>
@@ -335,7 +335,7 @@
         {/if}
       </div>
 
-      <hr class=" dark:border-gray-800" />
+      <hr class="border-gray-100 dark:border-gray-850" />
 
       <div>
         <div class=" mb-1 text-sm font-medium">{$i18n.t('TTS Settings')}</div>
@@ -416,7 +416,7 @@
           </div>
         {/if}
 
-        <hr class=" dark:border-gray-850 my-2" />
+        <hr class="border-gray-100 dark:border-gray-850 my-2" />
 
         {#if TTS_ENGINE === ''}
           <div>
@@ -616,7 +616,7 @@
           </div>
         {/if}
 
-        <hr class="dark:border-gray-850 my-2" />
+        <hr class="border-gray-100 dark:border-gray-850 my-2" />
 
         <div class="pt-0.5 flex w-full justify-between">
           <div class="self-center text-xs font-medium">{$i18n.t('Response splitting')}</div>

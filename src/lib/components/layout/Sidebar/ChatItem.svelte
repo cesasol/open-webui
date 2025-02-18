@@ -287,7 +287,10 @@
       on:focus={(e) => {}}
     >
       <div class=" flex self-center flex-1 w-full">
-        <div class=" text-left self-center overflow-hidden w-full h-[20px]">
+        <div
+          class="text-left self-center overflow-hidden w-full h-[20px]"
+          dir="auto"
+        >
           {title}
         </div>
       </div>

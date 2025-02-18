@@ -1,35 +1,38 @@
 <script lang="ts">
   import { SvelteFlowProvider } from '@xyflow/svelte';
+  import { slide } from 'svelte/transition';
   import { Pane, PaneResizer } from 'paneforge';
 
   import { onDestroy, onMount, tick } from 'svelte';
-  import { showControls, showCallOverlay, showOverview, showArtifacts } from '$lib/stores';
+  import { mobile, showControls, showCallOverlay, showOverview, showArtifacts } from '$lib/stores';
 
+  import Modal from '../common/Modal.svelte';
   import Controls from './Controls/Controls.svelte';
   import CallOverlay from './MessageInput/CallOverlay.svelte';
   import Drawer from '../common/Drawer.svelte';
   import Overview from './Overview.svelte';
   import EllipsisVertical from '../icons/EllipsisVertical.svelte';
   import Artifacts from './Artifacts.svelte';
+  import { min } from '@floating-ui/utils';
 
   export let history;
-  export let models: string[] = [];
+  export let models = [];
 
   export let chatId = null;
 
-  export let chatFiles: string[] = [];
+  export let chatFiles = [];
   export let params = {};
 
   export let eventTarget: EventTarget;
   export let submitPrompt: Function;
   export let stopResponse: Function;
   export let showMessage: Function;
-  export let files: string[];
+  export let files;
   export let modelId;
 
-  export let pane: Pane;
+  export let pane;
 
-  let mediaQuery: string = '';
+  let mediaQuery;
   let largeScreen = false;
   let dragged = false;
 
@@ -225,7 +228,7 @@
           <div
             class="w-full {($showOverview || $showArtifacts) && !$showCallOverlay
               ? ' '
-              : 'px-4 py-4 bg-white dark:shadow-lg dark:bg-gray-850  border border-gray-50 dark:border-gray-850'}  rounded-xl z-40 pointer-events-auto overflow-y-auto scrollbar-hidden"
+              : 'px-4 py-4 bg-white dark:shadow-lg dark:bg-gray-850  border border-gray-100 dark:border-gray-850'}  rounded-xl z-40 pointer-events-auto overflow-y-auto scrollbar-hidden"
           >
             {#if $showCallOverlay}
               <div class="w-full h-full flex justify-center">

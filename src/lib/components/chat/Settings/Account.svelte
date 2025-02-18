@@ -210,7 +210,7 @@
             <button
               class=" text-xs text-center text-gray-800 dark:text-gray-400 rounded-full px-4 py-0.5 bg-gray-100 dark:bg-gray-850"
               on:click={async () => {
-                const url = await getGravatarUrl($user.email);
+                const url = await getGravatarUrl(localStorage.token, $user.email);
 
                 profileImageUrl = url;
               }}
@@ -262,7 +262,7 @@
       <UpdatePassword />
     </div>
 
-    <hr class=" dark:border-gray-850 my-4" />
+    <hr class="border-gray-100 dark:border-gray-850 my-4" />
 
     <div class="flex justify-between items-center text-sm">
       <div class="  font-medium">{$i18n.t('API keys')}</div>

@@ -4,6 +4,7 @@
   import Textarea from '$lib/components/common/Textarea.svelte';
   import { toast } from 'svelte-sonner';
   import Tooltip from '$lib/components/common/Tooltip.svelte';
+  import AccessControl from '../common/AccessControl.svelte';
   import LockClosed from '$lib/components/icons/LockClosed.svelte';
   import AccessControlModal from '../common/AccessControlModal.svelte';
 
@@ -68,9 +69,9 @@
 </script>
 
 <AccessControlModal
-  accessRoles={['read', 'write']}
   bind:show={showAccessControlModal}
   bind:accessControl
+  accessRoles={['read', 'write']}
 />
 
 <div class="w-full max-h-full flex justify-center">
@@ -95,8 +96,8 @@
             <input
               class="text-2xl font-semibold w-full bg-transparent outline-hidden"
               placeholder={$i18n.t('Title')}
-              required
               bind:value={title}
+              required
             />
 
             <div class="self-center shrink-0">
@@ -107,10 +108,7 @@
                   showAccessControlModal = true;
                 }}
               >
-                <LockClosed
-                  className="size-3.5"
-                  strokeWidth="2.5"
-                />
+                <LockClosed className="size-3.5" strokeWidth="2.5" />
 
                 <div class="text-sm font-medium shrink-0">
                   {$i18n.t('Access')}
@@ -123,10 +121,10 @@
             <div class="">/</div>
             <input
               class=" w-full bg-transparent outline-hidden"
-              disabled={edit}
               placeholder={$i18n.t('Command')}
-              required
               bind:value={command}
+              required
+              disabled={edit}
             />
           </div>
         </div>
@@ -143,18 +141,19 @@
           <Textarea
             className="text-sm w-full bg-transparent outline-hidden overflow-y-hidden resize-none"
             placeholder={$i18n.t('Write a summary in 50 words that summarizes [topic or keyword].')}
-            required
-            rows={6}
             bind:value={content}
+            rows={6}
+            required
           />
         </div>
 
         <div class="text-xs text-gray-400 dark:text-gray-500">
-          ⓘ {$i18n.t('Format your variables using brackets like this:')}&nbsp;<span class=" text-gray-600 dark:text-gray-300 font-medium">&lbrace;&lbrace;{$i18n.t('variable')}&rbrace;&rbrace;</span>.
+          ⓘ {$i18n.t('Format your variables using brackets like this:')}&nbsp;<span class=" text-gray-600 dark:text-gray-300 font-medium"
+          >{{{$i18n.t('variable')}}}</span>.
           {$i18n.t('Make sure to enclose them with')}
-          <span class=" text-gray-600 dark:text-gray-300 font-medium">&lbrace;&lbrace;</span>
+          <span class=" text-gray-600 dark:text-gray-300 font-medium">{{</span>
           {$i18n.t('and')}
-          <span class=" text-gray-600 dark:text-gray-300 font-medium">&rbrace;&rbrace;</span>.
+          <span class=" text-gray-600 dark:text-gray-300 font-medium">}}</span>.
         </div>
 
         <div class="text-xs text-gray-400 dark:text-gray-500">
@@ -170,8 +169,8 @@
         class=" text-sm w-full lg:w-fit px-4 py-2 transition rounded-lg {loading
           ? ' cursor-not-allowed bg-black hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black'
           : 'bg-black hover:bg-gray-900 text-white dark:bg-white dark:hover:bg-gray-100 dark:text-black'} flex w-full justify-center"
-        disabled={loading}
         type="submit"
+        disabled={loading}
       >
         <div class=" self-center font-medium">{$i18n.t('Save & Create')}</div>
 
@@ -179,8 +178,8 @@
           <div class="ml-1.5 self-center">
             <svg
               class=" w-4 h-4"
-              fill="currentColor"
               viewBox="0 0 24 24"
+              fill="currentColor"
               xmlns="http://www.w3.org/2000/svg"
             ><style>
 								.spinner_ajPY {
@@ -196,8 +195,8 @@
                 d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
                 opacity=".25"
               /><path
-                class="spinner_ajPY"
                 d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
+                class="spinner_ajPY"
               /></svg>
           </div>
         {/if}

@@ -74,7 +74,7 @@
 <!-- {JSON.stringify(tokens)} -->
 {#each tokens as token, tokenIdx (tokenIdx)}
   {#if token.type === 'hr'}
-    <hr class=" border-gray-50 dark:border-gray-850" />
+    <hr class=" border-gray-100 dark:border-gray-850" />
   {:else if token.type === 'heading'}
     <svelte:element this={headerComponent(token.depth)}>
       <MarkdownInlineTokens
@@ -112,10 +112,10 @@
         <table class=" w-full text-sm text-left text-gray-500 dark:text-gray-400 max-w-full rounded-xl">
           <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-850 dark:text-gray-400 border-none">
             <tr class="">
-              {#each token.header as header, headerIdx (headerIdx)}
+              {#each token.header as header, headerIdx}
                 <th
                   style={token.align[headerIdx] ? '' : `text-align: ${token.align[headerIdx]}`}
-                  class="px-3! py-1.5! cursor-pointer border border-gray-50 dark:border-gray-850"
+                  class="px-3! py-1.5! cursor-pointer border border-gray-100 dark:border-gray-850"
                   scope="col"
                 >
                   <div class="flex flex-col gap-1.5 text-left">
@@ -132,12 +132,12 @@
             </tr>
           </thead>
           <tbody>
-            {#each token.rows as row, rowIdx (rowIdx)}
+            {#each token.rows as row, rowIdx}
               <tr class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs">
-                {#each row ?? [] as cell, cellIdx (cellIdx)}
+                {#each row ?? [] as cell, cellIdx}
                   <td
                     style={token.align[cellIdx] ? '' : `text-align: ${token.align[cellIdx]}`}
-                    class="px-3! py-1.5! text-gray-900 dark:text-white w-max border border-gray-50 dark:border-gray-850"
+                    class="px-3! py-1.5! text-gray-900 dark:text-white w-max border border-gray-100 dark:border-gray-850"
                   >
                     <div class="flex flex-col break-normal">
                       <MarkdownInlineTokens
@@ -158,7 +158,6 @@
         <Tooltip content={$i18n.t('Export to CSV')}>
           <button
             class="p-1 rounded-lg bg-transparent transition"
-            type="button"
             on:click={(e) => {
               e.stopPropagation();
               exportTableToCSVHandler(token, tokenIdx);
@@ -173,7 +172,7 @@
       </div>
     </div>
   {:else if token.type === 'blockquote'}
-    <blockquote>
+    <blockquote dir="auto">
       <svelte:self
         id={`${id}-${tokenIdx}`}
         {onSourceClick}
@@ -184,8 +183,8 @@
   {:else if token.type === 'list'}
     {#if token.ordered}
       <ol start={token.start || 1}>
-        {#each token.items as item, itemIdx (itemIdx)}
-          <li>
+        {#each token.items as item, itemIdx}
+          <li dir="auto">
             {#if item?.task}
               <input
                 class=" translate-y-[1px] -translate-x-1"
@@ -216,8 +215,8 @@
       </ol>
     {:else}
       <ul>
-        {#each token.items as item, itemIdx (itemIdx)}
-          <li>
+        {#each token.items as item, itemIdx}
+          <li dir="auto">
             {#if item?.task}
               <input
                 class=" translate-y-[1px] -translate-x-1"
@@ -230,7 +229,7 @@
                     tokenIdx: tokenIdx,
                     item: item,
                     itemIdx: itemIdx,
-                    checked: e.currentTarget.checked
+                    checked: e.target.checked
                   });
                 }}
               />
@@ -278,18 +277,13 @@
   {:else if token.type === 'iframe'}
     <iframe
       frameborder="0"
+      onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
       src="{WEBUI_BASE_URL}/api/v1/files/{token.fileId}/content"
       title={token.fileId}
       width="100%"
-      on:load={(e) => {
-        e.currentTarget.style.height=(e.currentTarget.contentWindow.document.body.scrollHeight+20)+'px';
-      }}
-    >
-      <!--  -->
-    </iframe>
-
+    />
   {:else if token.type === 'paragraph'}
-    <p>
+    <p dir="auto">
       <MarkdownInlineTokens
         id={`${id}-${tokenIdx}-p`}
         {onSourceClick}
@@ -298,7 +292,7 @@
     </p>
   {:else if token.type === 'text'}
     {#if top}
-      <p>
+      <p dir="auto">
         {#if token.tokens}
           <MarkdownInlineTokens
             id={`${id}-${tokenIdx}-t`}
