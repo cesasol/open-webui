@@ -35,6 +35,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.36.2
         version: 6.36.2
+      '@floating-ui/utils':
+        specifier: ^0.2.9
+        version: 0.2.9
       '@huggingface/transformers':
         specifier: ^3.0.0
         version: 3.3.3

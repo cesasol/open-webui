@@ -48,7 +48,7 @@
   let createModelObject = '';
 
   let createModelDigest = '';
-  let createModelPullProgress = null;
+  let createModelPullProgress: null | number = null;
 
   let digest = '';
   let pullProgress = null;
@@ -571,24 +571,26 @@
             </div>
 
             <div>
-              <Tooltip content="Update All Models"
-placement="top">
+              <Tooltip
+                content="Update All Models"
+                placement="top"
+              >
                 <button
                   class="flex gap-2 items-center bg-transparent rounded-lg transition"
+                  aria-label="Update all models"
+                  type="button"
                   on:click={() => {
                     updateModelsHandler();
                   }}
                 >
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
                     class="w-4 h-4"
+                    fill="currentColor"
+                    viewBox="0 0 16 16"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <path d="M7 1a.75.75 0 0 1 .75.75V6h-1.5V1.75A.75.75 0 0 1 7 1ZM6.25 6v2.94L5.03 7.72a.75.75 0 0 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0l2.5-2.5a.75.75 0 1 0-1.06-1.06L7.75 8.94V6H10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2.25Z"
-                    />
-                    <path d="M4.268 14A2 2 0 0 0 6 15h6a2 2 0 0 0 2-2v-3a2 2 0 0 0-1-1.732V11a3 3 0 0 1-3 3H4.268Z"
-                    />
+                    <path d="M7 1a.75.75 0 0 1 .75.75V6h-1.5V1.75A.75.75 0 0 1 7 1ZM6.25 6v2.94L5.03 7.72a.75.75 0 0 0-1.06 1.06l2.5 2.5a.75.75 0 0 0 1.06 0l2.5-2.5a.75.75 0 1 0-1.06-1.06L7.75 8.94V6H10a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2.25Z" />
+                    <path d="M4.268 14A2 2 0 0 0 6 15h6a2 2 0 0 0 2-2v-3a2 2 0 0 0-1-1.732V11a3 3 0 0 1-3 3H4.268Z" />
                   </svg>
                 </button>
               </Tooltip>
@@ -606,17 +608,18 @@ placement="top">
             </div>
             <button
               class="px-2.5 bg-gray-50 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
+              disabled={modelTransferring}
+              type="button"
               on:click={() => {
                 pullModelHandler();
               }}
-              disabled={modelTransferring}
             >
               {#if modelTransferring}
                 <div class="self-center">
                   <svg
                     class=" w-4 h-4"
-                    viewBox="0 0 24 24"
                     fill="currentColor"
+                    viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <style>
@@ -636,22 +639,20 @@ placement="top">
                       opacity=".25"
                     />
                     <path
-                      d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
                       class="spinner_ajPY"
+                      d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
                     />
                   </svg>
                 </div>
               {:else}
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
                   class="w-4 h-4"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z"
-                  />
-                  <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z"
-                  />
+                  <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
+                  <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                 </svg>
               {/if}
             </button>
@@ -663,7 +664,7 @@ placement="top">
               class=" text-gray-500 dark:text-gray-300 font-medium underline"
               href="https://ollama.com/library"
               target="_blank"
->{$i18n.t('click here.')}</a>
+            >{$i18n.t('click here.')}</a>
           </div>
 
           {#if updateModelId}
@@ -673,7 +674,7 @@ placement="top">
           {/if}
 
           {#if Object.keys($MODEL_DOWNLOAD_POOL).length > 0}
-            {#each Object.keys($MODEL_DOWNLOAD_POOL) as model}
+            {#each Object.keys($MODEL_DOWNLOAD_POOL) as model (model)}
               {#if 'pullProgress' in $MODEL_DOWNLOAD_POOL[model]}
                 <div class="flex flex-col">
                   <div class="font-medium mb-1">{model}</div>
@@ -681,11 +682,11 @@ placement="top">
                     <div class="flex flex-row justify-between space-x-4 pr-2">
                       <div class=" flex-1">
                         <div
-                          class="dark:bg-gray-600 bg-gray-500 text-xs font-medium text-gray-100 text-center p-0.5 leading-none rounded-full"
-                          style="width: {Math.max(
+                          style:width="{Math.max(
                             15,
                             $MODEL_DOWNLOAD_POOL[model].pullProgress ?? 0
                           )}%"
+                          class="dark:bg-gray-600 bg-gray-500 text-xs font-medium text-gray-100 text-center p-0.5 leading-none rounded-full"
                         >
                           {$MODEL_DOWNLOAD_POOL[model].pullProgress ?? 0}%
                         </div>
@@ -694,6 +695,8 @@ placement="top">
                       <Tooltip content={$i18n.t('Cancel')}>
                         <button
                           class="text-gray-800 dark:text-gray-100"
+                          aria-label="Cancel"
+                          type="button"
                           on:click={() => {
                             cancelModelPullHandler(model);
                           }}
@@ -701,25 +704,28 @@ placement="top">
                           <svg
                             class="w-4 h-4 text-gray-800 dark:text-white"
                             aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
                             fill="currentColor"
+                            height="24"
                             viewBox="0 0 24 24"
+                            width="24"
+                            xmlns="http://www.w3.org/2000/svg"
                           >
                             <path
+                              d="M6 18 17.94 6M18 18 6.06 6"
                               stroke="currentColor"
                               stroke-linecap="round"
                               stroke-linejoin="round"
                               stroke-width="2"
-                              d="M6 18 17.94 6M18 18 6.06 6"
                             />
                           </svg>
                         </button>
                       </Tooltip>
                     </div>
                     {#if 'digest' in $MODEL_DOWNLOAD_POOL[model]}
-                      <div style="font-size: 0.5rem;" class="mt-1 text-xs dark:text-gray-500">
+                      <div
+                        style:font-size="0.5rem"
+                        class="mt-1 text-xs dark:text-gray-500"
+                      >
                         {$MODEL_DOWNLOAD_POOL[model].digest}
                       </div>
                     {/if}
@@ -733,38 +739,45 @@ placement="top">
         <div>
           <div class=" mb-2 text-sm font-medium">{$i18n.t('Delete a model')}</div>
           <div class="flex w-full">
-            <div class="flex-1 mr-2 pr-1.5 rounded-lg bg-gray-50 dark:text-gray-300 dark:bg-gray-850"
-            >
+            <div class="flex-1 mr-2 pr-1.5 rounded-lg bg-gray-50 dark:text-gray-300 dark:bg-gray-850">
               <select
                 class="w-full py-2 px-4 text-sm outline-hidden bg-transparent"
-                bind:value={deleteModelTag}
                 placeholder={$i18n.t('Select a model')}
+                bind:value={deleteModelTag}
               >
                 {#if !deleteModelTag}
-                  <option disabled value="" selected>{$i18n.t('Select a model')}</option>
+                  <option
+                    disabled
+                    selected
+                    value=""
+                  >{$i18n.t('Select a model')}</option>
                 {/if}
-                {#each ollamaModels as model}
-                  <option class="bg-gray-50 dark:bg-gray-700" value={model.id}
+                {#each ollamaModels as model (model.name)}
+                  <option
+                    class="bg-gray-50 dark:bg-gray-700"
+                    value={model.id}
                   >{model.name + ' (' + (model.size / 1024 ** 3).toFixed(1) + ' GB)'}</option>
                 {/each}
               </select>
             </div>
             <button
               class="px-2.5 bg-gray-50 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
+              aria-label="Delete model"
+              type="button"
               on:click={() => {
                 showModelDeleteConfirm = true;
               }}
             >
               <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 16 16"
-                fill="currentColor"
                 class="w-4 h-4"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
-                  fill-rule="evenodd"
-                  d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z"
                   clip-rule="evenodd"
+                  d="M5 3.25V4H2.75a.75.75 0 0 0 0 1.5h.3l.815 8.15A1.5 1.5 0 0 0 5.357 15h5.285a1.5 1.5 0 0 0 1.493-1.35l.815-8.15h.3a.75.75 0 0 0 0-1.5H11v-.75A2.25 2.25 0 0 0 8.75 1h-1.5A2.25 2.25 0 0 0 5 3.25Zm2.25-.75a.75.75 0 0 0-.75.75V4h3v-.75a.75.75 0 0 0-.75-.75h-1.5ZM6.05 6a.75.75 0 0 1 .787.713l.275 5.5a.75.75 0 0 1-1.498.075l-.275-5.5A.75.75 0 0 1 6.05 6Zm3.9 0a.75.75 0 0 1 .712.787l-.275 5.5a.75.75 0 0 1-1.498-.075l.275-5.5a.75.75 0 0 1 .786-.711Z"
+                  fill-rule="evenodd"
                 />
               </svg>
             </button>
@@ -777,40 +790,43 @@ placement="top">
             <div class="flex-1 mr-2 flex flex-col gap-2">
               <input
                 class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+                disabled={createModelLoading}
                 placeholder={$i18n.t('Enter model tag (e.g. {{modelTag}})', {
                   modelTag: 'my-modelfile'
                 })}
                 bind:value={createModelName}
-                disabled={createModelLoading}
               />
 
               <textarea
-                bind:value={createModelObject}
                 class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-100 dark:bg-gray-850 outline-hidden resize-none scrollbar-hidden"
-                rows="6"
-                placeholder="e.g. {&quot;model&quot;: &quot;my-modelfile&quot;, &quot;from&quot;: &quot;ollama:7b&quot;})"
                 disabled={createModelLoading}
-              />
+                placeholder="e.g. &#123;&quot;model&quot;: &quot;my-modelfile&quot;, &quot;from&quot;: &quot;ollama:7b&quot;&#125;)"
+                rows="6"
+                bind:value={createModelObject}
+              >
+            <!--  -->
+              </textarea>
+
             </div>
 
             <div class="flex self-start">
               <button
                 class="px-2.5 py-2.5 bg-gray-50 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition disabled:cursor-not-allowed"
+                aria-label="Create model"
+                disabled={createModelLoading}
+                type="button"
                 on:click={() => {
                   createModelHandler();
                 }}
-                disabled={createModelLoading}
               >
                 <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
                   class="size-4"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z"
-                  />
-                  <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z"
-                  />
+                  <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z" />
+                  <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                 </svg>
               </button>
             </div>
@@ -818,20 +834,23 @@ placement="top">
 
           {#if createModelDigest !== ''}
             <div class="flex flex-col mt-1">
-              <div class="font-medium mb-1">{createModelTag}</div>
+              <div class="font-medium mb-1">{createModelName}</div>
               <div class="">
                 <div class="flex flex-row justify-between space-x-4 pr-2">
                   <div class=" flex-1">
                     <div
-                      class="dark:bg-gray-600 bg-gray-500 text-xs font-medium text-gray-100 text-center p-0.5 leading-none rounded-full"
-                      style="width: {Math.max(15, createModelPullProgress ?? 0)}%"
+                    style:width="{Math.max(15, createModelPullProgress ?? 0)}%" 
+                      class="dark:bg-gray-600 bg-gray-500 text-xs font-medium text-gray-100 text-center p-0.5 leading-none rounded-full create-model__progress"
                     >
                       {createModelPullProgress ?? 0}%
                     </div>
                   </div>
                 </div>
                 {#if createModelDigest}
-                  <div style="font-size: 0.5rem;" class="mt-1 text-xs dark:text-gray-500">
+                  <div
+                    style:font-size="0.5rem"
+                    class="mt-1 text-xs dark:text-gray-500"
+                  >
                     {createModelDigest}
                   </div>
                 {/if}
@@ -849,7 +868,7 @@ placement="top">
               on:click={() => {
                 showExperimentalOllama = !showExperimentalOllama;
               }}
->{showExperimentalOllama ? $i18n.t('Hide') : $i18n.t('Show')}</button>
+            >{showExperimentalOllama ? $i18n.t('Hide') : $i18n.t('Show')}</button>
           </div>
         </div>
 
@@ -864,6 +883,7 @@ placement="top">
 
               <button
                 class="p-1 px-3 text-xs flex rounded-sm transition"
+                type="button"
                 on:click={() => {
                   if (modelUploadMode === 'file') {
                     modelUploadMode = 'url';
@@ -871,7 +891,6 @@ placement="top">
                     modelUploadMode = 'file';
                   }
                 }}
-                type="button"
               >
                 {#if modelUploadMode === 'file'}
                   <span class="ml-2 self-center">{$i18n.t('File Mode')}</span>
@@ -884,23 +903,26 @@ placement="top">
             <div class="flex w-full mb-1.5">
               <div class="flex flex-col w-full">
                 {#if modelUploadMode === 'file'}
-                  <div class="flex-1" class:mr-2={modelInputFile && modelInputFile.length > 0}>
+                  <div
+                    class="flex-1"
+                    class:mr-2={modelInputFile && modelInputFile.length > 0}
+                  >
                     <input
-                      id="model-upload-input"
                       bind:this={modelUploadInputElement}
+                      id="model-upload-input"
+                      accept=".gguf,.safetensors"
+                      hidden
+                      required
                       type="file"
                       bind:files={modelInputFile}
                       on:change={() => {
                         console.log(modelInputFile);
                       }}
-                      accept=".gguf,.safetensors"
-                      required
-                      hidden
                     />
 
                     <button
-                      type="button"
                       class="w-full rounded-lg text-left py-2 px-4 bg-gray-50 dark:text-gray-300 dark:bg-gray-850"
+                      type="button"
                       on:click={() => {
                         modelUploadInputElement.click();
                       }}
@@ -913,14 +935,18 @@ placement="top">
                     </button>
                   </div>
                 {:else}
-                  <div class="flex-1" class:mr-2={modelFileUrl !== ''}>
+                  <div
+                    class="flex-1"
+                    class:mr-2={modelFileUrl !== ''}
+                  >
                     <input
-                      class="w-full rounded-lg text-left py-2 px-4 bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden" class:mr-2={modelFileUrl !==
-											''}
-                      type="url"
-                      required
-                      bind:value={modelFileUrl}
+                      class="w-full rounded-lg text-left py-2 px-4 bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+                      class:mr-2={modelFileUrl !==
+                        ''}
                       placeholder={$i18n.t('Type Hugging Face Resolve (Download) URL')}
+                      required
+                      type="url"
+                      bind:value={modelFileUrl}
                     />
                   </div>
                 {/if}
@@ -929,15 +955,15 @@ placement="top">
               {#if (modelUploadMode === 'file' && modelInputFile && modelInputFile.length > 0) || (modelUploadMode === 'url' && modelFileUrl !== '')}
                 <button
                   class="px-2.5 bg-gray-50 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg disabled:cursor-not-allowed transition"
-                  type="submit"
                   disabled={modelTransferring}
+                  type="submit"
                 >
                   {#if modelTransferring}
                     <div class="self-center">
                       <svg
                         class=" w-4 h-4"
-                        viewBox="0 0 24 24"
                         fill="currentColor"
+                        viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <style>
@@ -957,22 +983,20 @@ placement="top">
                           opacity=".25"
                         />
                         <path
-                          d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
                           class="spinner_ajPY"
+                          d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
                         />
                       </svg>
                     </div>
                   {:else}
                     <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 16 16"
-                      fill="currentColor"
                       class="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                      <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z"
-                      />
-                      <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z"
-                      />
+                      <path d="M7.25 10.25a.75.75 0 0 0 1.5 0V4.56l2.22 2.22a.75.75 0 1 0 1.06-1.06l-3.5-3.5a.75.75 0 0 0-1.06 0l-3.5 3.5a.75.75 0 0 0 1.06 1.06l2.22-2.22v5.69Z" />
+                      <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
                     </svg>
                   {/if}
                 </button>
@@ -986,9 +1010,9 @@ placement="top">
                     {$i18n.t('Modelfile Content')}
                   </div>
                   <textarea
-                    bind:value={modelFileContent}
                     class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-100 dark:bg-gray-850 outline-hidden resize-none"
                     rows="6"
+                    bind:value={modelFileContent}
                   />
                 </div>
               </div>
@@ -999,7 +1023,7 @@ placement="top">
                 class=" text-gray-500 dark:text-gray-300 font-medium underline"
                 href="https://huggingface.co/models?search=gguf"
                 target="_blank"
->{$i18n.t('click here.')}</a>
+              >{$i18n.t('click here.')}</a>
             </div>
 
             {#if uploadMessage}
@@ -1008,13 +1032,16 @@ placement="top">
 
                 <div class="w-full rounded-full dark:bg-gray-800">
                   <div
+                    style:width="100%"
                     class="dark:bg-gray-600 bg-gray-500 text-xs font-medium text-gray-100 text-center p-0.5 leading-none rounded-full"
-                    style="width: 100%"
                   >
                     {uploadMessage}
                   </div>
                 </div>
-                <div style="font-size: 0.5rem;" class="mt-1 text-xs dark:text-gray-500">
+                <div
+                  style:font-size="0.5rem"
+                  class="mt-1 text-xs dark:text-gray-500"
+                >
                   {modelFileDigest}
                 </div>
               </div>
@@ -1024,13 +1051,16 @@ placement="top">
 
                 <div class="w-full rounded-full dark:bg-gray-800">
                   <div
+                    style:width="{Math.max(15, uploadProgress ?? 0)}%"
                     class="dark:bg-gray-600 bg-gray-500 text-xs font-medium text-gray-100 text-center p-0.5 leading-none rounded-full"
-                    style="width: {Math.max(15, uploadProgress ?? 0)}%"
                   >
                     {uploadProgress ?? 0}%
                   </div>
                 </div>
-                <div style="font-size: 0.5rem;" class="mt-1 text-xs dark:text-gray-500">
+                <div
+                  style:font-size="0.5rem"
+                  class="mt-1 text-xs dark:text-gray-500"
+                >
                   {modelFileDigest}
                 </div>
               </div>
@@ -1049,3 +1079,4 @@ placement="top">
     <Spinner />
   </div>
 {/if}
+

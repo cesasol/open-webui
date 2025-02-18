@@ -13,13 +13,14 @@
   import Image from '$lib/components/common/Image.svelte';
   import KatexRenderer from './KatexRenderer.svelte';
   import Source from './Source.svelte';
+  import Iframe from '$lib/components/common/Iframe.svelte';
 
   export let id: string;
   export let tokens: Token[];
   export let onSourceClick: Function = () => {};
 </script>
 
-{#each tokens as token}
+{#each tokens as token (token)}
   {#if token.type === 'escape'}
     {unescapeHtml(token.text)}
   {:else if token.type === 'html'}
@@ -40,7 +41,7 @@
     {#if token.tokens}
       <a
         href={token.href}
-        rel="nofollow"
+        rel="nofollow noopener noreferrer"
         target="_blank"
         title={token.title}
       >
@@ -53,7 +54,7 @@
     {:else}
       <a
         href={token.href}
-        rel="nofollow"
+        rel="nofollow noopener noreferrer"
         target="_blank"
         title={token.title}
       >{token.text}</a>
@@ -101,12 +102,9 @@
       />
     {/if}
   {:else if token.type === 'iframe'}
-    <iframe
-      frameborder="0"
-      onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
+    <Iframe
       src="{WEBUI_BASE_URL}/api/v1/files/{token.fileId}/content"
       title={token.fileId}
-      width="100%"
     />
   {:else if token.type === 'text'}
     {token.raw}

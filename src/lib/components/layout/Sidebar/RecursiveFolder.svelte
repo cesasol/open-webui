@@ -381,10 +381,12 @@
   >
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <div class="w-full group">
-      <button
+      <a
         id="folder-{folderId}-button"
         class="relative w-full py-1.5 px-2 rounded-md flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-500 font-medium hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-        on:dblclick={() => {
+        href="#"
+        on:dblclick={(e) => {
+          e.preventDefault()
           editHandler();
         }}
       >
@@ -433,7 +435,7 @@
           {/if}
         </div>
 
-        <button
+        <div
           class="absolute z-10 right-2 invisible group-hover:visible self-center flex items-center dark:text-gray-300"
           on:pointerup={(e) => {
             e.stopPropagation();
@@ -450,18 +452,15 @@
               exportHandler();
             }}
           >
-            <button
-              class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto"
-              on:click={(e) => {}}
-            >
+            <div class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto">
               <EllipsisHorizontal
                 className="size-4"
                 strokeWidth="2.5"
               />
-            </button>
+            </div>
           </FolderMenu>
-        </button>
-      </button>
+        </div>
+      </a>
     </div>
 
     <div

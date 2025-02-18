@@ -1,8 +1,7 @@
 <script lang="ts">
-  import { v4 as uuidv4 } from 'uuid';
+  import { Pane, PaneGroup } from 'paneforge';
   import { toast } from 'svelte-sonner';
-  import mermaid from 'mermaid';
-  import { PaneGroup, Pane, PaneResizer } from 'paneforge';
+  import { v4 as uuidv4 } from 'uuid';
 
   import { getContext, onDestroy, onMount, tick } from 'svelte';
   const i18n: Writable<i18nType> = getContext('i18n');
@@ -10,81 +9,72 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
 
-  import { get, type Unsubscriber, type Writable } from 'svelte/store';
-  import type { i18n as i18nType } from 'i18next';
   import { WEBUI_BASE_URL } from '$lib/constants';
+  import type { i18n as i18nType } from 'i18next';
+  import { type Unsubscriber, type Writable } from 'svelte/store';
 
   import {
+    tags as allTags,
+    banners,
     chatId,
     chats,
+    chatTitle,
     config,
+    currentChatPage,
+    mobile,
     type Model,
     models,
-    tags as allTags,
     settings,
-    showSidebar,
-    WEBUI_NAME,
-    banners,
-    user,
-    socket,
-    showControls,
-    showCallOverlay,
-    currentChatPage,
-    temporaryChatEnabled,
-    mobile,
-    showOverview,
-    chatTitle,
     showArtifacts,
-    tools
+    showCallOverlay,
+    showControls,
+    showOverview,
+    showSidebar,
+    socket,
+    temporaryChatEnabled,
+    tools,
+    user,
+    WEBUI_NAME
   } from '$lib/stores';
   import {
     convertMessagesToHistory,
     copyToClipboard,
-    getMessageContentParts,
     createMessagesList,
-    extractSentencesForAudio,
+    getMessageContentParts,
+    getPromptVariables,
     promptTemplate,
-    splitStream,
-    sleep,
-    removeDetails,
-    getPromptVariables
+    removeDetails
   } from '$lib/utils';
 
-  import { generateChatCompletion } from '$lib/apis/ollama';
   import {
-    addTagById,
+    chatAction,
+    chatCompleted,
+    generateMoACompletion,
+    stopTask
+  } from '$lib/apis';
+  import {
     createNewChat,
-    deleteTagById,
-    deleteTagsById,
     getAllTags,
     getChatById,
     getChatList,
     getTagsById,
     updateChatById
   } from '$lib/apis/chats';
-  import { generateOpenAIChatCompletion } from '$lib/apis/openai';
-  import { processWeb, processWebSearch, processYoutubeVideo } from '$lib/apis/retrieval';
-  import { createOpenAITextStream } from '$lib/apis/streaming';
   import { queryMemory } from '$lib/apis/memories';
-  import { getAndUpdateUserLocation, getUserSettings } from '$lib/apis/users';
-  import {
-    chatCompleted,
-    generateQueries,
-    chatAction,
-    generateMoACompletion,
-    stopTask
-  } from '$lib/apis';
+  import { generateOpenAIChatCompletion } from '$lib/apis/openai';
+  import { processWeb, processYoutubeVideo } from '$lib/apis/retrieval';
+  import { createOpenAITextStream } from '$lib/apis/streaming';
   import { getTools } from '$lib/apis/tools';
+  import { getAndUpdateUserLocation, getUserSettings } from '$lib/apis/users';
 
-  import Banner from '../common/Banner.svelte';
   import MessageInput from '$lib/components/chat/MessageInput.svelte';
   import Messages from '$lib/components/chat/Messages.svelte';
   import Navbar from '$lib/components/chat/Navbar.svelte';
-  import ChatControls from './ChatControls.svelte';
+  import Banner from '../common/Banner.svelte';
   import EventConfirmDialog from '../common/ConfirmDialog.svelte';
-  import Placeholder from './Placeholder.svelte';
-  import NotificationToast from '../NotificationToast.svelte';
   import Spinner from '../common/Spinner.svelte';
+  import ChatControls from './ChatControls.svelte';
+  import Placeholder from './Placeholder.svelte';
 
   export let chatIdProp = '';
 
@@ -95,7 +85,6 @@
   let controlPaneComponent;
 
   let autoScroll = true;
-  let processing = '';
   let messagesContainerElement: HTMLDivElement;
 
   let navbarElement;
@@ -120,7 +109,6 @@
   let webSearchEnabled = false;
   let codeInterpreterEnabled = false;
   let chat = null;
-  let tags = [];
 
   let history = {
     messages: {},
@@ -827,7 +815,7 @@
       messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
     }
   };
-  const chatCompletedHandler = async (chatId, modelId, responseMessageId, messages) => {
+  const chatCompletedHandler = async (oChatId, modelId, responseMessageId, messages) => {
     const res = await chatCompleted(localStorage.token, {
       model: modelId,
       messages: messages.map((m) => ({
@@ -839,7 +827,7 @@
         ...(m.sources ? { sources: m.sources } : {})
       })),
       model_item: $models.find((m) => m.id === modelId),
-      chat_id: chatId,
+      chat_id: oChatId,
       session_id: $socket?.id,
       id: responseMessageId
     }).catch((error) => {
@@ -867,9 +855,9 @@
 
     await tick();
 
-    if ($chatId == chatId) {
+    if ($chatId == oChatId) {
       if (!$temporaryChatEnabled) {
-        chat = await updateChatById(localStorage.token, chatId, {
+        chat = await updateChatById(localStorage.token, oChatId, {
           models: selectedModels,
           messages: messages,
           history: history,
@@ -883,7 +871,7 @@
     }
   };
 
-  const chatActionHandler = async (chatId, actionId, modelId, responseMessageId, event = null) => {
+  const chatActionHandler = async (oChatId, actionId, modelId, responseMessageId, event = null) => {
     const messages = createMessagesList(history, responseMessageId);
 
     const res = await chatAction(localStorage.token, actionId, {
@@ -898,7 +886,7 @@
       })),
       ...(event ? { event: event } : {}),
       model_item: $models.find((m) => m.id === modelId),
-      chat_id: chatId,
+      chat_id: oChatId,
       session_id: $socket?.id,
       id: responseMessageId
     }).catch((error) => {
@@ -920,9 +908,9 @@
       }
     }
 
-    if ($chatId == chatId) {
+    if ($chatId == oChatId) {
       if (!$temporaryChatEnabled) {
-        chat = await updateChatById(localStorage.token, chatId, {
+        chat = await updateChatById(localStorage.token, oChatId, {
           models: selectedModels,
           messages: messages,
           history: history,
@@ -1978,10 +1966,10 @@
                   {selectedModels}
                   {sendPrompt}
                   {showMessage}
+                  {submitMessage}
                   bind:history
                   bind:autoScroll
                   bind:prompt
-                  {submitMessage}
                 />
               </div>
             </div>

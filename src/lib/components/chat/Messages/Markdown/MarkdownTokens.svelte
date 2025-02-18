@@ -17,6 +17,7 @@
   import Collapsible from '$lib/components/common/Collapsible.svelte';
   import Tooltip from '$lib/components/common/Tooltip.svelte';
   import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
+  import Iframe from '$lib/components/common/Iframe.svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -275,12 +276,9 @@
       {token.text}
     {/if}
   {:else if token.type === 'iframe'}
-    <iframe
-      frameborder="0"
-      onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
+    <Iframe
       src="{WEBUI_BASE_URL}/api/v1/files/{token.fileId}/content"
       title={token.fileId}
-      width="100%"
     />
   {:else if token.type === 'paragraph'}
     <p dir="auto">

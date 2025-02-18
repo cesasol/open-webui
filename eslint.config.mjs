@@ -6,6 +6,7 @@ import * as svelteParser from 'svelte-eslint-parser';
 import * as typescriptParser from '@typescript-eslint/parser';
 import * as espree from 'espree';
 import globals from 'globals';
+import svelteConfig from './svelte.config.js';
 
 export default [
 	{
@@ -40,6 +41,7 @@ export default [
 		},
 		languageOptions: {
 			parser: svelteParser,
+			svelteConfig: svelteConfig,
 			parserOptions: {
 				parser: {
 					// Specify a parser for each lang.
