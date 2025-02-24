@@ -18,6 +18,14 @@ import { viteStaticCopy } from 'vite-plugin-static-copy';
 // };
 
 export default defineConfig({
+	server: {
+		proxy: {
+			'/api': {
+				target: 'localhost:8000',
+				changeOrigin: true,
+			}
+		}
+	},
 	plugins: [
 		sveltekit(),
 		viteStaticCopy({

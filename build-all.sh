@@ -1,7 +1,7 @@
 #!/bin/bash
 
 IMAGE_NAME="open-webui"
-VERSION="0.5.12"
+VERSION="0.5.14"
 IMAGE_TAG="$IMAGE_NAME:$VERSION"
 
 docker build -t "$IMAGE_TAG-rocm"   --build-arg RUNTIME_DEVICE=rocm .

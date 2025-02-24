@@ -14,7 +14,7 @@ services:
       args:
         OLLAMA_BASE_URL: '/ollama'
       dockerfile: Dockerfile
-    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG:-latest} # Default to cpu
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG:-0.5.14-cpu} # Default to cpu
     container_name: open-webui
     volumes:
       - open-webui:/app/backend/data

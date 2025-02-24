@@ -9,3 +9,5 @@ services:
               count: ${OLLAMA_GPU_COUNT-1}
               capabilities:
                 - gpu
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG:nvidia} # Default to cpu

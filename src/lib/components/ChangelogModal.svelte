@@ -5,7 +5,7 @@
   import { WEBUI_NAME, config, settings } from '$lib/stores';
 
   import { WEBUI_VERSION } from '$lib/constants';
-  import { getChangelog, type Changelog, ChangelogKeys } from '$lib/apis';
+  import { getChangelog, type Changelog, type ChangelogKeys } from '$lib/apis';
 
   import Modal from './common/Modal.svelte';
   import { updateUserSettings } from '$lib/apis/users';

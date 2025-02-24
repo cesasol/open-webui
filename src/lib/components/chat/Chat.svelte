@@ -96,6 +96,7 @@
   let eventConfirmationInputPlaceholder = '';
   let eventConfirmationInputValue = '';
   let eventCallback = null;
+  let tags = []
 
   let chatIdUnsubscriber: Unsubscriber | undefined;
 
