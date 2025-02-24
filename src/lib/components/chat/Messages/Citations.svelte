@@ -7,7 +7,8 @@
 
   const i18n = getContext('i18n');
 
-  export let sources = [];
+	export let id = '';
+	export let sources = [];
 
   let citations = [];
   let showPercentage = false;
@@ -100,8 +101,8 @@
       <div class="flex text-xs font-medium flex-wrap">
         {#each citations as citation, idx}
           <button
-            id={`source-${idx}`}
-            class="no-toggle outline-hidden flex dark:text-gray-300 p-1 bg-white dark:bg-gray-900 rounded-xl max-w-96"
+          id={`source-${id}-${idx}`}
+          class="no-toggle outline-hidden flex dark:text-gray-300 p-1 bg-white dark:bg-gray-900 rounded-xl max-w-96"
             on:click={() => {
               showCitationModal = true;
               selectedCitation = citation;

@@ -424,19 +424,21 @@
                 </div>
               {/if}
 
-              {#if webSearchEnabled || ($settings?.webSearch ?? false) === 'always'}
-                <div class="flex items-center justify-between w-full">
-                  <div class="flex items-center gap-2.5 text-sm dark:text-gray-500">
-                    <div class="pl-1">
-                      <span class="relative flex size-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                        <span class="relative inline-flex rounded-full size-2 bg-blue-500" />
-                      </span>
-                    </div>
-                    <div class=" translate-y-[0.5px]">{$i18n.t('Search the internet')}</div>
-                  </div>
-                </div>
-              {/if}
+							{#if webSearchEnabled || ($config?.features?.enable_web_search && ($settings?.webSearch ?? false)) === 'always'}
+								<div class="flex items-center justify-between w-full">
+									<div class="flex items-center gap-2.5 text-sm dark:text-gray-500">
+										<div class="pl-1">
+											<span class="relative flex size-2">
+												<span
+													class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"
+												/>
+												<span class="relative inline-flex rounded-full size-2 bg-blue-500" />
+											</span>
+										</div>
+										<div class=" translate-y-[0.5px]">{$i18n.t('Search the internet')}</div>
+									</div>
+								</div>
+							{/if}
 
               {#if imageGenerationEnabled}
                 <div class="flex items-center justify-between w-full">

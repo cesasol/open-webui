@@ -703,41 +703,40 @@
                       {$i18n.t('Cancel')}
                     </button>
 
-                    <button
-                      id="confirm-edit-message-button"
-                      class=" px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-850 text-gray-100 dark:text-gray-800 transition rounded-3xl"
-                      on:click={() => {
-                        editMessageConfirmHandler();
-                      }}
-                    >
-                      {$i18n.t('Save')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            {:else}
-              <div
-                id="response-content-container"
-                class="w-full flex flex-col relative"
-              >
-                {#if message.content === '' && !message.error}
-                  <Skeleton />
-                {:else if message.content && message.error !== true}
-                  <!-- always show message contents even if there's an error -->
-                  <!-- unless message.error === true which is legacy error handling, where the error message is stored in message.content -->
-                  <ContentRenderer
-                    id={message.id}
-                    content={message.content}
-                    floatingButtons={message?.done}
-                    {history}
-                    {model}
-                    onAddMessages={({ modelId, parentId, messages }) => {
-                      addMessages({ modelId, parentId, messages });
-                    }}
-                    onSourceClick={async (e) => {
-                      console.log(e);
-                      let sourceButton = document.getElementById(`source-${e}`);
-                      const sourcesCollapsible = document.getElementById(`collapsible-sources`);
+										<button
+											id="confirm-edit-message-button"
+											class=" px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-850 text-gray-100 dark:text-gray-800 transition rounded-3xl"
+											on:click={() => {
+												editMessageConfirmHandler();
+											}}
+										>
+											{$i18n.t('Save')}
+										</button>
+									</div>
+								</div>
+							</div>
+						{:else}
+							<div class="w-full flex flex-col relative" id="response-content-container">
+								{#if message.content === '' && !message.error}
+									<Skeleton />
+								{:else if message.content && message.error !== true}
+									<!-- always show message contents even if there's an error -->
+									<!-- unless message.error === true which is legacy error handling, where the error message is stored in message.content -->
+									<ContentRenderer
+										id={message.id}
+										{history}
+										content={message.content}
+										sources={message.sources}
+										floatingButtons={message?.done}
+										save={!readOnly}
+										{model}
+										onTaskClick={async (e) => {
+											console.log(e);
+										}}
+										onSourceClick={async (id, idx) => {
+											console.log(id, idx);
+											let sourceButton = document.getElementById(`source-${message.id}-${idx}`);
+											const sourcesCollapsible = document.getElementById(`collapsible-sources`);
 
                       if (sourceButton) {
                         sourceButton.click();
@@ -754,18 +753,16 @@
                           });
                         });
 
-                        // Try clicking the source button again
-                        sourceButton = document.getElementById(`source-${e}`);
-                        sourceButton && sourceButton.click();
-                      }
-                    }}
-                    onTaskClick={async (e) => {
-                      console.log(e);
-                    }}
-                    save={!readOnly}
-                    sources={message.sources}
-                    on:update={(e) => {
-                      const { raw, oldContent, newContent } = e.detail;
+												// Try clicking the source button again
+												sourceButton = document.getElementById(`source-${message.id}-${idx}`);
+												sourceButton && sourceButton.click();
+											}
+										}}
+										onAddMessages={({ modelId, parentId, messages }) => {
+											addMessages({ modelId, parentId, messages });
+										}}
+										on:update={(e) => {
+											const { raw, oldContent, newContent } = e.detail;
 
                       history.messages[message.id].content = history.messages[
                         message.id
@@ -793,9 +790,9 @@
                   <Error content={message?.error?.content ?? message.content} />
                 {/if}
 
-                {#if (message?.sources || message?.citations) && (model?.info?.meta?.capabilities?.citations ?? true)}
-                  <Citations sources={message?.sources ?? message?.citations} />
-                {/if}
+								{#if (message?.sources || message?.citations) && (model?.info?.meta?.capabilities?.citations ?? true)}
+									<Citations id={message?.id} sources={message?.sources ?? message?.citations} />
+								{/if}
 
                 {#if message.code_executions}
                   <CodeExecutions codeExecutions={message.code_executions} />

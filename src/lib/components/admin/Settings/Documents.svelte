@@ -22,13 +22,12 @@
   import { getKnowledgeBases } from '$lib/apis/knowledge';
   import { uploadDir, deleteAllFiles, deleteFileById } from '$lib/apis/files';
 
-  import ResetUploadDirConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-  import ResetVectorDBConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-  import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import { text } from '@sveltejs/kit';
-  import Textarea from '$lib/components/common/Textarea.svelte';
+	import ResetUploadDirConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import ResetVectorDBConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import Textarea from '$lib/components/common/Textarea.svelte';
 
   const i18n = getContext('i18n');
 
@@ -51,10 +50,12 @@
   let tikaServerUrl = '';
   let showTikaServerUrl = false;
 
-  let textSplitter = '';
-  let chunkSize = 0;
-  let chunkOverlap = 0;
-  let pdfExtractImages = true;
+	let textSplitter = '';
+	let chunkSize = 0;
+	let chunkOverlap = 0;
+	let pdfExtractImages = true;
+
+	let RAG_FULL_CONTEXT = false;
 
   let enableGoogleDriveIntegration = false;
 
@@ -171,27 +172,28 @@
       await rerankingModelUpdateHandler();
     }
 
-    if (contentExtractionEngine === 'tika' && tikaServerUrl === '') {
-      toast.error($i18n.t('Tika Server URL required.'));
-      return;
-    }
-    const res = await updateRAGConfig(localStorage.token, {
-      pdf_extract_images: pdfExtractImages,
-      enable_google_drive_integration: enableGoogleDriveIntegration,
-      file: {
-        max_size: fileMaxSize === '' ? null : fileMaxSize,
-        max_count: fileMaxCount === '' ? null : fileMaxCount
-      },
-      chunk: {
-        text_splitter: textSplitter,
-        chunk_overlap: chunkOverlap,
-        chunk_size: chunkSize
-      },
-      content_extraction: {
-        engine: contentExtractionEngine,
-        tika_server_url: tikaServerUrl
-      }
-    });
+		if (contentExtractionEngine === 'tika' && tikaServerUrl === '') {
+			toast.error($i18n.t('Tika Server URL required.'));
+			return;
+		}
+		const res = await updateRAGConfig(localStorage.token, {
+			pdf_extract_images: pdfExtractImages,
+			enable_google_drive_integration: enableGoogleDriveIntegration,
+			file: {
+				max_size: fileMaxSize === '' ? null : fileMaxSize,
+				max_count: fileMaxCount === '' ? null : fileMaxCount
+			},
+			RAG_FULL_CONTEXT: RAG_FULL_CONTEXT,
+			chunk: {
+				text_splitter: textSplitter,
+				chunk_overlap: chunkOverlap,
+				chunk_size: chunkSize
+			},
+			content_extraction: {
+				engine: contentExtractionEngine,
+				tika_server_url: tikaServerUrl
+			}
+		});
 
     await updateQuerySettings(localStorage.token, querySettings);
 
@@ -238,9 +240,11 @@
     if (res) {
       pdfExtractImages = res.pdf_extract_images;
 
-      textSplitter = res.chunk.text_splitter;
-      chunkSize = res.chunk.chunk_size;
-      chunkOverlap = res.chunk.chunk_overlap;
+			textSplitter = res.chunk.text_splitter;
+			chunkSize = res.chunk.chunk_size;
+			chunkOverlap = res.chunk.chunk_overlap;
+
+			RAG_FULL_CONTEXT = res.RAG_FULL_CONTEXT;
 
       contentExtractionEngine = res.content_extraction.engine;
       tikaServerUrl = res.content_extraction.tika_server_url;
@@ -377,21 +381,34 @@
       <div class=" flex w-full justify-between">
         <div class=" self-center text-xs font-medium">{$i18n.t('Hybrid Search')}</div>
 
-        <button
-          class="p-1 px-3 text-xs flex rounded-sm transition"
-          type="button"
-          on:click={() => {
-            toggleHybridSearch();
-          }}
-        >
-          {#if querySettings.hybrid === true}
-            <span class="ml-2 self-center">{$i18n.t('On')}</span>
-          {:else}
-            <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-          {/if}
-        </button>
-      </div>
-    </div>
+				<button
+					class="p-1 px-3 text-xs flex rounded-sm transition"
+					on:click={() => {
+						toggleHybridSearch();
+					}}
+					type="button"
+				>
+					{#if querySettings.hybrid === true}
+						<span class="ml-2 self-center">{$i18n.t('On')}</span>
+					{:else}
+						<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+					{/if}
+				</button>
+			</div>
+
+			<div class=" py-0.5 flex w-full justify-between">
+				<div class=" self-center text-xs font-medium">{$i18n.t('Full Context Mode')}</div>
+				<div class="flex items-center relative">
+					<Tooltip
+						content={RAG_FULL_CONTEXT
+							? 'Inject entire contents as context for comprehensive processing, this is recommended for complex queries.'
+							: 'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'}
+					>
+						<Switch bind:state={RAG_FULL_CONTEXT} />
+					</Tooltip>
+				</div>
+			</div>
+		</div>
 
     <hr class="border-gray-100 dark:border-gray-850" />
 

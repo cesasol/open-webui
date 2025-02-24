@@ -74,259 +74,242 @@
 
 <!-- {JSON.stringify(tokens)} -->
 {#each tokens as token, tokenIdx (tokenIdx)}
-  {#if token.type === 'hr'}
-    <hr class=" border-gray-100 dark:border-gray-850" />
-  {:else if token.type === 'heading'}
-    <svelte:element this={headerComponent(token.depth)}>
-      <MarkdownInlineTokens
-        id={`${id}-${tokenIdx}-h`}
-        {onSourceClick}
-        tokens={token.tokens}
-      />
-    </svelte:element>
-  {:else if token.type === 'code'}
-    {#if token.raw.includes('```')}
-      <CodeBlock
-        id={`${id}-${tokenIdx}`}
-        {attributes}
-        code={token?.text ?? ''}
-        lang={token?.lang ?? ''}
-        {save}
-        {token}
-        on:code={(e) => {
-          dispatch('code', e.detail);
-        }}
-        on:save={(e) => {
-          dispatch('update', {
-            raw: token.raw,
-            oldContent: token.text,
-            newContent: e.detail
-          });
-        }}
-      />
-    {:else}
-      {token.text}
-    {/if}
-  {:else if token.type === 'table'}
-    <div class="relative w-full group">
-      <div class="scrollbar-hidden relative overflow-x-auto max-w-full rounded-lg">
-        <table class=" w-full text-sm text-left text-gray-500 dark:text-gray-400 max-w-full rounded-xl">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-850 dark:text-gray-400 border-none">
-            <tr class="">
-              {#each token.header as header, headerIdx}
-                <th
-                  style={token.align[headerIdx] ? '' : `text-align: ${token.align[headerIdx]}`}
-                  class="px-3! py-1.5! cursor-pointer border border-gray-100 dark:border-gray-850"
-                  scope="col"
-                >
-                  <div class="flex flex-col gap-1.5 text-left">
-                    <div class="shrink-0 break-normal">
-                      <MarkdownInlineTokens
-                        id={`${id}-${tokenIdx}-header-${headerIdx}`}
-                        {onSourceClick}
-                        tokens={header.tokens}
-                      />
-                    </div>
-                  </div>
-                </th>
-              {/each}
-            </tr>
-          </thead>
-          <tbody>
-            {#each token.rows as row, rowIdx}
-              <tr class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs">
-                {#each row ?? [] as cell, cellIdx}
-                  <td
-                    style={token.align[cellIdx] ? '' : `text-align: ${token.align[cellIdx]}`}
-                    class="px-3! py-1.5! text-gray-900 dark:text-white w-max border border-gray-100 dark:border-gray-850"
-                  >
-                    <div class="flex flex-col break-normal">
-                      <MarkdownInlineTokens
-                        id={`${id}-${tokenIdx}-row-${rowIdx}-${cellIdx}`}
-                        {onSourceClick}
-                        tokens={cell.tokens}
-                      />
-                    </div>
-                  </td>
-                {/each}
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
+	{#if token.type === 'hr'}
+		<hr class=" border-gray-100 dark:border-gray-850" />
+	{:else if token.type === 'heading'}
+		<svelte:element this={headerComponent(token.depth)} dir="auto">
+			<MarkdownInlineTokens id={`${id}-${tokenIdx}-h`} tokens={token.tokens} {onSourceClick} />
+		</svelte:element>
+	{:else if token.type === 'code'}
+		{#if token.raw.includes('```')}
+			<CodeBlock
+				id={`${id}-${tokenIdx}`}
+				{token}
+				lang={token?.lang ?? ''}
+				code={token?.text ?? ''}
+				{attributes}
+				{save}
+				on:code={(e) => {
+					dispatch('code', e.detail);
+				}}
+				on:save={(e) => {
+					dispatch('update', {
+						raw: token.raw,
+						oldContent: token.text,
+						newContent: e.detail
+					});
+				}}
+			/>
+		{:else}
+			{token.text}
+		{/if}
+	{:else if token.type === 'table'}
+		<div class="relative w-full group">
+			<div class="scrollbar-hidden relative overflow-x-auto max-w-full rounded-lg">
+				<table
+					class=" w-full text-sm text-left text-gray-500 dark:text-gray-400 max-w-full rounded-xl"
+				>
+					<thead
+						class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-850 dark:text-gray-400 border-none"
+					>
+						<tr class="">
+							{#each token.header as header, headerIdx}
+								<th
+									scope="col"
+									class="px-3! py-1.5! cursor-pointer border border-gray-100 dark:border-gray-850"
+									style={token.align[headerIdx] ? '' : `text-align: ${token.align[headerIdx]}`}
+								>
+									<div class="flex flex-col gap-1.5 text-left">
+										<div class="shrink-0 break-normal">
+											<MarkdownInlineTokens
+												id={`${id}-${tokenIdx}-header-${headerIdx}`}
+												tokens={header.tokens}
+												{onSourceClick}
+											/>
+										</div>
+									</div>
+								</th>
+							{/each}
+						</tr>
+					</thead>
+					<tbody>
+						{#each token.rows as row, rowIdx}
+							<tr class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs">
+								{#each row ?? [] as cell, cellIdx}
+									<td
+										class="px-3! py-1.5! text-gray-900 dark:text-white w-max border border-gray-100 dark:border-gray-850"
+										style={token.align[cellIdx] ? '' : `text-align: ${token.align[cellIdx]}`}
+									>
+										<div class="flex flex-col break-normal">
+											<MarkdownInlineTokens
+												id={`${id}-${tokenIdx}-row-${rowIdx}-${cellIdx}`}
+												tokens={cell.tokens}
+												{onSourceClick}
+											/>
+										</div>
+									</td>
+								{/each}
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
 
-      <div class=" absolute top-1 right-1.5 z-20 invisible group-hover:visible">
-        <Tooltip content={$i18n.t('Export to CSV')}>
-          <button
-            class="p-1 rounded-lg bg-transparent transition"
-            on:click={(e) => {
-              e.stopPropagation();
-              exportTableToCSVHandler(token, tokenIdx);
-            }}
-          >
-            <ArrowDownTray
-              className=" size-3.5"
-              strokeWidth="1.5"
-            />
-          </button>
-        </Tooltip>
-      </div>
-    </div>
-  {:else if token.type === 'blockquote'}
-    <blockquote dir="auto">
-      <svelte:self
-        id={`${id}-${tokenIdx}`}
-        {onSourceClick}
-        {onTaskClick}
-        tokens={token.tokens}
-      />
-    </blockquote>
-  {:else if token.type === 'list'}
-    {#if token.ordered}
-      <ol start={token.start || 1}>
-        {#each token.items as item, itemIdx}
-          <li dir="auto">
-            {#if item?.task}
-              <input
-                class=" translate-y-[1px] -translate-x-1"
-                checked={item.checked}
-                type="checkbox"
-                on:change={(e) => {
-                  onTaskClick({
-                    id: id,
-                    token: token,
-                    tokenIdx: tokenIdx,
-                    item: item,
-                    itemIdx: itemIdx,
-                    checked: e.target.checked
-                  });
-                }}
-              />
-            {/if}
+			<div class=" absolute top-1 right-1.5 z-20 invisible group-hover:visible">
+				<Tooltip content={$i18n.t('Export to CSV')}>
+					<button
+						class="p-1 rounded-lg bg-transparent transition"
+						on:click={(e) => {
+							e.stopPropagation();
+							exportTableToCSVHandler(token, tokenIdx);
+						}}
+					>
+						<ArrowDownTray className=" size-3.5" strokeWidth="1.5" />
+					</button>
+				</Tooltip>
+			</div>
+		</div>
+	{:else if token.type === 'blockquote'}
+		<blockquote dir="auto">
+			<svelte:self id={`${id}-${tokenIdx}`} tokens={token.tokens} {onTaskClick} {onSourceClick} />
+		</blockquote>
+	{:else if token.type === 'list'}
+		{#if token.ordered}
+			<ol start={token.start || 1}>
+				{#each token.items as item, itemIdx}
+					<li dir="auto" class="text-start">
+						{#if item?.task}
+							<input
+								class=" translate-y-[1px] -translate-x-1"
+								type="checkbox"
+								checked={item.checked}
+								on:change={(e) => {
+									onTaskClick({
+										id: id,
+										token: token,
+										tokenIdx: tokenIdx,
+										item: item,
+										itemIdx: itemIdx,
+										checked: e.target.checked
+									});
+								}}
+							/>
+						{/if}
 
-            <svelte:self
-              id={`${id}-${tokenIdx}-${itemIdx}`}
-              {onSourceClick}
-              {onTaskClick}
-              tokens={item.tokens}
-              top={token.loose}
-            />
-          </li>
-        {/each}
-      </ol>
-    {:else}
-      <ul>
-        {#each token.items as item, itemIdx}
-          <li dir="auto">
-            {#if item?.task}
-              <input
-                class=" translate-y-[1px] -translate-x-1"
-                checked={item.checked}
-                type="checkbox"
-                on:change={(e) => {
-                  onTaskClick({
-                    id: id,
-                    token: token,
-                    tokenIdx: tokenIdx,
-                    item: item,
-                    itemIdx: itemIdx,
-                    checked: e.target.checked
-                  });
-                }}
-              />
-            {/if}
+						<svelte:self
+							id={`${id}-${tokenIdx}-${itemIdx}`}
+							tokens={item.tokens}
+							top={token.loose}
+							{onTaskClick}
+							{onSourceClick}
+						/>
+					</li>
+				{/each}
+			</ol>
+		{:else}
+			<ul>
+				{#each token.items as item, itemIdx}
+					<li dir="auto" class="text-start">
+						{#if item?.task}
+							<input
+								class=" translate-y-[1px] -translate-x-1"
+								type="checkbox"
+								checked={item.checked}
+								on:change={(e) => {
+									onTaskClick({
+										id: id,
+										token: token,
+										tokenIdx: tokenIdx,
+										item: item,
+										itemIdx: itemIdx,
+										checked: e.target.checked
+									});
+								}}
+							/>
+						{/if}
 
-            <svelte:self
-              id={`${id}-${tokenIdx}-${itemIdx}`}
-              {onSourceClick}
-              {onTaskClick}
-              tokens={item.tokens}
-              top={token.loose}
-            />
-          </li>
-        {/each}
-      </ul>
-    {/if}
-  {:else if token.type === 'details'}
-    <Collapsible
-      attributes={token?.attributes}
-      className="w-full space-y-1"
-      title={token.summary}
-    >
-      <div
-        slot="content"
-        class=" mb-1.5"
-      >
-        <svelte:self
-          id={`${id}-${tokenIdx}-d`}
-          attributes={token?.attributes}
-          {onSourceClick}
-          {onTaskClick}
-          tokens={marked.lexer(token.text)}
-        />
-      </div>
-    </Collapsible>
-  {:else if token.type === 'html'}
-    {@const html = DOMPurify.sanitize(token.text)}
-    {#if html && html.includes('<video')}
-      {@html html}
-    {:else if token.text.includes(`<iframe src="${WEBUI_BASE_URL}/api/v1/files/`)}
-      {@html `${token.text}`}
-    {:else}
-      {token.text}
-    {/if}
-  {:else if token.type === 'iframe'}
-    <Iframe
-      src="{WEBUI_BASE_URL}/api/v1/files/{token.fileId}/content"
-      title={token.fileId}
-    />
-  {:else if token.type === 'paragraph'}
-    <p dir="auto">
-      <MarkdownInlineTokens
-        id={`${id}-${tokenIdx}-p`}
-        {onSourceClick}
-        tokens={token.tokens ?? []}
-      />
-    </p>
-  {:else if token.type === 'text'}
-    {#if top}
-      <p dir="auto">
-        {#if token.tokens}
-          <MarkdownInlineTokens
-            id={`${id}-${tokenIdx}-t`}
-            {onSourceClick}
-            tokens={token.tokens}
-          />
-        {:else}
-          {unescapeHtml(token.text)}
-        {/if}
-      </p>
-    {:else if token.tokens}
-      <MarkdownInlineTokens
-        id={`${id}-${tokenIdx}-p`}
-        {onSourceClick}
-        tokens={token.tokens ?? []}
-      />
-    {:else}
-      {unescapeHtml(token.text)}
-    {/if}
-  {:else if token.type === 'inlineKatex'}
-    {#if token.text}
-      <KatexRenderer
-        content={token.text}
-        displayMode={token?.displayMode ?? false}
-      />
-    {/if}
-  {:else if token.type === 'blockKatex'}
-    {#if token.text}
-      <KatexRenderer
-        content={token.text}
-        displayMode={token?.displayMode ?? false}
-      />
-    {/if}
-  {:else if token.type === 'space'}
-    <div class="my-2" />
-  {:else}
-    {console.log('Unknown token', token)}
-  {/if}
+						<svelte:self
+							id={`${id}-${tokenIdx}-${itemIdx}`}
+							tokens={item.tokens}
+							top={token.loose}
+							{onTaskClick}
+							{onSourceClick}
+						/>
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	{:else if token.type === 'details'}
+		<Collapsible
+			title={token.summary}
+			attributes={token?.attributes}
+			className="w-full space-y-1"
+			dir="auto"
+		>
+			<div class=" mb-1.5" slot="content">
+				<svelte:self
+					id={`${id}-${tokenIdx}-d`}
+					tokens={marked.lexer(token.text)}
+					attributes={token?.attributes}
+					{onTaskClick}
+					{onSourceClick}
+				/>
+			</div>
+		</Collapsible>
+	{:else if token.type === 'html'}
+		{@const html = DOMPurify.sanitize(token.text)}
+		{#if html && html.includes('<video')}
+			{@html html}
+		{:else if token.text.includes(`<iframe src="${WEBUI_BASE_URL}/api/v1/files/`)}
+			{@html `${token.text}`}
+		{:else}
+			{token.text}
+		{/if}
+	{:else if token.type === 'iframe'}
+		<iframe
+			src="{WEBUI_BASE_URL}/api/v1/files/{token.fileId}/content"
+			title={token.fileId}
+			width="100%"
+			frameborder="0"
+			onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
+		></iframe>
+	{:else if token.type === 'paragraph'}
+		<p dir="auto">
+			<MarkdownInlineTokens
+				id={`${id}-${tokenIdx}-p`}
+				tokens={token.tokens ?? []}
+				{onSourceClick}
+			/>
+		</p>
+	{:else if token.type === 'text'}
+		{#if top}
+			<p dir="auto">
+				{#if token.tokens}
+					<MarkdownInlineTokens id={`${id}-${tokenIdx}-t`} tokens={token.tokens} {onSourceClick} />
+				{:else}
+					{unescapeHtml(token.text)}
+				{/if}
+			</p>
+		{:else if token.tokens}
+			<MarkdownInlineTokens
+				id={`${id}-${tokenIdx}-p`}
+				tokens={token.tokens ?? []}
+				{onSourceClick}
+			/>
+		{:else}
+			{unescapeHtml(token.text)}
+		{/if}
+	{:else if token.type === 'inlineKatex'}
+		{#if token.text}
+			<KatexRenderer content={token.text} displayMode={token?.displayMode ?? false} />
+		{/if}
+	{:else if token.type === 'blockKatex'}
+		{#if token.text}
+			<KatexRenderer content={token.text} displayMode={token?.displayMode ?? false} />
+		{/if}
+	{:else if token.type === 'space'}
+		<div class="my-2" />
+	{:else}
+		{console.log('Unknown token', token)}
+	{/if}
 {/each}

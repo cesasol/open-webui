@@ -26,7 +26,13 @@
   let email = '';
   let password = '';
 
-  let ldapUsername = '';
+	let ldapUsername = '';
+
+	const querystringValue = (key) => {
+		const querystring = window.location.search;
+		const urlParams = new URLSearchParams(querystring);
+		return urlParams.get(key);
+	};
 
   const setSessionUser = async (sessionUser) => {
     if (sessionUser) {
@@ -36,12 +42,14 @@
         localStorage.token = sessionUser.token;
       }
 
-      $socket.emit('user-join', { auth: { token: sessionUser.token } });
-      await user.set(sessionUser);
-      await config.set(await getBackendConfig());
-      goto('/');
-    }
-  };
+			$socket.emit('user-join', { auth: { token: sessionUser.token } });
+			await user.set(sessionUser);
+			await config.set(await getBackendConfig());
+
+			const redirectPath = querystringValue('redirect') || '/';
+			goto(redirectPath);
+		}
+	};
 
   const signInHandler = async () => {
     const sessionUser = await userSignIn(email, password).catch((error) => {

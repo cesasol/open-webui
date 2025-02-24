@@ -245,24 +245,27 @@
                 on:change={(e) => {
                   const enabled = e.detail;
 
-                  if (enabled) {
-                    if (
-                      config.engine === 'automatic1111' &&
-                      config.automatic1111.AUTOMATIC1111_BASE_URL === ''
-                    ) {
-                      toast.error($i18n.t('AUTOMATIC1111 Base URL is required.'));
-                      config.enabled = false;
-                    } else if (
-                      config.engine === 'comfyui' &&
-                      config.comfyui.COMFYUI_BASE_URL === ''
-                    ) {
-                      toast.error($i18n.t('ComfyUI Base URL is required.'));
-                      config.enabled = false;
-                    } else if (config.engine === 'openai' && config.openai.OPENAI_API_KEY === '') {
-                      toast.error($i18n.t('OpenAI API Key is required.'));
-                      config.enabled = false;
-                    }
-                  }
+									if (enabled) {
+										if (
+											config.engine === 'automatic1111' &&
+											config.automatic1111.AUTOMATIC1111_BASE_URL === ''
+										) {
+											toast.error($i18n.t('AUTOMATIC1111 Base URL is required.'));
+											config.enabled = false;
+										} else if (
+											config.engine === 'comfyui' &&
+											config.comfyui.COMFYUI_BASE_URL === ''
+										) {
+											toast.error($i18n.t('ComfyUI Base URL is required.'));
+											config.enabled = false;
+										} else if (config.engine === 'openai' && config.openai.OPENAI_API_KEY === '') {
+											toast.error($i18n.t('OpenAI API Key is required.'));
+											config.enabled = false;
+										} else if (config.engine === 'gemini' && config.gemini.GEMINI_API_KEY === '') {
+											toast.error($i18n.t('Gemini API Key is required.'));
+											config.enabled = false;
+										}
+									}
 
                   updateConfigHandler();
                 }}
@@ -280,25 +283,26 @@
           </div>
         {/if}
 
-        <div class=" py-1 flex w-full justify-between">
-          <div class=" self-center text-xs font-medium">{$i18n.t('Image Generation Engine')}</div>
-          <div class="flex items-center relative">
-            <select
-              class=" dark:bg-gray-900 w-fit pr-8 cursor-pointer rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
-              placeholder={$i18n.t('Select Engine')}
-              bind:value={config.engine}
-              on:change={async () => {
-                updateConfigHandler();
-              }}
-            >
-              <option value="openai">{$i18n.t('Default (Open AI)')}</option>
-              <option value="comfyui">{$i18n.t('ComfyUI')}</option>
-              <option value="automatic1111">{$i18n.t('Automatic1111')}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <hr class=" border-gray-100 dark:border-gray-850" />
+				<div class=" py-1 flex w-full justify-between">
+					<div class=" self-center text-xs font-medium">{$i18n.t('Image Generation Engine')}</div>
+					<div class="flex items-center relative">
+						<select
+							class=" dark:bg-gray-900 w-fit pr-8 cursor-pointer rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
+							bind:value={config.engine}
+							placeholder={$i18n.t('Select Engine')}
+							on:change={async () => {
+								updateConfigHandler();
+							}}
+						>
+							<option value="openai">{$i18n.t('Default (Open AI)')}</option>
+							<option value="comfyui">{$i18n.t('ComfyUI')}</option>
+							<option value="automatic1111">{$i18n.t('Automatic1111')}</option>
+							<option value="gemini">{$i18n.t('Gemini')}</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<hr class=" border-gray-100 dark:border-gray-850" />
 
       <div class="flex flex-col gap-2">
         {#if (config?.engine ?? 'automatic1111') === 'automatic1111'}
@@ -606,14 +610,32 @@
                 bind:value={config.openai.OPENAI_API_BASE_URL}
               />
 
-              <SensitiveInput
-                placeholder={$i18n.t('API Key')}
-                bind:value={config.openai.OPENAI_API_KEY}
-              />
-            </div>
-          </div>
-        {/if}
-      </div>
+							<SensitiveInput
+								placeholder={$i18n.t('API Key')}
+								bind:value={config.openai.OPENAI_API_KEY}
+							/>
+						</div>
+					</div>
+				{:else if config?.engine === 'gemini'}
+					<div>
+						<div class=" mb-1.5 text-sm font-medium">{$i18n.t('Gemini API Config')}</div>
+
+						<div class="flex gap-2 mb-1">
+							<input
+								class="flex-1 w-full text-sm bg-transparent outline-none"
+								placeholder={$i18n.t('API Base URL')}
+								bind:value={config.gemini.GEMINI_API_BASE_URL}
+								required
+							/>
+
+							<SensitiveInput
+								placeholder={$i18n.t('API Key')}
+								bind:value={config.gemini.GEMINI_API_KEY}
+							/>
+						</div>
+					</div>
+				{/if}
+			</div>
 
       {#if config?.enabled}
         <hr class=" border-gray-100 dark:border-gray-850" />
