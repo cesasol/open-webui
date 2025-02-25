@@ -266,13 +266,10 @@
 			{token.text}
 		{/if}
 	{:else if token.type === 'iframe'}
-		<iframe
+		<Iframe
 			src="{WEBUI_BASE_URL}/api/v1/files/{token.fileId}/content"
 			title={token.fileId}
-			width="100%"
-			frameborder="0"
-			onload="this.style.height=(this.contentWindow.document.body.scrollHeight+20)+'px';"
-		></iframe>
+			/>
 	{:else if token.type === 'paragraph'}
 		<p dir="auto">
 			<MarkdownInlineTokens
