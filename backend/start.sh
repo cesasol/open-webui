@@ -65,4 +65,7 @@ if [ -n "$SPACE_ID" ]; then
   export WEBUI_URL=${SPACE_HOST}
 fi
 
-WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec uvicorn open_webui.main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'
+# Fetch MODELS
+uv run fetch-models.py &
+
+WEBUI_SECRET_KEY="$WEBUI_SECRET_KEY" exec uv run uvicorn open_webui.main:app --host "$HOST" --port "$PORT" --forwarded-allow-ips '*'

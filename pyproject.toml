@@ -44,7 +44,6 @@ dependencies = [
     "qdrant-client~=1.12.0",
     "opensearch-py==2.8.0",
     "playwright==1.49.1",
-
     "transformers",
     "sentence-transformers==3.3.1",
     "colbert-ai==0.2.21",
@@ -89,14 +88,10 @@ dependencies = [
     "moto[s3]>=5.0.26",
     "googleapis-common-protos==1.63.2",
     "google-cloud-storage==2.19.0",
-
     "azure-identity==1.20.0",
     "azure-storage-blob==12.24.1",
-
     "ldap3==2.9.1",
-
     "firecrawl-py==1.12.0",
-
     "gcp-storage-emulator>=2024.8.3",
     "ctranslate2>=4.5.0",
 ]
@@ -114,7 +109,6 @@ classifiers = [
     "Topic :: Multimedia",
 ]
 
-
 [project.optional-dependencies]
 cpu = ["torch>=2.6.0", "torchvision>=0.21.0", "torchaudio>=0.21.0"]
 cu124 = ["torch>=2.6.0", "torchvision>=0.21.0", "torchaudio>=0.21.0"]
@@ -126,12 +120,12 @@ rocm = [
     "torchaudio>=0.20",
     "pytorch-triton-rocm>=3.1",
 ]
-# xpu = [
-#     "torch>=2.5.0",
-#     "torchvision>=0.21.0",
-#     "torchaudio>=0.21.0",
-#     "pytorch-triton-xpu",
-# ]
+xpu = [
+    "torch>=2.5.0",
+    "torchvision>=0.21.0",
+    "torchaudio>=0.21.0",
+    "pytorch-triton-xpu>=3.1; sys_platform == 'linux'",
+]
 
 
 [project.scripts]
@@ -152,7 +146,7 @@ allow-direct-references = true
 path = "package.json"
 pattern = '"version":\s*"(?P<version>[^"]+)"'
 
-[tool.hatch.build.hooks.custom] # keep this for reading hooks from `hatch_build.py`
+# [tool.hatch.build.hooks.custom] # keep this for reading hooks from `hatch_build.py`
 
 [tool.hatch.build.targets.wheel]
 sources = ["backend"]
@@ -185,7 +179,7 @@ conflicts = [
         { extra = "cu121" },
         { extra = "cu124" },
         { extra = "rocm" },
-        # { extra = "xpu" },
+        { extra = "xpu" },
     ],
 ]
 
@@ -217,9 +211,9 @@ torchaudio = [
 pytorch-triton-rocm = [
     { index = "pytorch-rocm", extra = 'rocm' },
 ]
-# pytorch-triton-xpu = [
-#     { index = "pytorch-xpu", extra = 'xpu', marker = "sys_platform == 'linux'" },
-# ]
+pytorch-triton-xpu = [
+    { index = "pytorch-xpu", extra = 'xpu', marker = "sys_platform == 'linux'" },
+]
 
 
 [[tool.uv.index]]
