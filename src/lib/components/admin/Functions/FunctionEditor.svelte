@@ -1,9 +1,8 @@
 <script>
-  import { getContext, createEventDispatcher, onMount, tick } from 'svelte';
-  import { goto } from '$app/navigation';
+	import { getContext, onMount, tick } from 'svelte';
+	import { goto } from '$app/navigation';
 
-  const dispatch = createEventDispatcher();
-  const i18n = getContext('i18n');
+	const i18n = getContext('i18n');
 
   import CodeEditor from '$lib/components/common/CodeEditor.svelte';
   import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
@@ -11,9 +10,11 @@
   import Tooltip from '$lib/components/common/Tooltip.svelte';
   import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
 
-  let formElement = null;
-  let loading = false;
-  let showConfirm = false;
+	let formElement = null;
+	let loading = false;
+	let showConfirm = false;
+
+	export let onSave = () => {};
 
   export let edit = false;
   export let clone = false;
@@ -254,15 +255,15 @@ class Pipe:
             return f"Error: {e}"
 `;
 
-  const saveHandler = async () => {
-    loading = true;
-    dispatch('save', {
-      id,
-      name,
-      meta,
-      content
-    });
-  };
+	const saveHandler = async () => {
+		loading = true;
+		onSave({
+			id,
+			name,
+			meta,
+			content
+		});
+	};
 
   const submitHandler = async () => {
     if (codeEditor) {
@@ -375,22 +376,22 @@ class Pipe:
           </div>
         </div>
 
-        <div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
-          <CodeEditor
-            bind:this={codeEditor}
-            {boilerplate}
-            lang="python"
-            value={content}
-            on:change={(e) => {
-              _content = e.detail.value;
-            }}
-            on:save={async () => {
-              if (formElement) {
-                formElement.requestSubmit();
-              }
-            }}
-          />
-        </div>
+				<div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
+					<CodeEditor
+						bind:this={codeEditor}
+						value={content}
+						lang="python"
+						{boilerplate}
+						onChange={(e) => {
+							_content = e;
+						}}
+						onSave={async () => {
+							if (formElement) {
+								formElement.requestSubmit();
+							}
+						}}
+					/>
+				</div>
 
         <div class="pb-3 flex justify-between">
           <div class="flex-1 pr-3">

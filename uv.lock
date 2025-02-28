@@ -344,6 +344,20 @@ wheels = [
 ]
 
 [[package]]
+name = "azure-ai-documentintelligence"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "azure-core" },
+    { name = "isodate" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/ca/fd/cd0d493e9dc93a5ce097db7508f1b2467a73dcc7022c235b409ce48b9679/azure_ai_documentintelligence-1.0.0.tar.gz", hash = "sha256:c8b6efc0fc7e65d7892c9585cfd256f7d8b3f2b46cecf92c75ab82e629eac253", size = 169420 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/a8/c9c66d4d04b8aee06ebdc9a6077736b222b9b2fe92364fed6f9a1c08ece0/azure_ai_documentintelligence-1.0.0-py3-none-any.whl", hash = "sha256:cdedb1a67c075f58f47a413ec5846bf8d532a83a71f0c51ec49ce9b5bfe2a519", size = 105454 },
+]
+
+[[package]]
 name = "azure-core"
 version = "1.32.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2077,6 +2091,19 @@ wheels = [
 ]
 
 [[package]]
+name = "loguru"
+version = "0.7.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32' or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-cu118') or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-cu121') or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-cu124') or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-rocm') or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-xpu') or (extra == 'extra-10-open-webui-cu118' and extra == 'extra-10-open-webui-cu121') or (extra == 'extra-10-open-webui-cu118' and extra == 'extra-10-open-webui-cu124') or (extra == 'extra-10-open-webui-cu118' and extra == 'extra-10-open-webui-rocm') or (extra == 'extra-10-open-webui-cu118' and extra == 'extra-10-open-webui-xpu') or (extra == 'extra-10-open-webui-cu121' and extra == 'extra-10-open-webui-cu124') or (extra == 'extra-10-open-webui-cu121' and extra == 'extra-10-open-webui-rocm') or (extra == 'extra-10-open-webui-cu121' and extra == 'extra-10-open-webui-xpu') or (extra == 'extra-10-open-webui-cu124' and extra == 'extra-10-open-webui-rocm') or (extra == 'extra-10-open-webui-cu124' and extra == 'extra-10-open-webui-xpu') or (extra == 'extra-10-open-webui-rocm' and extra == 'extra-10-open-webui-xpu')" },
+    { name = "win32-setctime", marker = "sys_platform == 'win32' or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-cu118') or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-cu121') or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-cu124') or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-rocm') or (extra == 'extra-10-open-webui-cpu' and extra == 'extra-10-open-webui-xpu') or (extra == 'extra-10-open-webui-cu118' and extra == 'extra-10-open-webui-cu121') or (extra == 'extra-10-open-webui-cu118' and extra == 'extra-10-open-webui-cu124') or (extra == 'extra-10-open-webui-cu118' and extra == 'extra-10-open-webui-rocm') or (extra == 'extra-10-open-webui-cu118' and extra == 'extra-10-open-webui-xpu') or (extra == 'extra-10-open-webui-cu121' and extra == 'extra-10-open-webui-cu124') or (extra == 'extra-10-open-webui-cu121' and extra == 'extra-10-open-webui-rocm') or (extra == 'extra-10-open-webui-cu121' and extra == 'extra-10-open-webui-xpu') or (extra == 'extra-10-open-webui-cu124' and extra == 'extra-10-open-webui-rocm') or (extra == 'extra-10-open-webui-cu124' and extra == 'extra-10-open-webui-xpu') or (extra == 'extra-10-open-webui-rocm' and extra == 'extra-10-open-webui-xpu')" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9e/30/d87a423766b24db416a46e9335b9602b054a72b96a88a241f2b09b560fa8/loguru-0.7.2.tar.gz", hash = "sha256:e671a53522515f34fd406340ee968cb9ecafbc4b36c679da03c18fd8d0bd51ac", size = 145103 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/0a/4f6fed21aa246c6b49b561ca55facacc2a44b87d65b8b92362a8e99ba202/loguru-0.7.2-py3-none-any.whl", hash = "sha256:003d71e3d3ed35f0f8984898359d65b79e5b21943f78af86aa5491210429b8eb", size = 62549 },
+]
+
+[[package]]
 name = "lxml"
 version = "5.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -3077,8 +3104,10 @@ dependencies = [
     { name = "anthropic" },
     { name = "apscheduler" },
     { name = "argon2-cffi" },
+    { name = "asgiref" },
     { name = "async-timeout" },
     { name = "authlib" },
+    { name = "azure-ai-documentintelligence" },
     { name = "azure-identity" },
     { name = "azure-storage-blob" },
     { name = "bcrypt" },
@@ -3111,6 +3140,7 @@ dependencies = [
     { name = "langchain-community" },
     { name = "langfuse" },
     { name = "ldap3" },
+    { name = "loguru" },
     { name = "markdown" },
     { name = "moto", extra = ["s3"] },
     { name = "nltk" },
@@ -3221,8 +3251,10 @@ requires-dist = [
     { name = "anthropic" },
     { name = "apscheduler", specifier = "==3.10.4" },
     { name = "argon2-cffi", specifier = "==23.1.0" },
+    { name = "asgiref", specifier = "==3.8.1" },
     { name = "async-timeout" },
     { name = "authlib", specifier = "==1.4.1" },
+    { name = "azure-ai-documentintelligence", specifier = "==1.0.0" },
     { name = "azure-identity", specifier = "==1.20.0" },
     { name = "azure-storage-blob", specifier = "==12.24.1" },
     { name = "bcrypt", specifier = "==4.2.0" },
@@ -3255,6 +3287,7 @@ requires-dist = [
     { name = "langchain-community", specifier = "==0.3.7" },
     { name = "langfuse", specifier = "==2.44.0" },
     { name = "ldap3", specifier = "==2.9.1" },
+    { name = "loguru", specifier = "==0.7.2" },
     { name = "markdown", specifier = "==3.7" },
     { name = "moto", extras = ["s3"], specifier = ">=5.0.26" },
     { name = "nltk", specifier = "==3.9.1" },
@@ -4413,7 +4446,7 @@ name = "pytorch-triton-xpu"
 version = "3.2.0"
 source = { registry = "https://download.pytorch.org/whl/xpu" }
 dependencies = [
-    { name = "packaging" },
+    { name = "packaging", marker = "sys_platform != 'darwin'" },
 ]
 wheels = [
     { url = "https://download.pytorch.org/whl/pytorch_triton_xpu-3.2.0-cp311-cp311-linux_x86_64.whl", hash = "sha256:bcfa995229bbfd9ffd8d6c8d9f6428d393e876fa6e23ee3c20e3c0d73ca75ca5" },
@@ -6146,6 +6179,15 @@ name = "win-unicode-console"
 version = "0.5"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/89/8d/7aad74930380c8972ab282304a2ff45f3d4927108bb6693cabcc9fc6a099/win_unicode_console-0.5.zip", hash = "sha256:d4142d4d56d46f449d6f00536a73625a871cba040f0bc1a2e305a04578f07d1e", size = 31420 }
+
+[[package]]
+name = "win32-setctime"
+version = "1.2.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b3/8f/705086c9d734d3b663af0e9bb3d4de6578d08f46b1b101c2442fd9aecaa2/win32_setctime-1.2.0.tar.gz", hash = "sha256:ae1fdf948f5640aae05c511ade119313fb6a30d7eabe25fef9764dca5873c4c0", size = 4867 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e1/07/c6fe3ad3e685340704d314d765b7912993bcb8dc198f0e7a89382d37974b/win32_setctime-1.2.0-py3-none-any.whl", hash = "sha256:95d644c4e708aba81dc3704a116d8cbc974d70b3bdb8be1d150e36be6e9d1390", size = 4083 },
+]
 
 [[package]]
 name = "wrapt"

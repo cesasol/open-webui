@@ -1,19 +1,10 @@
 <script lang="ts">
-  import hljs from 'highlight.js';
-  import { loadPyodide } from 'pyodide';
-  import mermaid from 'mermaid';
+	import mermaid from 'mermaid';
 
   import { v4 as uuidv4 } from 'uuid';
 
-  import {
-    getContext,
-    getAllContexts,
-    onMount,
-    tick,
-    createEventDispatcher,
-    onDestroy
-  } from 'svelte';
-  import { copyToClipboard } from '$lib/utils';
+	import { getContext, onMount, tick, onDestroy } from 'svelte';
+	import { copyToClipboard } from '$lib/utils';
 
   import 'highlight.js/styles/github-dark.min.css';
 
@@ -24,13 +15,15 @@
   import { executeCode } from '$lib/apis/utils';
   import { toast } from 'svelte-sonner';
 
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
+	const i18n = getContext('i18n');
 
   export let id = '';
 
-  export let save = false;
-  export let run = true;
+	export let onSave = (e) => {};
+	export let onCode = (e) => {};
+
+	export let save = false;
+	export let run = true;
 
   export let token;
   export let lang = '';
@@ -70,8 +63,8 @@
   const saveCode = () => {
     saved = true;
 
-    code = _code;
-    dispatch('save', code);
+		code = _code;
+		onSave(code);
 
     setTimeout(() => {
       saved = false;
@@ -344,7 +337,7 @@
     render();
   }
 
-  $: dispatch('code', { lang, code });
+	$: onCode({ lang, code });
 
   $: if (attributes) {
     onAttributesUpdate();
@@ -379,23 +372,23 @@
   onMount(async () => {
     console.log('codeblock', lang, code);
 
-    if (lang) {
-      dispatch('code', { lang, code });
-    }
-    if (document.documentElement.classList.contains('dark')) {
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: 'dark',
-        securityLevel: 'loose'
-      });
-    } else {
-      mermaid.initialize({
-        startOnLoad: true,
-        theme: 'default',
-        securityLevel: 'loose'
-      });
-    }
-  });
+		if (lang) {
+			onCode({ lang, code });
+		}
+		if (document.documentElement.classList.contains('dark')) {
+			mermaid.initialize({
+				startOnLoad: true,
+				theme: 'dark',
+				securityLevel: 'loose'
+			});
+		} else {
+			mermaid.initialize({
+				startOnLoad: true,
+				theme: 'default',
+				securityLevel: 'loose'
+			});
+		}
+	});
 
   onDestroy(() => {
     if (pyodideWorker) {
@@ -457,26 +450,26 @@
         </div>
       </div>
 
-      <div
-        class="language-{lang} rounded-t-lg -mt-8 {editorClassName
-          ? editorClassName
-          : executing || stdout || stderr || result
-          ? ''
-          : 'rounded-b-lg'} overflow-hidden"
-      >
-        <div class=" pt-7 bg-gray-50 dark:bg-gray-850" />
-        <CodeEditor
-          {id}
-          {lang}
-          value={code}
-          on:save={() => {
-            saveCode();
-          }}
-          on:change={(e) => {
-            _code = e.detail.value;
-          }}
-        />
-      </div>
+			<div
+				class="language-{lang} rounded-t-lg -mt-8 {editorClassName
+					? editorClassName
+					: executing || stdout || stderr || result
+						? ''
+						: 'rounded-b-lg'} overflow-hidden"
+			>
+				<div class=" pt-7 bg-gray-50 dark:bg-gray-850"></div>
+				<CodeEditor
+					value={code}
+					{id}
+					{lang}
+					onSave={() => {
+						saveCode();
+					}}
+					onChange={(value) => {
+						_code = value;
+					}}
+				/>
+			</div>
 
       <div
         id="plt-canvas-{id}"
@@ -515,7 +508,7 @@
 									<div class="flex flex-col gap-2">
 										{#each files as file}
 											{#if file.type.startsWith('image')}
-												<img src={file.data} alt="Output" />
+												<img src={file.data} alt="Output" class=" w-full max-w-[36rem]" />
 											{/if}
 										{/each}
 									</div>

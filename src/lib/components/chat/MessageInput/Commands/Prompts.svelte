@@ -73,10 +73,16 @@
       text = text.replaceAll('{{CLIPBOARD}}', clipboardText);
     }
 
-    if (command.content.includes('{{USER_LOCATION}}')) {
-      const location = await getUserPosition();
-      text = text.replaceAll('{{USER_LOCATION}}', String(location));
-    }
+		if (command.content.includes('{{USER_LOCATION}}')) {
+			let location;
+			try {
+				location = await getUserPosition();
+			} catch (error) {
+				toast.error($i18n.t('Location access not allowed'));
+				location = 'LOCATION_UNKNOWN';
+			}
+			text = text.replaceAll('{{USER_LOCATION}}', String(location));
+		}
 
     if (command.content.includes('{{USER_NAME}}')) {
       console.log($user);

@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { v4 as uuidv4 } from 'uuid';
-  import { createPicker, getAuthToken } from '$lib/utils/google-drive-picker';
+	import { toast } from 'svelte-sonner';
+	import { v4 as uuidv4 } from 'uuid';
+	import { createPicker, getAuthToken } from '$lib/utils/google-drive-picker';
+	import { pickAndDownloadFile } from '$lib/utils/onedrive-file-picker';
 
   import { onMount, tick, getContext, createEventDispatcher, onDestroy } from 'svelte';
   const dispatch = createEventDispatcher();
@@ -172,23 +173,7 @@
       return null;
     }
 
-    files = [...files, fileItem];
-    // Check if the file is an audio file and transcribe/convert it to text file
-    if (['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-m4a'].includes(file['type'])) {
-      const res = await transcribeAudio(localStorage.token, file).catch((error) => {
-        toast.error(`${error}`);
-        return null;
-      });
-
-      if (res) {
-        console.log(res);
-        const blob = new Blob([res.text], { type: 'text/plain' });
-        file = blobToFile(blob, `${file.name}.txt`);
-
-        fileItem.name = file.name;
-        fileItem.size = file.size;
-      }
-    }
+		files = [...files, fileItem];
 
     try {
       // During the file upload, file content is automatically extracted.
@@ -812,12 +797,16 @@
                                 e.preventDefault();
                               }
 
-                              // Submit the prompt when Enter key is pressed
-                              if (prompt !== '' && e.keyCode === 13 && !e.shiftKey) {
-                                dispatch('submit', prompt);
-                              }
-                            }
-                          }
+															// Submit the prompt when Enter key is pressed
+															if (
+																(prompt !== '' || files.length > 0) &&
+																e.keyCode === 13 &&
+																!e.shiftKey
+															) {
+																dispatch('submit', prompt);
+															}
+														}
+													}
 
                           if (e.key === 'Escape') {
                             console.log('Escape');
@@ -892,16 +881,20 @@
                             e.preventDefault();
                           }
 
-                          // Submit the prompt when Enter key is pressed
-                          if (prompt !== '' && e.key === 'Enter' && !e.shiftKey) {
-                            dispatch('submit', prompt);
-                          }
-                        }
-                      }}
-                      on:keydown={async (e) => {
-                        const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
-                        const commandsContainerElement =
-                          document.getElementById('commands-container');
+													// Submit the prompt when Enter key is pressed
+													if (
+														(prompt !== '' || files.length > 0) &&
+														e.key === 'Enter' &&
+														!e.shiftKey
+													) {
+														dispatch('submit', prompt);
+													}
+												}
+											}}
+											on:keydown={async (e) => {
+												const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
+												const commandsContainerElement =
+													document.getElementById('commands-container');
 
                         if (e.key === 'Escape') {
                           stopResponse();
@@ -1065,12 +1058,52 @@
                   {/if}
                 </div>
 
-                <div class=" flex justify-between mt-1.5 mb-2.5 mx-0.5 max-w-full">
-                  <div class="ml-1 self-end gap-0.5 flex items-center flex-1 max-w-[80%]">
-                    <InputMenu
-                      {inputFilesHandler}
-                      onClose={async () => {
-                        await tick();
+								<div class=" flex justify-between mt-1.5 mb-2.5 mx-0.5 max-w-full">
+									<div class="ml-1 self-end gap-0.5 flex items-center flex-1 max-w-[80%]">
+										<InputMenu
+											bind:selectedToolIds
+											{screenCaptureHandler}
+											{inputFilesHandler}
+											uploadFilesHandler={() => {
+												filesInputElement.click();
+											}}
+											uploadGoogleDriveHandler={async () => {
+												try {
+													const fileData = await createPicker();
+													if (fileData) {
+														const file = new File([fileData.blob], fileData.name, {
+															type: fileData.blob.type
+														});
+														await uploadFileHandler(file);
+													} else {
+														console.log('No file was selected from Google Drive');
+													}
+												} catch (error) {
+													console.error('Google Drive Error:', error);
+													toast.error(
+														$i18n.t('Error accessing Google Drive: {{error}}', {
+															error: error.message
+														})
+													);
+												}
+											}}
+											uploadOneDriveHandler={async () => {
+												try {
+													const fileData = await pickAndDownloadFile();
+													if (fileData) {
+														const file = new File([fileData.blob], fileData.name, {
+															type: fileData.blob.type || 'application/octet-stream'
+														});
+														await uploadFileHandler(file);
+													} else {
+														console.log('No file was selected from OneDrive');
+													}
+												} catch (error) {
+													console.error('OneDrive Error:', error);
+												}
+											}}
+											onClose={async () => {
+												await tick();
 
                         const chatInput = document.getElementById('chat-input');
                         chatInput?.focus();
@@ -1277,15 +1310,18 @@
 
                                   stream = null;
 
-                                  if (!$TTSWorker) {
-                                    await TTSWorker.set(
-                                      new KokoroWorker({
-                                        dtype: $settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
-                                      })
-                                    );
+																	if ($settings.audio?.tts?.engine === 'browser-kokoro') {
+																		// If the user has not initialized the TTS worker, initialize it
+																		if (!$TTSWorker) {
+																			await TTSWorker.set(
+																				new KokoroWorker({
+																					dtype: $settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
+																				})
+																			);
 
-                                    await $TTSWorker.init();
-                                  }
+																			await $TTSWorker.init();
+																		}
+																	}
 
                                   showCallOverlay.set(true);
                                   showControls.set(true);

@@ -42,19 +42,20 @@
     return distances.every((d) => d !== undefined && d >= -1 && d <= 1);
   }
 
-  $: {
-    citations = sources.reduce((acc, source) => {
-      if (Object.keys(source).length === 0) {
-        return acc;
-      }
+	$: {
+		console.log('sources', sources);
+		citations = sources.reduce((acc, source) => {
+			if (Object.keys(source).length === 0) {
+				return acc;
+			}
 
       source.document.forEach((document, index) => {
         const metadata = source.metadata?.[index];
         const distance = source.distances?.[index];
 
-        // Within the same citation there could be multiple documents
-        const id = metadata?.source ?? 'N/A';
-        let _source = source?.source;
+				// Within the same citation there could be multiple documents
+				const id = metadata?.source ?? source?.source?.id ?? 'N/A';
+				let _source = source?.source;
 
         if (metadata?.name) {
           _source = { ..._source, name: metadata.name };

@@ -265,26 +265,20 @@
                       );
                       OPENAI_API_KEYS = OPENAI_API_KEYS.filter((key, keyIdx) => idx !== keyIdx);
 
-                      let newConfig = {};
-                      OPENAI_API_BASE_URLS.forEach((url, newIdx) => {
-                        newConfig[newIdx] = OPENAI_API_CONFIGS[newIdx < idx ? newIdx : newIdx + 1];
-                      });
-                      OPENAI_API_CONFIGS = newConfig;
-                    }}
-                    onSubmit={() => {
-                      updateOpenAIHandler();
-                    }}
-                    pipeline={pipelineUrls[url] ? true : false}
-                    bind:url
-                    bind:key={OPENAI_API_KEYS[idx]}
-                    bind:config={OPENAI_API_CONFIGS[idx]}
-                  />
-                {/each}
-              </div>
-            </div>
-          {/if}
-        </div>
-      </div>
+											let newConfig = {};
+											OPENAI_API_BASE_URLS.forEach((url, newIdx) => {
+												newConfig[newIdx] = OPENAI_API_CONFIGS[newIdx < idx ? newIdx : newIdx + 1];
+											});
+											OPENAI_API_CONFIGS = newConfig;
+											updateOpenAIHandler();
+										}}
+									/>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				</div>
+			</div>
 
       <hr class=" border-gray-100 dark:border-gray-850" />
 

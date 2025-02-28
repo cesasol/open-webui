@@ -83,32 +83,32 @@
             {/if}
           </div>
 
-          {#if edit}
-            <div>
-              <Tooltip
-                content={enableFullContent
-                  ? 'Inject the entire document as context for comprehensive processing, this is recommended for complex queries.'
-                  : 'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'}
-              >
-                <div class="flex items-center gap-1.5 text-xs">
-                  {#if enableFullContent}
-                    Using Entire Document
-                  {:else}
-                    Using Focused Retrieval
-                  {/if}
-                  <Switch
-                    bind:state={enableFullContent}
-                    on:change={(e) => {
-                      item.context = e.detail ? 'full' : undefined;
-                    }}
-                  />
-                </div>
-              </Tooltip>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
+					{#if edit}
+						<div>
+							<Tooltip
+								content={enableFullContent
+									? 'Inject the entire content as context for comprehensive processing, this is recommended for complex queries.'
+									: 'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'}
+							>
+								<div class="flex items-center gap-1.5 text-xs">
+									{#if enableFullContent}
+										Using Entire Document
+									{:else}
+										Using Focused Retrieval
+									{/if}
+									<Switch
+										bind:state={enableFullContent}
+										on:change={(e) => {
+											item.context = e.detail ? 'full' : undefined;
+										}}
+									/>
+								</div>
+							</Tooltip>
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
 
 		<div class="max-h-[75vh] overflow-auto">
 			{#if isPDF}

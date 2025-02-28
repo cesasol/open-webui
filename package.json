@@ -1,6 +1,6 @@
 {
   "name": "open-webui",
-  "version": "0.5.16",
+  "version": "0.5.18",
   "private": true,
   "scripts": {
     "dev": "pnpm run pyodide:fetch && vite dev --host",
@@ -98,6 +98,7 @@
     "i18next-resources-to-backend": "^1.2.1",
     "idb": "^8.0.2",
     "js-sha256": "^0.11.0",
+    "jspdf": "^3.0.0",
     "katex": "^0.16.21",
     "kokoro-js": "^1.2.0",
     "lowlight": "^3.3.0",

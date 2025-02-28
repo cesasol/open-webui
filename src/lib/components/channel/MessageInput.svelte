@@ -156,23 +156,7 @@
       return null;
     }
 
-    files = [...files, fileItem];
-    // Check if the file is an audio file and transcribe/convert it to text file
-    if (['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/x-m4a'].includes(file['type'])) {
-      const res = await transcribeAudio(localStorage.token, file).catch((error) => {
-        toast.error(`${error}`);
-        return null;
-      });
-
-      if (res) {
-        console.log(res);
-        const blob = new Blob([res.text], { type: 'text/plain' });
-        file = blobToFile(blob, `${file.name}.txt`);
-
-        fileItem.name = file.name;
-        fileItem.size = file.size;
-      }
-    }
+		files = [...files, fileItem];
 
     try {
       // During the file upload, file content is automatically extracted.

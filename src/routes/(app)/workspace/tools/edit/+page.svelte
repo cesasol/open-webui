@@ -68,17 +68,17 @@
 </script>
 
 {#if tool}
-  <ToolkitEditor
-    id={tool.id}
-    name={tool.name}
-    accessControl={tool.access_control}
-    content={tool.content}
-    edit={true}
-    meta={tool.meta}
-    on:save={(e) => {
-      saveHandler(e.detail);
-    }}
-  />
+	<ToolkitEditor
+		edit={true}
+		id={tool.id}
+		name={tool.name}
+		meta={tool.meta}
+		content={tool.content}
+		accessControl={tool.access_control}
+		onSave={(value) => {
+			saveHandler(value);
+		}}
+	/>
 {:else}
   <div class="flex items-center justify-center h-full">
     <div class=" pb-16">

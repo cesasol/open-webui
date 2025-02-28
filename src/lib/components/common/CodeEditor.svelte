@@ -19,9 +19,13 @@
   const dispatch = createEventDispatcher();
   const i18n = getContext('i18n');
 
-  export let boilerplate = '';
-  export let value = '';
-  let _value = '';
+	export let boilerplate = '';
+	export let value = '';
+
+	export let onSave = () => {};
+	export let onChange = () => {};
+
+	let _value = '';
 
   $: if (value) {
     updateValue();
@@ -43,9 +47,13 @@
 
   let codeEditor;
 
-  let isDarkMode = false;
-  let editorTheme = new Compartment();
-  let editorLanguage = new Compartment();
+	export const focus = () => {
+		codeEditor.focus();
+	};
+
+	let isDarkMode = false;
+	let editorTheme = new Compartment();
+	let editorLanguage = new Compartment();
 
   languages.push(
     LanguageDescription.of({
@@ -74,9 +82,9 @@
           changes: [{ from: 0, to: codeEditor.state.doc.length, insert: formattedCode }]
         });
 
-        _value = formattedCode;
-        dispatch('change', { value: _value });
-        await tick();
+				_value = formattedCode;
+				onChange(_value);
+				await tick();
 
         toast.success($i18n.t('Code formatted successfully'));
         return true;
@@ -86,20 +94,20 @@
     return false;
   };
 
-  let extensions = [
-    basicSetup,
-    keymap.of([{ key: 'Tab', run: acceptCompletion }, indentWithTab]),
-    indentUnit.of('    '),
-    placeholder('Enter your code here...'),
-    EditorView.updateListener.of((e) => {
-      if (e.docChanged) {
-        _value = e.state.doc.toString();
-        dispatch('change', { value: _value });
-      }
-    }),
-    editorTheme.of([]),
-    editorLanguage.of([])
-  ];
+	let extensions = [
+		basicSetup,
+		keymap.of([{ key: 'Tab', run: acceptCompletion }, indentWithTab]),
+		indentUnit.of('    '),
+		placeholder('Enter your code here...'),
+		EditorView.updateListener.of((e) => {
+			if (e.docChanged) {
+				_value = e.state.doc.toString();
+				onChange(_value);
+			}
+		}),
+		editorTheme.of([]),
+		editorLanguage.of([])
+	];
 
   $: if (lang) {
     setLanguage();
@@ -167,11 +175,12 @@
       attributeFilter: ['class']
     });
 
-    const keydownHandler = async (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        dispatch('save');
-      }
+		const keydownHandler = async (e) => {
+			if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+				e.preventDefault();
+
+				onSave();
+			}
 
       // Format code when Ctrl + Shift + F is pressed
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'f') {

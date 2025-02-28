@@ -190,31 +190,32 @@ type Document = {
 };
 
 type Config = {
-  status: boolean;
-  name: string;
-  version: string;
-  default_locale: string;
-  default_models: string;
-  default_prompt_suggestions: PromptSuggestion[];
-  features: {
-    auth: boolean;
-    auth_trusted_header: boolean;
-    enable_api_key: boolean;
-    enable_signup: boolean;
-    enable_login_form: boolean;
-    enable_web_search?: boolean;
-    enable_google_drive_integration: boolean;
-    enable_image_generation: boolean;
-    enable_admin_export: boolean;
-    enable_admin_chat_access: boolean;
-    enable_community_sharing: boolean;
-    enable_autocomplete_generation: boolean;
-  };
-  oauth: {
-    providers: {
-      [key: string]: string;
-    };
-  };
+	status: boolean;
+	name: string;
+	version: string;
+	default_locale: string;
+	default_models: string;
+	default_prompt_suggestions: PromptSuggestion[];
+	features: {
+		auth: boolean;
+		auth_trusted_header: boolean;
+		enable_api_key: boolean;
+		enable_signup: boolean;
+		enable_login_form: boolean;
+		enable_web_search?: boolean;
+		enable_google_drive_integration: boolean;
+		enable_onedrive_integration: boolean;
+		enable_image_generation: boolean;
+		enable_admin_export: boolean;
+		enable_admin_chat_access: boolean;
+		enable_community_sharing: boolean;
+		enable_autocomplete_generation: boolean;
+	};
+	oauth: {
+		providers: {
+			[key: string]: string;
+		};
+	};
 };
 
 type PromptSuggestion = {
