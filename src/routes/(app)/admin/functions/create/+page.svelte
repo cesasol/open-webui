@@ -88,16 +88,16 @@
 </script>
 
 {#if mounted}
-	{#key func?.content}
-		<FunctionEditor
-			id={func?.id ?? ''}
-			name={func?.name ?? ''}
-			meta={func?.meta ?? { description: '' }}
-			content={func?.content ?? ''}
-			{clone}
-			onSave={(value) => {
-				saveHandler(value);
-			}}
-		/>
-	{/key}
+  {#key func?.content}
+    <FunctionEditor
+      id={func?.id ?? ''}
+      name={func?.name ?? ''}
+      {clone}
+      content={func?.content ?? ''}
+      meta={func?.meta ?? { description: '' }}
+      onSave={(value) => {
+        saveHandler(value);
+      }}
+    />
+  {/key}
 {/if}

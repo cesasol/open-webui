@@ -839,7 +839,7 @@
                 <div class="flex flex-row justify-between space-x-4 pr-2">
                   <div class=" flex-1">
                     <div
-                    style:width="{Math.max(15, createModelPullProgress ?? 0)}%" 
+                      style:width="{Math.max(15, createModelPullProgress ?? 0)}%"
                       class="dark:bg-gray-600 bg-gray-500 text-xs font-medium text-gray-100 text-center p-0.5 leading-none rounded-full create-model__progress"
                     >
                       {createModelPullProgress ?? 0}%

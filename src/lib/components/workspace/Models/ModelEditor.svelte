@@ -179,9 +179,9 @@
       workspaceContainer.scrollTop = 0;
     }
 
-		if (model) {
-			name = model.name;
-			await tick();
+    if (model) {
+      name = model.name;
+      await tick();
 
       id = model.id;
 

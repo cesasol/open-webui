@@ -51,9 +51,9 @@
   onMount(async () => {
     taskConfig = await getTaskConfig(localStorage.token);
 
-		promptSuggestions = $config?.default_prompt_suggestions ?? [];
-		banners = await getBanners(localStorage.token);
-	});
+    promptSuggestions = $config?.default_prompt_suggestions ?? [];
+    banners = await getBanners(localStorage.token);
+  });
 
   const updateBanners = async () => {
     _banners.set(await setBanners(localStorage.token, banners));

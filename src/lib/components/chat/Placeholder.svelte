@@ -188,44 +188,50 @@
         </div>
       </div>
 
-			<div class="text-base font-normal @md:max-w-3xl w-full py-3 {atSelectedModel ? 'mt-2' : ''}">
-				<MessageInput
-					{history}
-					{selectedModels}
-					bind:files
-					bind:prompt
-					bind:autoScroll
-					bind:selectedToolIds
-					bind:imageGenerationEnabled
-					bind:codeInterpreterEnabled
-					bind:webSearchEnabled
-					bind:atSelectedModel
-					{transparentBackground}
-					{stopResponse}
-					{createMessagePair}
-					placeholder={$i18n.t('How can I help you today?')}
-					on:upload={(e) => {
-						dispatch('upload', e.detail);
-					}}
-					on:submit={(e) => {
-						dispatch('submit', e.detail);
-					}}
-				/>
-			</div>
-		</div>
-	</div>
-	<div class="mx-auto max-w-2xl font-primary" in:fade={{ duration: 200, delay: 200 }}>
-		<div class="mx-5">
-			<Suggestions
-				suggestionPrompts={atSelectedModel?.info?.meta?.suggestion_prompts ??
-					models[selectedModelIdx]?.info?.meta?.suggestion_prompts ??
-					$config?.default_prompt_suggestions ??
-					[]}
-				inputValue={prompt}
-				on:select={(e) => {
-					selectSuggestionPrompt(e.detail);
-				}}
-			/>
-		</div>
-	</div>
+      <div
+        class="text-base font-normal @md:max-w-3xl w-full py-3"
+        class:mt-2={atSelectedModel}
+      >
+        <MessageInput
+          {createMessagePair}
+          {history}
+          placeholder={$i18n.t('How can I help you today?')}
+          {selectedModels}
+          {stopResponse}
+          {transparentBackground}
+          bind:files
+          bind:prompt
+          bind:autoScroll
+          bind:selectedToolIds
+          bind:imageGenerationEnabled
+          bind:codeInterpreterEnabled
+          bind:webSearchEnabled
+          bind:atSelectedModel
+          on:upload={(e) => {
+            dispatch('upload', e.detail);
+          }}
+          on:submit={(e) => {
+            dispatch('submit', e.detail);
+          }}
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    class="mx-auto max-w-2xl font-primary"
+    in:fade={{ duration: 200, delay: 200 }}
+  >
+    <div class="mx-5">
+      <Suggestions
+        inputValue={prompt}
+        suggestionPrompts={atSelectedModel?.info?.meta?.suggestion_prompts ??
+          models[selectedModelIdx]?.info?.meta?.suggestion_prompts ??
+          $config?.default_prompt_suggestions ??
+          []}
+        on:select={(e) => {
+          selectSuggestionPrompt(e.detail);
+        }}
+      />
+    </div>
+  </div>
 </div>

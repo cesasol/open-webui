@@ -79,23 +79,23 @@
 
   let filteredUsers;
 
-	$: filteredUsers = users
-		.filter((user) => {
-			if (search === '') {
-				return true;
-			} else {
-				let name = user.name.toLowerCase();
-				let email = user.email.toLowerCase();
-				const query = search.toLowerCase();
-				return name.includes(query) || email.includes(query);
-			}
-		})
-		.sort((a, b) => {
-			if (a[sortKey] < b[sortKey]) return sortOrder === 'asc' ? -1 : 1;
-			if (a[sortKey] > b[sortKey]) return sortOrder === 'asc' ? 1 : -1;
-			return 0;
-		})
-		.slice((page - 1) * 20, page * 20);
+  $: filteredUsers = users
+    .filter((user) => {
+      if (search === '') {
+        return true;
+      } else {
+        let name = user.name.toLowerCase();
+        let email = user.email.toLowerCase();
+        const query = search.toLowerCase();
+        return name.includes(query) || email.includes(query);
+      }
+    })
+    .sort((a, b) => {
+      if (a[sortKey] < b[sortKey]) return sortOrder === 'asc' ? -1 : 1;
+      if (a[sortKey] > b[sortKey]) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    })
+    .slice((page - 1) * 20, page * 20);
 </script>
 
 <ConfirmDialog

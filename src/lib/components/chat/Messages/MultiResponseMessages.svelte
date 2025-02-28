@@ -229,19 +229,19 @@
                   isLastMessage={true}
                   messageId={_messageId}
                   {rateMessage}
-                  {saveMessage}
-                  showNextMessage={() => showNextMessage(modelIdx)}
-                  showPreviousMessage={() => showPreviousMessage(modelIdx)}
-                  siblings={groupedMessageIds[modelIdx].messageIds}
-                  {submitMessage}
-                  {updateChat}
+                  {readOnly}
                   regenerateResponse={async (message) => {
                     regenerateResponse(message);
                     await tick();
                     groupedMessageIdsIdx[modelIdx] =
                       groupedMessageIds[modelIdx].messageIds.length - 1;
                   }}
-                  {readOnly}
+                  {saveMessage}
+                  showNextMessage={() => showNextMessage(modelIdx)}
+                  showPreviousMessage={() => showPreviousMessage(modelIdx)}
+                  siblings={groupedMessageIds[modelIdx].messageIds}
+                  {submitMessage}
+                  {updateChat}
                 />
               {/if}
             {/key}

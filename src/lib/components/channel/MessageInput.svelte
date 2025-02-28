@@ -156,7 +156,7 @@
       return null;
     }
 
-		files = [...files, fileItem];
+    files = [...files, fileItem];
 
     try {
       // During the file upload, file content is automatically extracted.

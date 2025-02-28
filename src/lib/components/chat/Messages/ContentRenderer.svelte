@@ -112,21 +112,21 @@
 </script>
 
 <div bind:this={contentContainerElement}>
-	<Markdown
-		{id}
-		{content}
-		{model}
-		{save}
-		sourceIds={(sources ?? []).reduce((acc, s) => {
-			let ids = [];
-			s.document.forEach((document, index) => {
-				if (model?.info?.meta?.capabilities?.citations == false) {
-					ids.push('N/A');
-					return ids;
-				}
+  <Markdown
+    {id}
+    {content}
+    {model}
+    {save}
+    sourceIds={(sources ?? []).reduce((acc, s) => {
+      let ids = [];
+      s.document.forEach((document, index) => {
+        if (model?.info?.meta?.capabilities?.citations == false) {
+          ids.push('N/A');
+          return ids;
+        }
 
-				const metadata = s.metadata?.[index];
-				const id = metadata?.source ?? 'N/A';
+        const metadata = s.metadata?.[index];
+        const id = metadata?.source ?? 'N/A';
 
         if (metadata?.name) {
           ids.push(metadata.name);

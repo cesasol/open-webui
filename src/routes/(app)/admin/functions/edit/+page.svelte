@@ -74,16 +74,16 @@
 </script>
 
 {#if func}
-	<FunctionEditor
-		edit={true}
-		id={func.id}
-		name={func.name}
-		meta={func.meta}
-		content={func.content}
-		onSave={(value) => {
-			saveHandler(value);
-		}}
-	/>
+  <FunctionEditor
+    id={func.id}
+    name={func.name}
+    content={func.content}
+    edit={true}
+    meta={func.meta}
+    onSave={(value) => {
+      saveHandler(value);
+    }}
+  />
 {:else}
   <div class="flex items-center justify-center h-full">
     <div class=" pb-16">

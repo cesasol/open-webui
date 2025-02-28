@@ -14,9 +14,9 @@
 
   const i18n = getContext('i18n');
 
-	export let modelIds = [];
-	export let models = [];
-	export let atSelectedModel;
+  export let modelIds = [];
+  export let models = [];
+  export let atSelectedModel;
 
   export let submitPrompt;
 
@@ -128,17 +128,20 @@
       </div>
     </div>
 
-		<div class=" w-full font-primary" in:fade={{ duration: 200, delay: 300 }}>
-			<Suggestions
-				className="grid grid-cols-2"
-				suggestionPrompts={atSelectedModel?.info?.meta?.suggestion_prompts ??
-					models[selectedModelIdx]?.info?.meta?.suggestion_prompts ??
-					$config?.default_prompt_suggestions ??
-					[]}
-				on:select={(e) => {
-					submitPrompt(e.detail);
-				}}
-			/>
-		</div>
-	</div>
+    <div
+      class=" w-full font-primary"
+      in:fade={{ duration: 200, delay: 300 }}
+    >
+      <Suggestions
+        className="grid grid-cols-2"
+        suggestionPrompts={atSelectedModel?.info?.meta?.suggestion_prompts ??
+          models[selectedModelIdx]?.info?.meta?.suggestion_prompts ??
+          $config?.default_prompt_suggestions ??
+          []}
+        on:select={(e) => {
+          submitPrompt(e.detail);
+        }}
+      />
+    </div>
+  </div>
 {/key}

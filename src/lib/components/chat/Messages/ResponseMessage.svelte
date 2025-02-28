@@ -1,537 +1,537 @@
 <script lang="ts">
-	import { toast } from 'svelte-sonner';
-	import dayjs from 'dayjs';
-
-	import { createEventDispatcher } from 'svelte';
-	import { onMount, tick, getContext } from 'svelte';
-	import type { Writable } from 'svelte/store';
-	import type { i18n as i18nType } from 'i18next';
-
-	const i18n = getContext<Writable<i18nType>>('i18n');
-
-	const dispatch = createEventDispatcher();
-
-	import { createNewFeedback, getFeedbackById, updateFeedbackById } from '$lib/apis/evaluations';
-	import { getChatById } from '$lib/apis/chats';
-	import { generateTags } from '$lib/apis';
-
-	import { config, models, settings, temporaryChatEnabled, TTSWorker, user } from '$lib/stores';
-	import { synthesizeOpenAISpeech } from '$lib/apis/audio';
-	import { imageGenerations } from '$lib/apis/images';
-	import {
-		copyToClipboard as _copyToClipboard,
-		approximateToHumanReadable,
-		getMessageContentParts,
-		sanitizeResponseContent,
-		createMessagesList,
-		formatDate
-	} from '$lib/utils';
-	import { WEBUI_BASE_URL } from '$lib/constants';
-
-	import Name from './Name.svelte';
-	import ProfileImage from './ProfileImage.svelte';
-	import Skeleton from './Skeleton.svelte';
-	import Image from '$lib/components/common/Image.svelte';
-	import Tooltip from '$lib/components/common/Tooltip.svelte';
-	import RateComment from './RateComment.svelte';
-	import Spinner from '$lib/components/common/Spinner.svelte';
-	import WebSearchResults from './ResponseMessage/WebSearchResults.svelte';
-	import Sparkles from '$lib/components/icons/Sparkles.svelte';
-
-	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-
-	import Error from './Error.svelte';
-	import Citations from './Citations.svelte';
-	import CodeExecutions from './CodeExecutions.svelte';
-	import ContentRenderer from './ContentRenderer.svelte';
-	import { KokoroWorker } from '$lib/workers/KokoroWorker';
-
-	interface MessageType {
-		id: string;
-		model: string;
-		content: string;
-		files?: { type: string; url: string }[];
-		timestamp: number;
-		role: string;
-		statusHistory?: {
-			done: boolean;
-			action: string;
-			description: string;
-			urls?: string[];
-			query?: string;
-		}[];
-		status?: {
-			done: boolean;
-			action: string;
-			description: string;
-			urls?: string[];
-			query?: string;
-		};
-		done: boolean;
-		error?: boolean | { content: string };
-		sources?: string[];
-		code_executions?: {
-			uuid: string;
-			name: string;
-			code: string;
-			language?: string;
-			result?: {
-				error?: string;
-				output?: string;
-				files?: { name: string; url: string }[];
-			};
-		}[];
-		info?: {
-			openai?: boolean;
-			prompt_tokens?: number;
-			completion_tokens?: number;
-			total_tokens?: number;
-			eval_count?: number;
-			eval_duration?: number;
-			prompt_eval_count?: number;
-			prompt_eval_duration?: number;
-			total_duration?: number;
-			load_duration?: number;
-			usage?: unknown;
-		};
-		annotation?: { type: string; rating: number };
-	}
-
-	export let chatId = '';
-	export let history;
-	export let messageId;
-
-	let message: MessageType = JSON.parse(JSON.stringify(history.messages[messageId]));
-	$: if (history.messages) {
-		if (JSON.stringify(message) !== JSON.stringify(history.messages[messageId])) {
-			message = JSON.parse(JSON.stringify(history.messages[messageId]));
-		}
-	}
-
-	export let siblings;
-
-	export let showPreviousMessage: Function;
-	export let showNextMessage: Function;
-
-	export let updateChat: Function;
-	export let editMessage: Function;
-	export let saveMessage: Function;
-	export let rateMessage: Function;
-	export let actionMessage: Function;
-	export let deleteMessage: Function;
-
-	export let submitMessage: Function;
-	export let continueResponse: Function;
-	export let regenerateResponse: Function;
-
-	export let addMessages: Function;
-
-	export let isLastMessage = true;
-	export let readOnly = false;
-
-	let buttonsContainerElement: HTMLDivElement;
-	let showDeleteConfirm = false;
-
-	let model = null;
-	$: model = $models.find((m) => m.id === message.model);
-
-	let edit = false;
-	let editedContent = '';
-	let editTextAreaElement: HTMLTextAreaElement;
-
-	let audioParts: Record<number, HTMLAudioElement | null> = {};
-	let speaking = false;
-	let speakingIdx: number | undefined;
-
-	let loadingSpeech = false;
-	let generatingImage = false;
-
-	let showRateComment = false;
-
-	const copyToClipboard = async (text) => {
-		const res = await _copyToClipboard(text);
-		if (res) {
-			toast.success($i18n.t('Copying to clipboard was successful!'));
-		}
-	};
-
-	const playAudio = (idx: number) => {
-		return new Promise<void>((res) => {
-			speakingIdx = idx;
-			const audio = audioParts[idx];
-
-			if (!audio) {
-				return res();
-			}
-
-			audio.play();
-			audio.onended = async () => {
-				await new Promise((r) => setTimeout(r, 300));
-
-				if (Object.keys(audioParts).length - 1 === idx) {
-					speaking = false;
-				}
-
-				res();
-			};
-		});
-	};
-
-	const toggleSpeakMessage = async () => {
-		if (speaking) {
-			try {
-				speechSynthesis.cancel();
-
-				if (speakingIdx !== undefined && audioParts[speakingIdx]) {
-					audioParts[speakingIdx]!.pause();
-					audioParts[speakingIdx]!.currentTime = 0;
-				}
-			} catch {}
-
-			speaking = false;
-			speakingIdx = undefined;
-			return;
-		}
-
-		if (!(message?.content ?? '').trim().length) {
-			toast.info($i18n.t('No content to speak'));
-			return;
-		}
-
-		speaking = true;
-
-		if ($config.audio.tts.engine === '') {
-			let voices = [];
-			const getVoicesLoop = setInterval(() => {
-				voices = speechSynthesis.getVoices();
-				if (voices.length > 0) {
-					clearInterval(getVoicesLoop);
-
-					const voice =
-						voices
-							?.filter(
-								(v) => v.voiceURI === ($settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice)
-							)
-							?.at(0) ?? undefined;
-
-					console.log(voice);
-
-					const speak = new SpeechSynthesisUtterance(message.content);
-					speak.rate = $settings.audio?.tts?.playbackRate ?? 1;
-
-					console.log(speak);
-
-					speak.onend = () => {
-						speaking = false;
-						if ($settings.conversationMode) {
-							document.getElementById('voice-input-button')?.click();
-						}
-					};
-
-					if (voice) {
-						speak.voice = voice;
-					}
-
-					speechSynthesis.speak(speak);
-				}
-			}, 100);
-		} else {
-			loadingSpeech = true;
-
-			const messageContentParts: string[] = getMessageContentParts(
-				message.content,
-				$config?.audio?.tts?.split_on ?? 'punctuation'
-			);
-
-			if (!messageContentParts.length) {
-				console.log('No content to speak');
-				toast.info($i18n.t('No content to speak'));
-
-				speaking = false;
-				loadingSpeech = false;
-				return;
-			}
-
-			console.debug('Prepared message content for TTS', messageContentParts);
-
-			audioParts = messageContentParts.reduce(
-				(acc, _sentence, idx) => {
-					acc[idx] = null;
-					return acc;
-				},
-				{} as typeof audioParts
-			);
-
-			let lastPlayedAudioPromise = Promise.resolve(); // Initialize a promise that resolves immediately
-
-			if ($settings.audio?.tts?.engine === 'browser-kokoro') {
-				if (!$TTSWorker) {
-					await TTSWorker.set(
-						new KokoroWorker({
-							dtype: $settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
-						})
-					);
-
-					await $TTSWorker.init();
-				}
-
-				for (const [idx, sentence] of messageContentParts.entries()) {
-					const blob = await $TTSWorker
-						.generate({
-							text: sentence,
-							voice: $settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice
-						})
-						.catch((error) => {
-							console.error(error);
-							toast.error(`${error}`);
-
-							speaking = false;
-							loadingSpeech = false;
-						});
-
-					if (blob) {
-						const audio = new Audio(blob);
-						audio.playbackRate = $settings.audio?.tts?.playbackRate ?? 1;
-
-						audioParts[idx] = audio;
-						loadingSpeech = false;
-						lastPlayedAudioPromise = lastPlayedAudioPromise.then(() => playAudio(idx));
-					}
-				}
-			} else {
-				for (const [idx, sentence] of messageContentParts.entries()) {
-					const res = await synthesizeOpenAISpeech(
-						localStorage.token,
-						$settings?.audio?.tts?.defaultVoice === $config.audio.tts.voice
-							? ($settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice)
-							: $config?.audio?.tts?.voice,
-						sentence
-					).catch((error) => {
-						console.error(error);
-						toast.error(`${error}`);
-
-						speaking = false;
-						loadingSpeech = false;
-					});
-
-					if (res) {
-						const blob = await res.blob();
-						const blobUrl = URL.createObjectURL(blob);
-						const audio = new Audio(blobUrl);
-						audio.playbackRate = $settings.audio?.tts?.playbackRate ?? 1;
-
-						audioParts[idx] = audio;
-						loadingSpeech = false;
-						lastPlayedAudioPromise = lastPlayedAudioPromise.then(() => playAudio(idx));
-					}
-				}
-			}
-		}
-	};
-
-	const editMessageHandler = async () => {
-		edit = true;
-		editedContent = message.content;
-
-		await tick();
-
-		editTextAreaElement.style.height = '';
-		editTextAreaElement.style.height = `${editTextAreaElement.scrollHeight}px`;
-	};
-
-	const editMessageConfirmHandler = async () => {
-		editMessage(message.id, editedContent ? editedContent : '', false);
-
-		edit = false;
-		editedContent = '';
-
-		await tick();
-	};
-
-	const saveAsCopyHandler = async () => {
-		editMessage(message.id, editedContent ? editedContent : '');
-
-		edit = false;
-		editedContent = '';
-
-		await tick();
-	};
-
-	const cancelEditMessage = async () => {
-		edit = false;
-		editedContent = '';
-		await tick();
-	};
-
-	const generateImage = async (message: MessageType) => {
-		generatingImage = true;
-		const res = await imageGenerations(localStorage.token, message.content).catch((error) => {
-			toast.error(`${error}`);
-		});
-		console.log(res);
-
-		if (res) {
-			const files = res.map((image) => ({
-				type: 'image',
-				url: `${image.url}`
-			}));
-
-			saveMessage(message.id, {
-				...message,
-				files: files
-			});
-		}
-
-		generatingImage = false;
-	};
-
-	let feedbackLoading = false;
-
-	const feedbackHandler = async (rating: number | null = null, details: object | null = null) => {
-		feedbackLoading = true;
-		console.log('Feedback', rating, details);
-
-		const updatedMessage = {
-			...message,
-			annotation: {
-				...(message?.annotation ?? {}),
-				...(rating !== null ? { rating: rating } : {}),
-				...(details ? details : {})
-			}
-		};
-
-		const chat = await getChatById(localStorage.token, chatId).catch((error) => {
-			toast.error(`${error}`);
-		});
-		if (!chat) {
-			return;
-		}
-
-		const messages = createMessagesList(history, message.id);
-
-		let feedbackItem = {
-			type: 'rating',
-			data: {
-				...(updatedMessage?.annotation ? updatedMessage.annotation : {}),
-				model_id: message?.selectedModelId ?? message.model,
-				...(history.messages[message.parentId].childrenIds.length > 1
-					? {
-							sibling_model_ids: history.messages[message.parentId].childrenIds
-								.filter((id) => id !== message.id)
-								.map((id) => history.messages[id]?.selectedModelId ?? history.messages[id].model)
-						}
-					: {})
-			},
-			meta: {
-				arena: message ? message.arena : false,
-				model_id: message.model,
-				message_id: message.id,
-				message_index: messages.length,
-				chat_id: chatId
-			},
-			snapshot: {
-				chat: chat
-			}
-		};
-
-		const baseModels = [
-			feedbackItem.data.model_id,
-			...(feedbackItem.data.sibling_model_ids ?? [])
-		].reduce((acc, modelId) => {
-			const model = $models.find((m) => m.id === modelId);
-			if (model) {
-				acc[model.id] = model?.info?.base_model_id ?? null;
-			} else {
-				// Log or handle cases where corresponding model is not found
-				console.warn(`Model with ID ${modelId} not found`);
-			}
-			return acc;
-		}, {});
-		feedbackItem.meta.base_models = baseModels;
-
-		let feedback = null;
-		if (message?.feedbackId) {
-			feedback = await updateFeedbackById(
-				localStorage.token,
-				message.feedbackId,
-				feedbackItem
-			).catch((error) => {
-				toast.error(`${error}`);
-			});
-		} else {
-			feedback = await createNewFeedback(localStorage.token, feedbackItem).catch((error) => {
-				toast.error(`${error}`);
-			});
-
-			if (feedback) {
-				updatedMessage.feedbackId = feedback.id;
-			}
-		}
-
-		console.log(updatedMessage);
-		saveMessage(message.id, updatedMessage);
-
-		await tick();
-
-		if (!details) {
-			showRateComment = true;
-
-			if (!updatedMessage.annotation?.tags) {
-				// attempt to generate tags
-				const tags = await generateTags(localStorage.token, message.model, messages, chatId).catch(
-					(error) => {
-						console.error(error);
-						return [];
-					}
-				);
-				console.log(tags);
-
-				if (tags) {
-					updatedMessage.annotation.tags = tags;
-					feedbackItem.data.tags = tags;
-
-					saveMessage(message.id, updatedMessage);
-					await updateFeedbackById(
-						localStorage.token,
-						updatedMessage.feedbackId,
-						feedbackItem
-					).catch((error) => {
-						toast.error(`${error}`);
-					});
-				}
-			}
-		}
-
-		feedbackLoading = false;
-	};
-
-	const deleteMessageHandler = async () => {
-		deleteMessage(message.id);
-	};
-
-	$: if (!edit) {
-		(async () => {
-			await tick();
-		})();
-	}
-
-	onMount(async () => {
-		// console.log('ResponseMessage mounted');
-
-		await tick();
-		if (buttonsContainerElement) {
-			console.log(buttonsContainerElement);
-			buttonsContainerElement.addEventListener('wheel', function (event) {
-				// console.log(event.deltaY);
-
-				event.preventDefault();
-				if (event.deltaY !== 0) {
-					// Adjust horizontal scroll position based on vertical scroll
-					buttonsContainerElement.scrollLeft += event.deltaY;
-				}
-			});
-		}
-	});
+  import { toast } from 'svelte-sonner';
+  import dayjs from 'dayjs';
+
+  import { createEventDispatcher } from 'svelte';
+  import { onMount, tick, getContext } from 'svelte';
+  import type { Writable } from 'svelte/store';
+  import type { i18n as i18nType } from 'i18next';
+
+  const i18n = getContext<Writable<i18nType>>('i18n');
+
+  const dispatch = createEventDispatcher();
+
+  import { createNewFeedback, getFeedbackById, updateFeedbackById } from '$lib/apis/evaluations';
+  import { getChatById } from '$lib/apis/chats';
+  import { generateTags } from '$lib/apis';
+
+  import { config, models, settings, temporaryChatEnabled, TTSWorker, user } from '$lib/stores';
+  import { synthesizeOpenAISpeech } from '$lib/apis/audio';
+  import { imageGenerations } from '$lib/apis/images';
+  import {
+    copyToClipboard as _copyToClipboard,
+    approximateToHumanReadable,
+    getMessageContentParts,
+    sanitizeResponseContent,
+    createMessagesList,
+    formatDate
+  } from '$lib/utils';
+  import { WEBUI_BASE_URL } from '$lib/constants';
+
+  import Name from './Name.svelte';
+  import ProfileImage from './ProfileImage.svelte';
+  import Skeleton from './Skeleton.svelte';
+  import Image from '$lib/components/common/Image.svelte';
+  import Tooltip from '$lib/components/common/Tooltip.svelte';
+  import RateComment from './RateComment.svelte';
+  import Spinner from '$lib/components/common/Spinner.svelte';
+  import WebSearchResults from './ResponseMessage/WebSearchResults.svelte';
+  import Sparkles from '$lib/components/icons/Sparkles.svelte';
+
+  import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+
+  import Error from './Error.svelte';
+  import Citations from './Citations.svelte';
+  import CodeExecutions from './CodeExecutions.svelte';
+  import ContentRenderer from './ContentRenderer.svelte';
+  import { KokoroWorker } from '$lib/workers/KokoroWorker';
+
+  interface MessageType {
+    id: string;
+    model: string;
+    content: string;
+    files?: { type: string; url: string }[];
+    timestamp: number;
+    role: string;
+    statusHistory?: {
+      done: boolean;
+      action: string;
+      description: string;
+      urls?: string[];
+      query?: string;
+    }[];
+    status?: {
+      done: boolean;
+      action: string;
+      description: string;
+      urls?: string[];
+      query?: string;
+    };
+    done: boolean;
+    error?: boolean | { content: string };
+    sources?: string[];
+    code_executions?: {
+      uuid: string;
+      name: string;
+      code: string;
+      language?: string;
+      result?: {
+        error?: string;
+        output?: string;
+        files?: { name: string; url: string }[];
+      };
+    }[];
+    info?: {
+      openai?: boolean;
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      total_tokens?: number;
+      eval_count?: number;
+      eval_duration?: number;
+      prompt_eval_count?: number;
+      prompt_eval_duration?: number;
+      total_duration?: number;
+      load_duration?: number;
+      usage?: unknown;
+    };
+    annotation?: { type: string; rating: number };
+  }
+
+  export let chatId = '';
+  export let history;
+  export let messageId;
+
+  let message: MessageType = JSON.parse(JSON.stringify(history.messages[messageId]));
+  $: if (history.messages) {
+    if (JSON.stringify(message) !== JSON.stringify(history.messages[messageId])) {
+      message = JSON.parse(JSON.stringify(history.messages[messageId]));
+    }
+  }
+
+  export let siblings;
+
+  export let showPreviousMessage: Function;
+  export let showNextMessage: Function;
+
+  export let updateChat: Function;
+  export let editMessage: Function;
+  export let saveMessage: Function;
+  export let rateMessage: Function;
+  export let actionMessage: Function;
+  export let deleteMessage: Function;
+
+  export let submitMessage: Function;
+  export let continueResponse: Function;
+  export let regenerateResponse: Function;
+
+  export let addMessages: Function;
+
+  export let isLastMessage = true;
+  export let readOnly = false;
+
+  let buttonsContainerElement: HTMLDivElement;
+  let showDeleteConfirm = false;
+
+  let model = null;
+  $: model = $models.find((m) => m.id === message.model);
+
+  let edit = false;
+  let editedContent = '';
+  let editTextAreaElement: HTMLTextAreaElement;
+
+  let audioParts: Record<number, HTMLAudioElement | null> = {};
+  let speaking = false;
+  let speakingIdx: number | undefined;
+
+  let loadingSpeech = false;
+  let generatingImage = false;
+
+  let showRateComment = false;
+
+  const copyToClipboard = async (text) => {
+    const res = await _copyToClipboard(text);
+    if (res) {
+      toast.success($i18n.t('Copying to clipboard was successful!'));
+    }
+  };
+
+  const playAudio = (idx: number) => {
+    return new Promise<void>((res) => {
+      speakingIdx = idx;
+      const audio = audioParts[idx];
+
+      if (!audio) {
+        return res();
+      }
+
+      audio.play();
+      audio.onended = async () => {
+        await new Promise((r) => setTimeout(r, 300));
+
+        if (Object.keys(audioParts).length - 1 === idx) {
+          speaking = false;
+        }
+
+        res();
+      };
+    });
+  };
+
+  const toggleSpeakMessage = async () => {
+    if (speaking) {
+      try {
+        speechSynthesis.cancel();
+
+        if (speakingIdx !== undefined && audioParts[speakingIdx]) {
+          audioParts[speakingIdx]!.pause();
+          audioParts[speakingIdx]!.currentTime = 0;
+        }
+      } catch {}
+
+      speaking = false;
+      speakingIdx = undefined;
+      return;
+    }
+
+    if (!(message?.content ?? '').trim().length) {
+      toast.info($i18n.t('No content to speak'));
+      return;
+    }
+
+    speaking = true;
+
+    if ($config.audio.tts.engine === '') {
+      let voices = [];
+      const getVoicesLoop = setInterval(() => {
+        voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          clearInterval(getVoicesLoop);
+
+          const voice =
+            voices
+              ?.filter(
+                (v) => v.voiceURI === ($settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice)
+              )
+              ?.at(0) ?? undefined;
+
+          console.log(voice);
+
+          const speak = new SpeechSynthesisUtterance(message.content);
+          speak.rate = $settings.audio?.tts?.playbackRate ?? 1;
+
+          console.log(speak);
+
+          speak.onend = () => {
+            speaking = false;
+            if ($settings.conversationMode) {
+              document.getElementById('voice-input-button')?.click();
+            }
+          };
+
+          if (voice) {
+            speak.voice = voice;
+          }
+
+          speechSynthesis.speak(speak);
+        }
+      }, 100);
+    } else {
+      loadingSpeech = true;
+
+      const messageContentParts: string[] = getMessageContentParts(
+        message.content,
+        $config?.audio?.tts?.split_on ?? 'punctuation'
+      );
+
+      if (!messageContentParts.length) {
+        console.log('No content to speak');
+        toast.info($i18n.t('No content to speak'));
+
+        speaking = false;
+        loadingSpeech = false;
+        return;
+      }
+
+      console.debug('Prepared message content for TTS', messageContentParts);
+
+      audioParts = messageContentParts.reduce(
+        (acc, _sentence, idx) => {
+          acc[idx] = null;
+          return acc;
+        },
+        {} as typeof audioParts
+      );
+
+      let lastPlayedAudioPromise = Promise.resolve(); // Initialize a promise that resolves immediately
+
+      if ($settings.audio?.tts?.engine === 'browser-kokoro') {
+        if (!$TTSWorker) {
+          await TTSWorker.set(
+            new KokoroWorker({
+              dtype: $settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
+            })
+          );
+
+          await $TTSWorker.init();
+        }
+
+        for (const [idx, sentence] of messageContentParts.entries()) {
+          const blob = await $TTSWorker
+            .generate({
+              text: sentence,
+              voice: $settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice
+            })
+            .catch((error) => {
+              console.error(error);
+              toast.error(`${error}`);
+
+              speaking = false;
+              loadingSpeech = false;
+            });
+
+          if (blob) {
+            const audio = new Audio(blob);
+            audio.playbackRate = $settings.audio?.tts?.playbackRate ?? 1;
+
+            audioParts[idx] = audio;
+            loadingSpeech = false;
+            lastPlayedAudioPromise = lastPlayedAudioPromise.then(() => playAudio(idx));
+          }
+        }
+      } else {
+        for (const [idx, sentence] of messageContentParts.entries()) {
+          const res = await synthesizeOpenAISpeech(
+            localStorage.token,
+            $settings?.audio?.tts?.defaultVoice === $config.audio.tts.voice
+              ? ($settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice)
+              : $config?.audio?.tts?.voice,
+            sentence
+          ).catch((error) => {
+            console.error(error);
+            toast.error(`${error}`);
+
+            speaking = false;
+            loadingSpeech = false;
+          });
+
+          if (res) {
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            const audio = new Audio(blobUrl);
+            audio.playbackRate = $settings.audio?.tts?.playbackRate ?? 1;
+
+            audioParts[idx] = audio;
+            loadingSpeech = false;
+            lastPlayedAudioPromise = lastPlayedAudioPromise.then(() => playAudio(idx));
+          }
+        }
+      }
+    }
+  };
+
+  const editMessageHandler = async () => {
+    edit = true;
+    editedContent = message.content;
+
+    await tick();
+
+    editTextAreaElement.style.height = '';
+    editTextAreaElement.style.height = `${editTextAreaElement.scrollHeight}px`;
+  };
+
+  const editMessageConfirmHandler = async () => {
+    editMessage(message.id, editedContent ? editedContent : '', false);
+
+    edit = false;
+    editedContent = '';
+
+    await tick();
+  };
+
+  const saveAsCopyHandler = async () => {
+    editMessage(message.id, editedContent ? editedContent : '');
+
+    edit = false;
+    editedContent = '';
+
+    await tick();
+  };
+
+  const cancelEditMessage = async () => {
+    edit = false;
+    editedContent = '';
+    await tick();
+  };
+
+  const generateImage = async (message: MessageType) => {
+    generatingImage = true;
+    const res = await imageGenerations(localStorage.token, message.content).catch((error) => {
+      toast.error(`${error}`);
+    });
+    console.log(res);
+
+    if (res) {
+      const files = res.map((image) => ({
+        type: 'image',
+        url: `${image.url}`
+      }));
+
+      saveMessage(message.id, {
+        ...message,
+        files: files
+      });
+    }
+
+    generatingImage = false;
+  };
+
+  let feedbackLoading = false;
+
+  const feedbackHandler = async (rating: number | null = null, details: object | null = null) => {
+    feedbackLoading = true;
+    console.log('Feedback', rating, details);
+
+    const updatedMessage = {
+      ...message,
+      annotation: {
+        ...(message?.annotation ?? {}),
+        ...(rating !== null ? { rating: rating } : {}),
+        ...(details ? details : {})
+      }
+    };
+
+    const chat = await getChatById(localStorage.token, chatId).catch((error) => {
+      toast.error(`${error}`);
+    });
+    if (!chat) {
+      return;
+    }
+
+    const messages = createMessagesList(history, message.id);
+
+    let feedbackItem = {
+      type: 'rating',
+      data: {
+        ...(updatedMessage?.annotation ? updatedMessage.annotation : {}),
+        model_id: message?.selectedModelId ?? message.model,
+        ...(history.messages[message.parentId].childrenIds.length > 1
+          ? {
+            sibling_model_ids: history.messages[message.parentId].childrenIds
+              .filter((id) => id !== message.id)
+              .map((id) => history.messages[id]?.selectedModelId ?? history.messages[id].model)
+          }
+          : {})
+      },
+      meta: {
+        arena: message ? message.arena : false,
+        model_id: message.model,
+        message_id: message.id,
+        message_index: messages.length,
+        chat_id: chatId
+      },
+      snapshot: {
+        chat: chat
+      }
+    };
+
+    const baseModels = [
+      feedbackItem.data.model_id,
+      ...(feedbackItem.data.sibling_model_ids ?? [])
+    ].reduce((acc, modelId) => {
+      const model = $models.find((m) => m.id === modelId);
+      if (model) {
+        acc[model.id] = model?.info?.base_model_id ?? null;
+      } else {
+        // Log or handle cases where corresponding model is not found
+        console.warn(`Model with ID ${modelId} not found`);
+      }
+      return acc;
+    }, {});
+    feedbackItem.meta.base_models = baseModels;
+
+    let feedback = null;
+    if (message?.feedbackId) {
+      feedback = await updateFeedbackById(
+        localStorage.token,
+        message.feedbackId,
+        feedbackItem
+      ).catch((error) => {
+        toast.error(`${error}`);
+      });
+    } else {
+      feedback = await createNewFeedback(localStorage.token, feedbackItem).catch((error) => {
+        toast.error(`${error}`);
+      });
+
+      if (feedback) {
+        updatedMessage.feedbackId = feedback.id;
+      }
+    }
+
+    console.log(updatedMessage);
+    saveMessage(message.id, updatedMessage);
+
+    await tick();
+
+    if (!details) {
+      showRateComment = true;
+
+      if (!updatedMessage.annotation?.tags) {
+        // attempt to generate tags
+        const tags = await generateTags(localStorage.token, message.model, messages, chatId).catch(
+          (error) => {
+            console.error(error);
+            return [];
+          }
+        );
+        console.log(tags);
+
+        if (tags) {
+          updatedMessage.annotation.tags = tags;
+          feedbackItem.data.tags = tags;
+
+          saveMessage(message.id, updatedMessage);
+          await updateFeedbackById(
+            localStorage.token,
+            updatedMessage.feedbackId,
+            feedbackItem
+          ).catch((error) => {
+            toast.error(`${error}`);
+          });
+        }
+      }
+    }
+
+    feedbackLoading = false;
+  };
+
+  const deleteMessageHandler = async () => {
+    deleteMessage(message.id);
+  };
+
+  $: if (!edit) {
+    (async () => {
+      await tick();
+    })();
+  }
+
+  onMount(async () => {
+    // console.log('ResponseMessage mounted');
+
+    await tick();
+    if (buttonsContainerElement) {
+      console.log(buttonsContainerElement);
+      buttonsContainerElement.addEventListener('wheel', function (event) {
+        // console.log(event.deltaY);
+
+        event.preventDefault();
+        if (event.deltaY !== 0) {
+          // Adjust horizontal scroll position based on vertical scroll
+          buttonsContainerElement.scrollLeft += event.deltaY;
+        }
+      });
+    }
+  });
 </script>
 
 <DeleteConfirmDialog
@@ -716,40 +716,41 @@
                       {$i18n.t('Cancel')}
                     </button>
 
-										<button
-											id="confirm-edit-message-button"
-											class=" px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-850 text-gray-100 dark:text-gray-800 transition rounded-3xl"
-											on:click={() => {
-												editMessageConfirmHandler();
-											}}
-										>
-											{$i18n.t('Save')}
-										</button>
-									</div>
-								</div>
-							</div>
-						{:else}
-							<div class="w-full flex flex-col relative" id="response-content-container">
-								{#if message.content === '' && !message.error}
-									<Skeleton />
-								{:else if message.content && message.error !== true}
-									<!-- always show message contents even if there's an error -->
-									<!-- unless message.error === true which is legacy error handling, where the error message is stored in message.content -->
-									<ContentRenderer
-										id={message.id}
-										{history}
-										content={message.content}
-										sources={message.sources}
-										floatingButtons={message?.done}
-										save={!readOnly}
-										{model}
-										onTaskClick={async (e) => {
-											console.log(e);
-										}}
-										onSourceClick={async (id, idx) => {
-											console.log(id, idx);
-											let sourceButton = document.getElementById(`source-${message.id}-${idx}`);
-											const sourcesCollapsible = document.getElementById(`collapsible-sources`);
+                    <button
+                      id="confirm-edit-message-button"
+                      class=" px-4 py-2 bg-gray-900 dark:bg-white hover:bg-gray-850 text-gray-100 dark:text-gray-800 transition rounded-3xl"
+                      on:click={() => {
+                        editMessageConfirmHandler();
+                      }}
+                    >
+                      {$i18n.t('Save')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            {:else}
+              <div
+                id="response-content-container"
+                class="w-full flex flex-col relative"
+              >
+                {#if message.content === '' && !message.error}
+                  <Skeleton />
+                {:else if message.content && message.error !== true}
+                  <!-- always show message contents even if there's an error -->
+                  <!-- unless message.error === true which is legacy error handling, where the error message is stored in message.content -->
+                  <ContentRenderer
+                    id={message.id}
+                    content={message.content}
+                    floatingButtons={message?.done}
+                    {history}
+                    {model}
+                    onAddMessages={({ modelId, parentId, messages }) => {
+                      addMessages({ modelId, parentId, messages });
+                    }}
+                    onSourceClick={async (id, idx) => {
+                      console.log(id, idx);
+                      let sourceButton = document.getElementById(`source-${message.id}-${idx}`);
+                      const sourcesCollapsible = document.getElementById(`collapsible-sources`);
 
                       if (sourceButton) {
                         sourceButton.click();
@@ -766,16 +767,18 @@
                           });
                         });
 
-												// Try clicking the source button again
-												sourceButton = document.getElementById(`source-${message.id}-${idx}`);
-												sourceButton && sourceButton.click();
-											}
-										}}
-										onAddMessages={({ modelId, parentId, messages }) => {
-											addMessages({ modelId, parentId, messages });
-										}}
-										on:update={(e) => {
-											const { raw, oldContent, newContent } = e.detail;
+                        // Try clicking the source button again
+                        sourceButton = document.getElementById(`source-${message.id}-${idx}`);
+                        sourceButton && sourceButton.click();
+                      }
+                    }}
+                    onTaskClick={async (e) => {
+                      console.log(e);
+                    }}
+                    save={!readOnly}
+                    sources={message.sources}
+                    on:update={(e) => {
+                      const { raw, oldContent, newContent } = e.detail;
 
                       history.messages[message.id].content = history.messages[
                         message.id
@@ -803,9 +806,12 @@
                   <Error content={message?.error?.content ?? message.content} />
                 {/if}
 
-								{#if (message?.sources || message?.citations) && (model?.info?.meta?.capabilities?.citations ?? true)}
-									<Citations id={message?.id} sources={message?.sources ?? message?.citations} />
-								{/if}
+                {#if (message?.sources || message?.citations) && (model?.info?.meta?.capabilities?.citations ?? true)}
+                  <Citations
+                    id={message?.id}
+                    sources={message?.sources ?? message?.citations}
+                  />
+                {/if}
 
                 {#if message.code_executions}
                   <CodeExecutions codeExecutions={message.code_executions} />
@@ -815,35 +821,38 @@
           </div>
         </div>
 
-				{#if !edit}
-					<div
-						bind:this={buttonsContainerElement}
-						class="flex justify-start overflow-x-auto buttons text-gray-600 dark:text-gray-500 mt-0.5"
-					>
-						{#if message.done || siblings.length > 1}
-							{#if siblings.length > 1}
-								<div class="flex self-center min-w-fit" dir="ltr">
-									<button
-										class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
-										on:click={() => {
-											showPreviousMessage(message);
-										}}
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											fill="none"
-											viewBox="0 0 24 24"
-											stroke="currentColor"
-											stroke-width="2.5"
-											class="size-3.5"
-										>
-											<path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												d="M15.75 19.5 8.25 12l7.5-7.5"
-											/>
-										</svg>
-									</button>
+        {#if !edit}
+          <div
+            bind:this={buttonsContainerElement}
+            class="flex justify-start overflow-x-auto buttons text-gray-600 dark:text-gray-500 mt-0.5"
+          >
+            {#if message.done || siblings.length > 1}
+              {#if siblings.length > 1}
+                <div
+                  class="flex self-center min-w-fit"
+                  dir="ltr"
+                >
+                  <button
+                    class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
+                    on:click={() => {
+                      showPreviousMessage(message);
+                    }}
+                  >
+                    <svg
+                      class="size-3.5"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2.5"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M15.75 19.5 8.25 12l7.5-7.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
 
                   <div class="text-sm tracking-widest font-semibold self-center dark:text-gray-100 min-w-fit">
                     {siblings.indexOf(message.id) + 1}/{siblings.length}
@@ -1347,40 +1356,46 @@
                     </Tooltip>
                   {/if}
 
-									{#if isLastMessage}
-										{#each model?.actions ?? [] as action}
-											<Tooltip content={action.name} placement="bottom">
-												<button
-													type="button"
-													class="{isLastMessage
-														? 'visible'
-														: 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
-													on:click={() => {
-														actionMessage(action.id, message);
-													}}
-												>
-													{#if action.icon_url}
-														<div class="size-4">
-															<img
-																src={action.icon_url}
-																class="w-4 h-4 {action.icon_url.includes('svg')
-																	? 'dark:invert-[80%]'
-																	: ''}"
-																style="fill: currentColor;"
-																alt={action.name}
-															/>
-														</div>
-													{:else}
-														<Sparkles strokeWidth="2.1" className="size-4" />
-													{/if}
-												</button>
-											</Tooltip>
-										{/each}
-									{/if}
-								{/if}
-							{/if}
-						{/if}
-					</div>
+                  {#if isLastMessage}
+                    {#each model?.actions ?? [] as action}
+                      <Tooltip
+                        content={action.name}
+                        placement="bottom"
+                      >
+                        <button
+                          class="{isLastMessage
+                            ? 'visible'
+                            : 'invisible group-hover:visible'} p-1.5 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg dark:hover:text-white hover:text-black transition"
+                          type="button"
+                          on:click={() => {
+                            actionMessage(action.id, message);
+                          }}
+                        >
+                          {#if action.icon_url}
+                            <div class="size-4">
+                              <img
+                                style:fill="currentColor"
+                                class="w-4 h-4 {action.icon_url.includes('svg')
+                                  ? 'dark:invert-[80%]'
+                                  : ''}"
+                                alt={action.name}
+                                src={action.icon_url}
+                              />
+                            </div>
+                          {:else}
+                            <Sparkles
+                              className="size-4"
+                              strokeWidth="2.1"
+                            />
+                          {/if}
+                        </button>
+                      </Tooltip>
+                    {/each}
+                  {/if}
+                {/if}
+              {/if}
+            {/if}
+          </div>
 
           {#if message.done && showRateComment}
             <RateComment

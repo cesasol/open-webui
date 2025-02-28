@@ -1,5 +1,5 @@
 <script>
-	import { getContext, onMount, tick } from 'svelte';
+  import { getContext, onMount, tick } from 'svelte';
 
   const i18n = getContext('i18n');
 
@@ -12,8 +12,8 @@
   import LockClosed from '$lib/components/icons/LockClosed.svelte';
   import AccessControlModal from '../common/AccessControlModal.svelte';
 
-	let formElement = null;
-	let loading = false;
+  let formElement = null;
+  let loading = false;
 
   let showConfirm = false;
   let showAccessControlModal = false;
@@ -21,15 +21,15 @@
   export let edit = false;
   export let clone = false;
 
-	export let onSave = () => {};
+  export let onSave = () => {};
 
-	export let id = '';
-	export let name = '';
-	export let meta = {
-		description: ''
-	};
-	export let content = '';
-	export let accessControl = null;
+  export let id = '';
+  export let name = '';
+  export let meta = {
+    description: ''
+  };
+  export let content = '';
+  export let accessControl = null;
 
   let _content = '';
 
@@ -148,16 +148,16 @@ class Tools:
             return f"Error fetching weather data: {str(e)}"
 `;
 
-	const saveHandler = async () => {
-		loading = true;
-		onSave({
-			id,
-			name,
-			meta,
-			content,
-			access_control: accessControl
-		});
-	};
+  const saveHandler = async () => {
+    loading = true;
+    onSave({
+      id,
+      name,
+      meta,
+      content,
+      access_control: accessControl
+    });
+  };
 
   const submitHandler = async () => {
     if (codeEditor) {
@@ -288,22 +288,22 @@ class Tools:
           </div>
         </div>
 
-				<div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
-					<CodeEditor
-						bind:this={codeEditor}
-						value={content}
-						{boilerplate}
-						lang="python"
-						onChange={(e) => {
-							_content = e;
-						}}
-						onSave={() => {
-							if (formElement) {
-								formElement.requestSubmit();
-							}
-						}}
-					/>
-				</div>
+        <div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
+          <CodeEditor
+            bind:this={codeEditor}
+            {boilerplate}
+            lang="python"
+            onChange={(e) => {
+              _content = e;
+            }}
+            onSave={() => {
+              if (formElement) {
+                formElement.requestSubmit();
+              }
+            }}
+            value={content}
+          />
+        </div>
 
         <div class="pb-3 flex justify-between">
           <div class="flex-1 pr-3">

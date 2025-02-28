@@ -81,17 +81,17 @@
 </script>
 
 {#if mounted}
-	{#key tool?.content}
-		<ToolkitEditor
-			id={tool?.id ?? ''}
-			name={tool?.name ?? ''}
-			meta={tool?.meta ?? { description: '' }}
-			content={tool?.content ?? ''}
-			access_control={null}
-			{clone}
-			onSave={(value) => {
-				saveHandler(value);
-			}}
-		/>
-	{/key}
+  {#key tool?.content}
+    <ToolkitEditor
+      id={tool?.id ?? ''}
+      name={tool?.name ?? ''}
+      access_control={null}
+      {clone}
+      content={tool?.content ?? ''}
+      meta={tool?.meta ?? { description: '' }}
+      onSave={(value) => {
+        saveHandler(value);
+      }}
+    />
+  {/key}
 {/if}

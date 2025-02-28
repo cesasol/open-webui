@@ -56,24 +56,24 @@
 
   let model = null;
 
-	onMount(async () => {
-		window.addEventListener('message', async (event) => {
-			if (
-				!['https://openwebui.com', 'https://www.openwebui.com', 'http://localhost:5173'].includes(
-					event.origin
-				)
-			) {
-				return;
-			}
+  onMount(async () => {
+    window.addEventListener('message', async (event) => {
+      if (
+        !['https://openwebui.com', 'https://www.openwebui.com', 'http://localhost:5173'].includes(
+          event.origin
+        )
+      ) {
+        return;
+      }
 
-			let data = JSON.parse(event.data);
+      let data = JSON.parse(event.data);
 
-			if (data?.info) {
-				data = data.info;
-			}
+      if (data?.info) {
+        data = data.info;
+      }
 
-			model = data;
-		});
+      model = data;
+    });
 
     if (window.opener ?? false) {
       window.opener.postMessage('loaded', '*');

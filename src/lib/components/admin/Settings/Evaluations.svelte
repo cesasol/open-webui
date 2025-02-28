@@ -100,16 +100,16 @@
     dispatch('save');
   }}
 >
-	<div class="overflow-y-scroll scrollbar-hidden h-full">
-		{#if evaluationConfig !== null}
-			<div class="">
-				<div class="mb-3">
-					<div class=" mb-2.5 text-base font-medium">{$i18n.t('General')}</div>
+  <div class="overflow-y-scroll scrollbar-hidden h-full">
+    {#if evaluationConfig !== null}
+      <div class="">
+        <div class="mb-3">
+          <div class=" mb-2.5 text-base font-medium">{$i18n.t('General')}</div>
 
-					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
+          <hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-					<div class="mb-2.5 flex w-full justify-between">
-						<div class=" text-xs font-medium">{$i18n.t('Arena Models')}</div>
+          <div class="mb-2.5 flex w-full justify-between">
+            <div class=" text-xs font-medium">{$i18n.t('Arena Models')}</div>
 
             <Tooltip content={$i18n.t(`Message rating should be enabled to use this feature`)}>
               <Switch bind:state={evaluationConfig.ENABLE_EVALUATION_ARENA_MODELS} />
@@ -117,62 +117,62 @@
           </div>
         </div>
 
-				{#if evaluationConfig.ENABLE_EVALUATION_ARENA_MODELS}
-					<div class="mb-3">
-						<div class=" mb-2.5 text-base font-medium flex justify-between items-center">
-							<div>
-								{$i18n.t('Manage')}
-							</div>
+        {#if evaluationConfig.ENABLE_EVALUATION_ARENA_MODELS}
+          <div class="mb-3">
+            <div class=" mb-2.5 text-base font-medium flex justify-between items-center">
+              <div>
+                {$i18n.t('Manage')}
+              </div>
 
-							<div>
-								<Tooltip content={$i18n.t('Add Arena Model')}>
-									<button
-										class="p-1"
-										type="button"
-										on:click={() => {
-											showAddModel = true;
-										}}
-									>
-										<Plus />
-									</button>
-								</Tooltip>
-							</div>
-						</div>
+              <div>
+                <Tooltip content={$i18n.t('Add Arena Model')}>
+                  <button
+                    class="p-1"
+                    type="button"
+                    on:click={() => {
+                      showAddModel = true;
+                    }}
+                  >
+                    <Plus />
+                  </button>
+                </Tooltip>
+              </div>
+            </div>
 
-						<hr class=" border-gray-100 dark:border-gray-850 my-2" />
+            <hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-						<div class="flex flex-col gap-2">
-							{#if (evaluationConfig?.EVALUATION_ARENA_MODELS ?? []).length > 0}
-								{#each evaluationConfig.EVALUATION_ARENA_MODELS as model, index}
-									<Model
-										{model}
-										on:edit={(e) => {
-											editModelHandler(e.detail, index);
-										}}
-										on:delete={(e) => {
-											deleteModelHandler(index);
-										}}
-									/>
-								{/each}
-							{:else}
-								<div class=" text-center text-xs text-gray-500">
-									{$i18n.t(
-										`Using the default arena model with all models. Click the plus button to add custom models.`
-									)}
-								</div>
-							{/if}
-						</div>
-					</div>
-				{/if}
-			</div>
-		{:else}
-			<div class="flex h-full justify-center">
-				<div class="my-auto">
-					<Spinner className="size-6" />
-				</div>
-			</div>
-		{/if}
-	</div>
+            <div class="flex flex-col gap-2">
+              {#if (evaluationConfig?.EVALUATION_ARENA_MODELS ?? []).length > 0}
+                {#each evaluationConfig.EVALUATION_ARENA_MODELS as model, index}
+                  <Model
+                    {model}
+                    on:edit={(e) => {
+                      editModelHandler(e.detail, index);
+                    }}
+                    on:delete={(e) => {
+                      deleteModelHandler(index);
+                    }}
+                  />
+                {/each}
+              {:else}
+                <div class=" text-center text-xs text-gray-500">
+                  {$i18n.t(
+                    `Using the default arena model with all models. Click the plus button to add custom models.`
+                  )}
+                </div>
+              {/if}
+            </div>
+          </div>
+        {/if}
+      </div>
+    {:else}
+      <div class="flex h-full justify-center">
+        <div class="my-auto">
+          <Spinner className="size-6" />
+        </div>
+      </div>
+    {/if}
+  </div>
 
   <div class="flex justify-end pt-3 text-sm font-medium">
     <button
