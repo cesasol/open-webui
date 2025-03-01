@@ -17,7 +17,7 @@
 	import ArenaModelModal from './Evaluations/ArenaModelModal.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let evaluationConfig = $state(null);
 	let showAddModel = $state(false);

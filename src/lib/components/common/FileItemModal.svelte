@@ -6,7 +6,7 @@
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import Modal from './Modal.svelte';
 	import XMark from '../icons/XMark.svelte';

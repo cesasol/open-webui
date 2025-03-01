@@ -1,7 +1,7 @@
 <script>
 	import { getContext } from 'svelte';
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import RichTextInput from '../common/RichTextInput.svelte';
 	import Spinner from '../common/Spinner.svelte';

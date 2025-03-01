@@ -21,7 +21,7 @@
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	dayjs.extend(localizedFormat);
 
 	let loaded = $state(false);

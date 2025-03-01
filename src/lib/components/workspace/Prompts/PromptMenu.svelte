@@ -15,7 +15,7 @@
 	import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	interface Props {
 		shareHandler: Function;

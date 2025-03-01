@@ -4,7 +4,7 @@
 	import { tick, getContext, onMount, createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { settings } from '$lib/stores';
 	import { copyToClipboard } from '$lib/utils';

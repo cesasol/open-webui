@@ -83,7 +83,7 @@
 	</div>
 {/snippet}
 
-<Collapsible className="w-full space-y-1" bind:open={collapsedState} {content}>
+<Collapsible className="w-full space-y-1" {content} bind:open={collapsedState}>
 	<div
 		class="flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition"
 	>

@@ -5,7 +5,7 @@
 	import { marked } from 'marked';
 
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	const helpText = {
 		vision: $i18n.t('Model accepts image inputs'),

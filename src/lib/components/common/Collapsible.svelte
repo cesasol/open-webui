@@ -11,7 +11,7 @@
 	dayjs.extend(duration);
 	dayjs.extend(relativeTime);
 
-	async function loadLocale(locales) {
+	async function loadLocale(locales: readonly string[]) {
 		for (const locale of locales) {
 			try {
 				dayjs.locale(locale);

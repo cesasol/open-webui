@@ -487,10 +487,10 @@
 				</div>
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
-					type="button"
 					onclick={() => {
 						params.top_k = (params?.top_k ?? null) === null ? 40 : null;
 					}}
+					type="button"
 				>
 					{#if (params?.top_k ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>
@@ -598,10 +598,10 @@
 				</div>
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
-					type="button"
 					onclick={() => {
 						params.min_p = (params?.min_p ?? null) === null ? 0.0 : null;
 					}}
+					type="button"
 				>
 					{#if (params?.min_p ?? null) === null}
 						<span class="ml-2 self-center">{$i18n.t('Default')}</span>

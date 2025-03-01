@@ -5,7 +5,7 @@
 	const { saveAs } = fileSaver;
 	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
-	import { getContext, createEventDispatcher } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 	dayjs.extend(localizedFormat);
@@ -23,7 +23,8 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import UnarchiveAllConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	import type { IChat } from '$lib/types/chat';
+	const i18n = getI18nContext();
 
 	interface Props {
 		show?: boolean;
@@ -31,12 +32,12 @@ const i18n = getContext('i18n');
 
 	let { show = $bindable(false) }: Props = $props();
 
-	let chats = $state([]);
+	let chats = $state<IChat[]>([]);
 
 	let searchValue = $state('');
 	let showUnarchiveAllConfirmDialog = $state(false);
 
-	const unarchiveChatHandler = async (chatId) => {
+	const unarchiveChatHandler = async (chatId: string) => {
 		const res = await archiveChatById(localStorage.token, chatId).catch((error) => {
 			toast.error(`${error}`);
 		});
@@ -45,7 +46,7 @@ const i18n = getContext('i18n');
 		dispatch('change');
 	};
 
-	const deleteChatHandler = async (chatId) => {
+	const deleteChatHandler = async (chatId: string) => {
 		const res = await deleteChatById(localStorage.token, chatId).catch((error) => {
 			toast.error(`${error}`);
 		});
@@ -92,6 +93,7 @@ const i18n = getContext('i18n');
 			<div class=" text-lg font-medium self-center">{$i18n.t('Archived Chats')}</div>
 			<button
 				class="self-center"
+				aria-label={$i18n.t('Close')}
 				onclick={() => {
 					show = false;
 				}}
@@ -180,6 +182,7 @@ const i18n = getContext('i18n');
 														<Tooltip content={$i18n.t('Unarchive Chat')}>
 															<button
 																class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+																aria-label={$i18n.t('Unarchive Chat')}
 																onclick={async () => {
 																	unarchiveChatHandler(chat.id);
 																}}
@@ -204,6 +207,7 @@ const i18n = getContext('i18n');
 														<Tooltip content={$i18n.t('Delete Chat')}>
 															<button
 																class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+																aria-label={$i18n.t('Permanently delete chat')}
 																onclick={async () => {
 																	deleteChatHandler(chat.id);
 																}}

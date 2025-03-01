@@ -10,7 +10,7 @@
 	import Tooltip from './Tooltip.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	import { deleteFileById } from '$lib/apis/files';

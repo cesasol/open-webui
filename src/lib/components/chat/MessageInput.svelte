@@ -1,4 +1,3 @@
-
 <script lang="ts">
 	import { preventDefault, run } from 'svelte/legacy';
 
@@ -367,8 +366,8 @@
 							class=" absolute -top-12 left-0 right-0 flex justify-center z-30 pointer-events-none"
 						>
 							<button
-								aria-label={$i18n.t('scroll_to_bottom')}
 								class=" bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full pointer-events-auto"
+								aria-label={$i18n.t('scroll_to_bottom')}
 								onclick={() => {
 									autoScroll = true;
 									scrollToBottom();
@@ -629,8 +628,8 @@
 													</div>
 													<div class=" absolute -top-1 -right-1">
 														<button
-															aria-label={$i18n.t('Remove file', { ns: 'chat' })}
 															class=" bg-white text-black border border-white rounded-full group-hover:visible invisible transition"
+															aria-label={$i18n.t('Remove file', { ns: 'chat' })}
 															onclick={() => {
 																files.splice(fileIdx, 1);
 																files = files;
@@ -1341,13 +1340,13 @@
 												<div class=" flex items-center">
 													<Tooltip content={$i18n.t('Send message')}>
 														<button
-															aria-label={$i18n.t('Send message')}
 															id="send-message-button"
 															class="{!(prompt === '' && files.length === 0)
 																? webSearchEnabled || ($settings?.webSearch ?? false) === 'always'
 																	? 'bg-blue-500 text-white hover:bg-blue-400 '
 																	: 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
 																: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 self-center"
+															aria-label={$i18n.t('Send message')}
 															disabled={prompt === '' && files.length === 0}
 															type="submit"
 														>
@@ -1371,8 +1370,8 @@
 											<div class=" flex items-center">
 												<Tooltip content={$i18n.t('Stop')}>
 													<button
-														aria-label={$i18n.t('Stop response')}
 														class="bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5"
+														aria-label={$i18n.t('Stop response')}
 														onclick={() => {
 															stopResponse();
 														}}

@@ -14,7 +14,7 @@
 	import MagnifyingGlass from '$lib/components/icons/MagnifyingGlass.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	const EMBEDDING_MODEL = 'TaylorAI/bge-micro-v2';
 

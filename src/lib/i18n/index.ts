@@ -31,6 +31,7 @@ class I18NextTranslationStore implements TranslationService {
 		i18n.on('languageChanged', () => {
 			i18nWritable.set(i18n);
 		});
+		// i18n.on('languages')
 		return i18nWritable;
 	}
 

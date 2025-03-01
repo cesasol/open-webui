@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { onMount, tick, getContext } from 'svelte';
-	import { openDB, deleteDB } from 'idb';
+	import { openDB, deleteDB, type IDBPDatabase } from 'idb';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 	import mermaid from 'mermaid';
@@ -50,10 +50,10 @@
 	let { children }: Props = $props();
 
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loaded = $state(false);
-	let DB = $state(null);
+	let DB = $state<null | IDBPDatabase>(null);
 	let localDBChats = $state([]);
 
 	let version = $state();

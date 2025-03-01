@@ -8,7 +8,7 @@
 
 	import { onMount, getContext, onDestroy, tick } from 'svelte';
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';

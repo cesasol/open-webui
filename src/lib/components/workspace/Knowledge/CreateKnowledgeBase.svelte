@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import { getContext } from 'svelte';
 	import { getI18nContext } from '$lib/contexts';
-const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { createNewKnowledge, getKnowledgeBases } from '$lib/apis/knowledge';
 	import { toast } from 'svelte-sonner';
