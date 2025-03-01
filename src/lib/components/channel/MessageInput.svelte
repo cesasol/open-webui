@@ -1,29 +1,28 @@
 <script lang="ts">
-	import { run, preventDefault } from 'svelte/legacy';
+	import { preventDefault, run } from 'svelte/legacy';
 
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
 
-	import { tick, getContext, onMount, onDestroy } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 
 	import { getI18nContext } from '$lib/contexts';
-	const i18n = getI18nContext();
 
-	import { config, mobile, settings, socket } from '$lib/stores';
-	import { blobToFile, compressImage } from '$lib/utils';
+	import { config, mobile, settings } from '$lib/stores';
+	import { compressImage } from '$lib/utils';
 
-	import Tooltip from '../common/Tooltip.svelte';
-	import RichTextInput from '../common/RichTextInput.svelte';
-	import VoiceRecording from '../chat/MessageInput/VoiceRecording.svelte';
-	import InputMenu from './MessageInput/InputMenu.svelte';
 	import { uploadFile } from '$lib/apis/files';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
+	import FilesOverlay from '../chat/MessageInput/FilesOverlay.svelte';
+	import VoiceRecording from '../chat/MessageInput/VoiceRecording.svelte';
 	import FileItem from '../common/FileItem.svelte';
 	import Image from '../common/Image.svelte';
-	import { transcribeAudio } from '$lib/apis/audio';
-	import FilesOverlay from '../chat/MessageInput/FilesOverlay.svelte';
+	import RichTextInput from '../common/RichTextInput.svelte';
+	import Tooltip from '../common/Tooltip.svelte';
+	import InputMenu from './MessageInput/InputMenu.svelte';
 
 	let draggedOver = $state(false);
+	const i18n = getI18nContext();
 
 	let recording = $state(false);
 	let content = $state('');

@@ -7,6 +7,7 @@ import * as typescriptParser from '@typescript-eslint/parser';
 import * as espree from 'espree';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
+import { flatConfigs as importPlugin } from 'eslint-plugin-import';
 
 export default [
 	{
@@ -28,6 +29,8 @@ export default [
 			}
 		}
 	},
+	importPlugin.recommended,
+	importPlugin.typescript,
 	js.configs.recommended,
 	...ts.configs.recommended,
 	...svelte.configs['flat/all'],

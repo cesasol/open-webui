@@ -70,7 +70,7 @@ export const initI18n = (defaultLocale?: string) => {
 		.use(resourcesToBackend(loadResource))
 		.use(LanguageDetector)
 		.init({
-			debug: false,
+			debug: import.meta.env.DEV,
 			detection: {
 				order: detectionOrder,
 				caches: ['localStorage'],

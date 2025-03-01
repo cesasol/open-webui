@@ -1,52 +1,47 @@
 <script lang="ts">
 	import { run } from 'svelte/legacy';
-
-	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
-
-	import { createEventDispatcher } from 'svelte';
-	import { onMount, tick, getContext } from 'svelte';
-	import type { Writable } from 'svelte/store';
+	import { toast } from 'svelte-sonner';
 	import type { i18n as i18nType } from 'i18next';
-
-	const i18n = getContext<Writable<i18nType>>('i18n');
-
-	const dispatch = createEventDispatcher();
-
-	import { createNewFeedback, getFeedbackById, updateFeedbackById } from '$lib/apis/evaluations';
-	import { getChatById } from '$lib/apis/chats';
+	import { createEventDispatcher, getContext, onMount, tick } from 'svelte';
+	import type { Writable } from 'svelte/store';
 	import { generateTags } from '$lib/apis';
+	import { getChatById } from '$lib/apis/chats';
+	import { createNewFeedback, updateFeedbackById } from '$lib/apis/evaluations';
 
-	import { config, models, settings, temporaryChatEnabled, TTSWorker, user } from '$lib/stores';
 	import { synthesizeOpenAISpeech } from '$lib/apis/audio';
 	import { imageGenerations } from '$lib/apis/images';
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { config, models, settings, temporaryChatEnabled, TTSWorker, user } from '$lib/stores';
 	import {
 		copyToClipboard as _copyToClipboard,
-		approximateToHumanReadable,
-		getMessageContentParts,
-		sanitizeResponseContent,
 		createMessagesList,
-		formatDate
+		formatDate,
+		getMessageContentParts,
+		sanitizeResponseContent
 	} from '$lib/utils';
-	import { WEBUI_BASE_URL } from '$lib/constants';
-
+	import Image from '$lib/components/common/Image.svelte';
+	import Spinner from '$lib/components/common/Spinner.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Sparkles from '$lib/components/icons/Sparkles.svelte';
 	import Name from './Name.svelte';
 	import ProfileImage from './ProfileImage.svelte';
-	import Skeleton from './Skeleton.svelte';
-	import Image from '$lib/components/common/Image.svelte';
-	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import RateComment from './RateComment.svelte';
-	import Spinner from '$lib/components/common/Spinner.svelte';
 	import WebSearchResults from './ResponseMessage/WebSearchResults.svelte';
-	import Sparkles from '$lib/components/icons/Sparkles.svelte';
+	import Skeleton from './Skeleton.svelte';
 
 	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 
-	import Error from './Error.svelte';
+	import { KokoroWorker } from '$lib/workers/KokoroWorker';
 	import Citations from './Citations.svelte';
 	import CodeExecutions from './CodeExecutions.svelte';
 	import ContentRenderer from './ContentRenderer.svelte';
-	import { KokoroWorker } from '$lib/workers/KokoroWorker';
+	import Error from './Error.svelte';
+	import { getI18nContext } from '$lib/contexts';
+
+	const i18n = getI18nContext()
+
+	const dispatch = createEventDispatcher();
 
 	interface MessageType {
 		id: string;
@@ -99,8 +94,6 @@
 		annotation?: { type: string; rating: number };
 	}
 
-	let message: MessageType = $state(JSON.parse(JSON.stringify(history.messages[messageId])));
-
 	interface Props {
 		chatId?: string;
 		history: any;
@@ -142,6 +135,8 @@
 		isLastMessage = true,
 		readOnly = false
 	}: Props = $props();
+
+	let message: MessageType = $state(JSON.parse(JSON.stringify(history.messages[messageId])));
 
 	let buttonsContainerElement: HTMLDivElement = $state();
 	let showDeleteConfirm = $state(false);

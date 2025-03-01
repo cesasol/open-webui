@@ -54,6 +54,7 @@
 	let recording = $state(false);
 
 	let filesInputElement = $state();
+	let chatInputElement = $state();
 	let commandsElement = $state();
 
 	let inputFiles = $state();
@@ -521,8 +522,7 @@
 								atSelectedModel = data.data;
 							}
 
-							const chatInputElement = document.getElementById('chat-input');
-							chatInputElement?.focus();
+							document.getElementById('chat-input')?.focus();
 						}}
 					/>
 				</div>

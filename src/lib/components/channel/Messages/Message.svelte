@@ -10,9 +10,6 @@
 	dayjs.extend(isYesterday);
 	dayjs.extend(localizedFormat);
 
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext<Writable<i18nType>>('i18n');
-
 	import { settings, user, shortCodesToEmojis } from '$lib/stores';
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -33,7 +30,9 @@
 	import ReactionPicker from './Message/ReactionPicker.svelte';
 	import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
 	import { formatDate } from '$lib/utils';
+	import { getI18nContext } from '$lib/contexts';
 
+	const i18n = getI18nContext()
 	interface Props {
 		message: any;
 		showUserProfile?: boolean;

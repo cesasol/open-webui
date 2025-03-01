@@ -1,16 +1,15 @@
 <script lang="ts">
 	import { preventDefault } from 'svelte/legacy';
 
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
-	const dispatch = createEventDispatcher();
 
 	import { getBackendConfig } from '$lib/apis';
 	import {
-		getAudioConfig,
-		updateAudioConfig,
 		getModels as _getModels,
-		getVoices as _getVoices
+		getVoices as _getVoices,
+		getAudioConfig,
+		updateAudioConfig
 	} from '$lib/apis/audio';
 	import { config, settings } from '$lib/stores';
 
@@ -18,10 +17,10 @@
 
 	import { TTS_RESPONSE_SPLIT } from '$lib/types';
 
-	import type { Writable } from 'svelte/store';
-	import type { i18n as i18nType } from 'i18next';
+	import { getI18nContext } from '$lib/contexts';
 
-	const i18n = getContext<Writable<i18nType>>('i18n');
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
 
 	interface Props {
 		saveHandler: () => void;

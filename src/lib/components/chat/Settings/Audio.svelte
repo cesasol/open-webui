@@ -1,16 +1,15 @@
 <script lang="ts">
-	import { run, preventDefault } from 'svelte/legacy';
+	import { preventDefault, run } from 'svelte/legacy';
 
-	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
 	import { KokoroTTS } from 'kokoro-js';
+	import { createEventDispatcher, onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
-	import { user, settings, config } from '$lib/stores';
 	import { getVoices as _getVoices } from '$lib/apis/audio';
+	import { config, settings } from '$lib/stores';
 
-	import Switch from '$lib/components/common/Switch.svelte';
-	import { round } from '@huggingface/transformers';
 	import Spinner from '$lib/components/common/Spinner.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
 	const dispatch = createEventDispatcher();
 
 	import { getI18nContext } from '$lib/contexts';
