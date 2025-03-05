@@ -44,6 +44,7 @@
 	let landingPageMode = $state('');
 	let chatBubble = $state(true);
 	let chatDirection: 'LTR' | 'RTL' = $state('LTR');
+	let ctrlEnterToSend = $state(false);
 
 	let imageCompression = $state(false);
 	let imageCompressionSize = $state({
@@ -195,10 +196,15 @@
     }
   };
 
-  const toggleChangeChatDirection = async () => {
-    chatDirection = chatDirection === 'LTR' ? 'RTL' : 'LTR';
-    saveSettings({ chatDirection });
-  };
+	const toggleChangeChatDirection = async () => {
+		chatDirection = chatDirection === 'LTR' ? 'RTL' : 'LTR';
+		saveSettings({ chatDirection });
+	};
+
+	const togglectrlEnterToSend = async () => {
+		ctrlEnterToSend = !ctrlEnterToSend;
+		saveSettings({ ctrlEnterToSend });
+	};
 
   const updateInterfaceHandler = async () => {
     saveSettings({
@@ -238,7 +244,8 @@
 
     notificationSound = $settings.notificationSound ?? true;
 
-    hapticFeedback = $settings.hapticFeedback ?? false;
+		hapticFeedback = $settings.hapticFeedback ?? false;
+		ctrlEnterToSend = $settings.ctrlEnterToSend ?? false;
 
     imageCompression = $settings.imageCompression ?? false;
     imageCompressionSize = $settings.imageCompressionSize ?? { width: '', height: '' };
@@ -658,6 +665,28 @@
 					</button>
 				</div>
 			</div> -->
+
+			<div>
+				<div class=" py-0.5 flex w-full justify-between">
+					<div class=" self-center text-xs">
+						{$i18n.t('Enter Key Behavior')}
+					</div>
+
+					<button
+						class="p-1 px-3 text-xs flex rounded transition"
+						onclick={() => {
+							togglectrlEnterToSend();
+						}}
+						type="button"
+					>
+						{#if ctrlEnterToSend === true}
+							<span class="ml-2 self-center">{$i18n.t('Ctrl+Enter to Send')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Enter to Send')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">

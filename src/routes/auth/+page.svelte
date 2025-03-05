@@ -1,9 +1,9 @@
 <script>
   import { toast } from 'svelte-sonner';
 
-  import { onMount, getContext } from 'svelte';
-  import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+	import { onMount, getContext, tick } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 
   import { getBackendConfig } from '$lib/apis';
   import { ldapUserSignIn, getSessionUser, userSignIn, userSignUp } from '$lib/apis/auths';
@@ -116,6 +116,29 @@
 
 	let onboarding = $state(false);
 
+	async function setLogoImage() {
+		await tick();
+		const logo = document.getElementById('logo');
+
+		if (logo) {
+			const isDarkMode = document.documentElement.classList.contains('dark');
+
+			if (isDarkMode) {
+				const darkImage = new Image();
+				darkImage.src = '/static/favicon-dark.png';
+
+				darkImage.onload = () => {
+					logo.src = '/static/favicon-dark.png';
+					logo.style.filter = ''; // Ensure no inversion is applied if favicon-dark.png exists
+				};
+
+				darkImage.onerror = () => {
+					logo.style.filter = 'invert(1)'; // Invert image if favicon-dark.png is missing
+				};
+			}
+		}
+	}
+
   onMount(async () => {
     if ($user !== undefined) {
       await goto('/');
@@ -123,6 +146,8 @@
     await checkOauthCallback();
 
     loaded = true;
+		setLogoImage();
+
     if (($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false) {
       await signInHandler();
     } else {
@@ -155,10 +180,11 @@
 			<div class="flex space-x-2">
 				<div class=" self-center">
 					<img
-						class=" w-6 rounded-full dark:invert"
+						id="logo"
 						alt="logo"
 						crossorigin="anonymous"
 						src="{WEBUI_BASE_URL}/static/splash.png"
+						class=" w-6 rounded-full"
 					/>
 				</div>
 			</div>

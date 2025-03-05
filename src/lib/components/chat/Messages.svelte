@@ -227,7 +227,8 @@
 					role: 'user',
 					content: userPrompt,
 					...(history.messages[messageId].files && { files: history.messages[messageId].files }),
-					models: selectedModels
+					models: selectedModels,
+					timestamp: Math.floor(Date.now() / 1000) // Unix epoch
 				};
 
 				const messageParentId = history.messages[messageId].parentId;
