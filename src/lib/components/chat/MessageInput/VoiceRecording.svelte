@@ -1,23 +1,30 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { createEventDispatcher, tick, getContext, onMount, onDestroy } from 'svelte';
-  import { config, settings } from '$lib/stores';
-  import { blobToFile, calculateSHA256, findWordIndices } from '$lib/utils';
+	import { run } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
+	import { createEventDispatcher, tick, getContext, onMount, onDestroy } from 'svelte';
+	import { config, settings } from '$lib/stores';
+	import { blobToFile, calculateSHA256, findWordIndices } from '$lib/utils';
 
   import { transcribeAudio } from '$lib/apis/audio';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   const dispatch = createEventDispatcher();
 
-  export let recording = false;
-  export let className = ' p-2.5 w-full max-w-full';
+	interface Props {
+		recording?: boolean;
+		className?: string;
+	}
 
-  let loading = false;
-  let confirmed = false;
+	let { recording = $bindable(false), className = ' p-2.5 w-full max-w-full' }: Props = $props();
 
-  let durationSeconds = 0;
-  let durationCounter = null;
+	let loading = $state(false);
+	let confirmed = false;
+
+	let durationSeconds = $state(0);
+	let durationCounter = null;
 
   let transcription = '';
 
@@ -32,18 +39,12 @@
     durationSeconds = 0;
   };
 
-  $: if (recording) {
-    startRecording();
-  } else {
-    stopRecording();
-  }
-
-  const formatSeconds = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    const formattedSeconds = remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds;
-    return `${minutes}:${formattedSeconds}`;
-  };
+	const formatSeconds = (seconds) => {
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = seconds % 60;
+		const formattedSeconds = remainingSeconds < 10 ? `0${remainingSeconds}` : remainingSeconds;
+		return `${minutes}:${formattedSeconds}`;
+	};
 
   let stream;
   let speechRecognition;
@@ -54,7 +55,7 @@
   const MIN_DECIBELS = -45;
   let VISUALIZER_BUFFER_LENGTH = 300;
 
-  let visualizerData = Array(VISUALIZER_BUFFER_LENGTH).fill(0);
+	let visualizerData = $state(Array(VISUALIZER_BUFFER_LENGTH).fill(0));
 
   // Function to calculate the RMS level from time domain data
   const calculateRMS = (data: Uint8Array) => {
@@ -88,7 +89,7 @@
     const domainData = new Uint8Array(bufferLength);
     const timeDomainData = new Uint8Array(analyser.fftSize);
 
-    let lastSoundTime = Date.now();
+		const lastSoundTime = Date.now();
 
     const detectSound = () => {
       const processFrame = () => {
@@ -289,11 +290,10 @@
     stream = null;
   };
 
-  let resizeObserver;
-  let containerWidth;
+	let resizeObserver;
+	let containerWidth = $state();
 
-  let maxVisibleItems = 300;
-  $: maxVisibleItems = Math.floor(containerWidth / 5); // 2px width + 0.5px gap
+	let maxVisibleItems = $state(300);
 
   onMount(() => {
     // listen to width changes
@@ -311,96 +311,102 @@
     resizeObserver.observe(document.body);
   });
 
-  onDestroy(() => {
-    // remove resize observer
-    resizeObserver.disconnect();
-  });
+	onDestroy(() => {
+		// remove resize observer
+		resizeObserver.disconnect();
+	});
+	run(() => {
+		if (recording) {
+			startRecording();
+		} else {
+			stopRecording();
+		}
+	});
+	run(() => {
+		maxVisibleItems = Math.floor(containerWidth / 5);
+	}); // 2px width + 0.5px gap
 </script>
 
 <div
-  class="{loading
-    ? ' bg-gray-100/50 dark:bg-gray-850/50'
-    : 'bg-indigo-300/10 dark:bg-indigo-500/10 '} rounded-full flex justify-between {className}"
-  bind:clientWidth={containerWidth}
+	class="{loading
+		? ' bg-gray-100/50 dark:bg-gray-850/50'
+		: 'bg-indigo-300/10 dark:bg-indigo-500/10 '} rounded-full flex justify-between {className}"
+	bind:clientWidth={containerWidth}
 >
-  <div class="flex items-center mr-1">
-    <button
-      class="p-1.5
+	<div class="flex items-center mr-1">
+		<button
+			class="p-1.5
 
         {loading
-          ? ' bg-gray-200 dark:bg-gray-700/50'
-          : 'bg-indigo-400/20 text-indigo-600 dark:text-indigo-300 '}
+				? ' bg-gray-200 dark:bg-gray-700/50'
+				: 'bg-indigo-400/20 text-indigo-600 dark:text-indigo-300 '}
 
 
         rounded-full"
-      type="button"
-      on:click={async () => {
-        stopRecording();
-        dispatch('cancel');
-      }}
-    >
-      <svg
-        class="size-4"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="3"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M6 18 18 6M6 6l12 12"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        />
-      </svg>
-    </button>
-  </div>
+			onclick={async () => {
+				stopRecording();
+				dispatch('cancel');
+			}}
+			type="button"
+		>
+			<svg
+				class="size-4"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="3"
+				viewBox="0 0 24 24"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path d="M6 18 18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+			</svg>
+		</button>
+	</div>
 
-  <div
-    class="flex flex-1 self-center items-center justify-between ml-2 mx-1 overflow-hidden h-6"
-    dir="rtl"
-  >
-    <div class="flex items-center gap-0.5 h-6 w-full max-w-full overflow-hidden overflow-x-hidden flex-wrap">
-      {#each visualizerData.slice().reverse() as rms}
-        <div class="flex items-center h-full">
-          <div
-            style:height="{Math.min(100, Math.max(14, rms * 100))}%"
-            class="w-[2px] shrink-0
+	<div
+		class="flex flex-1 self-center items-center justify-between ml-2 mx-1 overflow-hidden h-6"
+		dir="rtl"
+	>
+		<div
+			class="flex items-center gap-0.5 h-6 w-full max-w-full overflow-hidden overflow-x-hidden flex-wrap"
+		>
+			{#each visualizerData.slice().reverse() as rms}
+				<div class="flex items-center h-full">
+					<div
+						style:height="{Math.min(100, Math.max(14, rms * 100))}%"
+						class="w-[2px] shrink-0
 
-              {loading
-                ? ' bg-gray-500 dark:bg-gray-400   '
-                : 'bg-indigo-500 dark:bg-indigo-400  '}
+              {loading ? ' bg-gray-500 dark:bg-gray-400   ' : 'bg-indigo-500 dark:bg-indigo-400  '}
 
               inline-block h-full"
-          />
-        </div>
-      {/each}
-    </div>
-  </div>
+					></div>
+				</div>
+			{/each}
+		</div>
+	</div>
 
-  <div class="flex">
-    <div class="  mx-1.5 pr-1 flex justify-center items-center">
-      <div
-        class="text-sm
+	<div class="flex">
+		<div class="  mx-1.5 pr-1 flex justify-center items-center">
+			<div
+				class="text-sm
 
 
           {loading ? ' text-gray-500  dark:text-gray-400  ' : ' text-indigo-400 '}
           font-medium flex-1 mx-auto text-center"
-      >
-        {formatSeconds(durationSeconds)}
-      </div>
-    </div>
+			>
+				{formatSeconds(durationSeconds)}
+			</div>
+		</div>
 
-    <div class="flex items-center">
-      {#if loading}
-        <div class=" text-gray-500 rounded-full cursor-not-allowed">
-          <svg
-            fill="currentColor"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            xmlns="http://www.w3.org/2000/svg"
-          ><style>
+		<div class="flex items-center">
+			{#if loading}
+				<div class=" text-gray-500 rounded-full cursor-not-allowed">
+					<svg
+						fill="currentColor"
+						height="24"
+						viewBox="0 0 24 24"
+						width="24"
+						xmlns="http://www.w3.org/2000/svg"
+						><style>
 							.spinner_OSmW {
 								transform-origin: center;
 								animation: spinner_T6mA 0.75s step-end infinite;
@@ -443,81 +449,68 @@
 									transform: rotate(360deg);
 								}
 							}
-            </style><g class="spinner_OSmW"><rect
-              height="5"
-              opacity=".14"
-              width="2"
-              x="11"
-              y="1"
-            /><rect
-              height="5"
-              opacity=".29"
-              transform="rotate(30 12 12)"
-              width="2"
-              x="11"
-              y="1"
-            /><rect
-              height="5"
-              opacity=".43"
-              transform="rotate(60 12 12)"
-              width="2"
-              x="11"
-              y="1"
-            /><rect
-              height="5"
-              opacity=".57"
-              transform="rotate(90 12 12)"
-              width="2"
-              x="11"
-              y="1"
-            /><rect
-              height="5"
-              opacity=".71"
-              transform="rotate(120 12 12)"
-              width="2"
-              x="11"
-              y="1"
-            /><rect
-              height="5"
-              opacity=".86"
-              transform="rotate(150 12 12)"
-              width="2"
-              x="11"
-              y="1"
-            /><rect
-              height="5"
-              transform="rotate(180 12 12)"
-              width="2"
-              x="11"
-              y="1"
-            /></g></svg>
-        </div>
-      {:else}
-        <button
-          class="p-1.5 bg-indigo-500 text-white dark:bg-indigo-500 dark:text-blue-950 rounded-full"
-          type="button"
-          on:click={async () => {
-            await confirmRecording();
-          }}
-        >
-          <svg
-            class="size-4"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="m4.5 12.75 6 6 9-13.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </button>
-      {/if}
-    </div>
-  </div>
+						</style><g class="spinner_OSmW"
+							><rect height="5" opacity=".14" width="2" x="11" y="1" /><rect
+								height="5"
+								opacity=".29"
+								transform="rotate(30 12 12)"
+								width="2"
+								x="11"
+								y="1"
+							/><rect
+								height="5"
+								opacity=".43"
+								transform="rotate(60 12 12)"
+								width="2"
+								x="11"
+								y="1"
+							/><rect
+								height="5"
+								opacity=".57"
+								transform="rotate(90 12 12)"
+								width="2"
+								x="11"
+								y="1"
+							/><rect
+								height="5"
+								opacity=".71"
+								transform="rotate(120 12 12)"
+								width="2"
+								x="11"
+								y="1"
+							/><rect
+								height="5"
+								opacity=".86"
+								transform="rotate(150 12 12)"
+								width="2"
+								x="11"
+								y="1"
+							/><rect height="5" transform="rotate(180 12 12)" width="2" x="11" y="1" /></g
+						></svg
+					>
+				</div>
+			{:else}
+				<button
+					class="p-1.5 bg-indigo-500 text-white dark:bg-indigo-500 dark:text-blue-950 rounded-full"
+					onclick={async () => {
+						await confirmRecording();
+					}}
+					type="button"
+				>
+					<svg
+						class="size-4"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2.5"
+						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
+					>
+						<path d="m4.5 12.75 6 6 9-13.5" stroke-linecap="round" stroke-linejoin="round" />
+					</svg>
+				</button>
+			{/if}
+		</div>
+	</div>
 </div>
 
 <style>

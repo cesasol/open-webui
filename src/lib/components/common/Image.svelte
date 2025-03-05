@@ -1,37 +1,39 @@
 <script lang="ts">
-  import { WEBUI_BASE_URL } from '$lib/constants';
-  import ImagePreview from './ImagePreview.svelte';
+	import { run } from 'svelte/legacy';
 
-  export let src = '';
-  export let alt = '';
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import ImagePreview from './ImagePreview.svelte';
 
-  export let className = ' w-full outline-hidden focus:outline-hidden';
-  export let imageClassName = 'rounded-lg';
+	interface Props {
+		src?: string;
+		alt?: string;
+		className?: string;
+		imageClassName?: string;
+	}
 
-  let _src = '';
-  $: _src = src.startsWith('/') ? `${WEBUI_BASE_URL}${src}` : src;
+	let {
+		src = '',
+		alt = '',
+		className = ' w-full outline-hidden focus:outline-hidden',
+		imageClassName = 'rounded-lg'
+	}: Props = $props();
 
-  let showImagePreview = false;
+	let _src = $state('');
+	run(() => {
+		_src = src.startsWith('/') ? `${WEBUI_BASE_URL}${src}` : src;
+	});
+
+	let showImagePreview = $state(false);
 </script>
 
 <button
-  class={className}
-  type="button"
-  on:click={() => {
-    showImagePreview = true;
-  }}
+	class={className}
+	onclick={() => {
+		showImagePreview = true;
+	}}
+	type="button"
 >
-  <img
-    class={imageClassName}
-    {alt}
-    data-cy="image"
-    draggable="false"
-    src={_src}
-  />
+	<img class={imageClassName} {alt} data-cy="image" draggable="false" src={_src} />
 </button>
 
-<ImagePreview
-  {alt}
-  src={_src}
-  bind:show={showImagePreview}
-/>
+<ImagePreview {alt} src={_src} bind:show={showImagePreview} />

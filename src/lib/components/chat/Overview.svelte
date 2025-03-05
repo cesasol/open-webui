@@ -1,9 +1,12 @@
 <script lang="ts">
-  import { getContext, createEventDispatcher, onDestroy } from 'svelte';
-  import { useSvelteFlow, useNodesInitialized, useStore } from '@xyflow/svelte';
+	import { run } from 'svelte/legacy';
 
-  const dispatch = createEventDispatcher();
-  const i18n = getContext('i18n');
+	import { getContext, createEventDispatcher, onDestroy } from 'svelte';
+	import { useSvelteFlow, useNodesInitialized, useStore } from '@xyflow/svelte';
+
+	const dispatch = createEventDispatcher();
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import { onMount, tick } from 'svelte';
 
@@ -22,9 +25,9 @@
   const { fitView, getViewport } = useSvelteFlow();
   const nodesInitialized = useNodesInitialized();
 
-  export let history;
+	let { history } = $props();
 
-  let selectedMessageId = null;
+	let selectedMessageId = $state(null);
 
   const nodes = writable([]);
   const edges = writable([]);
@@ -33,20 +36,12 @@
     custom: CustomNode
   };
 
-  $: if (history) {
-    drawFlow();
-  }
-
-  $: if (history && history.currentId) {
-    focusNode();
-  }
-
-  const focusNode = async () => {
-    if (selectedMessageId === null) {
-      await fitView({ nodes: [{ id: history.currentId }] });
-    } else {
-      await fitView({ nodes: [{ id: selectedMessageId }] });
-    }
+	const focusNode = async () => {
+		if (selectedMessageId === null) {
+			await fitView({ nodes: [{ id: history.currentId }] });
+		} else {
+			await fitView({ nodes: [{ id: selectedMessageId }] });
+		}
 
     selectedMessageId = null;
   };
@@ -57,8 +52,8 @@
     const levelOffset = 150; // Vertical spacing between layers
     const siblingOffset = 250; // Horizontal spacing between nodes at the same layer
 
-    // Map to keep track of node positions at each level
-    let positionMap = new Map();
+		// Map to keep track of node positions at each level
+		const positionMap = new Map();
 
     // Helper function to truncate labels
     function createLabel(content) {
@@ -66,8 +61,8 @@
       return content.length > maxLength ? content.substr(0, maxLength) + '...' : content;
     }
 
-    // Create nodes and map children to ensure alignment in width
-    let layerWidths = {}; // Track widths of each layer
+		// Create nodes and map children to ensure alignment in width
+		const layerWidths = {}; // Track widths of each layer
 
     Object.keys(history.messages).forEach((id) => {
       const message = history.messages[id];
@@ -154,46 +149,56 @@
   onDestroy(() => {
     console.log('Overview destroyed');
 
-    nodes.set([]);
-    edges.set([]);
-  });
+		nodes.set([]);
+		edges.set([]);
+	});
+	run(() => {
+		if (history) {
+			drawFlow();
+		}
+	});
+	run(() => {
+		if (history && history.currentId) {
+			focusNode();
+		}
+	});
 </script>
 
 <div class="w-full h-full relative">
-  <div class=" absolute z-50 w-full flex justify-between dark:text-gray-100 px-4 py-3.5">
-    <div class="flex items-center gap-2.5">
-      <button
-        class="self-center p-0.5"
-        on:click={() => {
-          showOverview.set(false);
-        }}
-      >
-        <ArrowLeft className="size-3.5" />
-      </button>
-      <div class=" text-lg font-medium self-center font-primary">{$i18n.t('Chat Overview')}</div>
-    </div>
-    <button
-      class="self-center p-0.5"
-      on:click={() => {
-        dispatch('close');
-        showOverview.set(false);
-      }}
-    >
-      <XMark className="size-3.5" />
-    </button>
-  </div>
+	<div class=" absolute z-50 w-full flex justify-between dark:text-gray-100 px-4 py-3.5">
+		<div class="flex items-center gap-2.5">
+			<button
+				class="self-center p-0.5"
+				onclick={() => {
+					showOverview.set(false);
+				}}
+			>
+				<ArrowLeft className="size-3.5" />
+			</button>
+			<div class=" text-lg font-medium self-center font-primary">{$i18n.t('Chat Overview')}</div>
+		</div>
+		<button
+			class="self-center p-0.5"
+			onclick={() => {
+				dispatch('close');
+				showOverview.set(false);
+			}}
+		>
+			<XMark className="size-3.5" />
+		</button>
+	</div>
 
-  {#if $nodes.length > 0}
-    <Flow
-      {edges}
-      {nodeTypes}
-      {nodes}
-      on:nodeclick={(e) => {
-        console.log(e.detail.node.data);
-        dispatch('nodeclick', e.detail);
-        selectedMessageId = e.detail.node.data.message.id;
-        fitView({ nodes: [{ id: selectedMessageId }] });
-      }}
-    />
-  {/if}
+	{#if $nodes.length > 0}
+		<Flow
+			{edges}
+			{nodeTypes}
+			{nodes}
+			on:nodeclick={(e) => {
+				console.log(e.detail.node.data);
+				dispatch('nodeclick', e.detail);
+				selectedMessageId = e.detail.node.data.message.id;
+				fitView({ nodes: [{ id: selectedMessageId }] });
+			}}
+		/>
+	{/if}
 </div>

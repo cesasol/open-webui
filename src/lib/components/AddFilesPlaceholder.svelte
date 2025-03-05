@@ -1,9 +1,15 @@
-<script>
-  import { getContext } from 'svelte';
+<script lang="ts">
+	import { getContext } from 'svelte';
 
-  export let title = '';
-  export let content = '';
-  const i18n = getContext('i18n');
+	interface Props {
+		title?: string;
+		content?: string;
+		children?: import('svelte').Snippet;
+	}
+
+	let { title = '', content = '', children }: Props = $props();
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 </script>
 
 <div class="px-3">
@@ -16,12 +22,14 @@
     {/if}
   </div>
 
-  <slot><div class="px-2 mt-2 text-center text-sm dark:text-gray-200 w-full">
-    {#if content}
-      {content}
-    {:else}
-      {$i18n.t('Drop any files here to add to the conversation')}
-    {/if}
-  </div>
-  </slot>
+	{#if children}{@render children()}{:else}<div
+			class="px-2 mt-2 text-center text-sm dark:text-gray-200 w-full"
+		>
+			{#if content}
+				{content}
+			{:else}
+				{$i18n.t('Drop any files here to add to the conversation')}
+			{/if}
+		</div>
+	{/if}
 </div>

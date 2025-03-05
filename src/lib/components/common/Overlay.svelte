@@ -1,21 +1,25 @@
-<script>
-  import Spinner from './Spinner.svelte';
+<script lang="ts">
+	import Spinner from './Spinner.svelte';
 
-  export let show = false;
-  export let content = '';
+	interface Props {
+		show?: boolean;
+		content?: string;
+		opacity?: number;
+		children?: import('svelte').Snippet;
+	}
 
-  export let opacity = 1;
+	let { show = false, content = '', opacity = 1, children }: Props = $props();
 </script>
 
 <div class="relative">
-  {#if show}
-    <div class="absolute w-full h-full flex">
-      <div
-        style:inset="-10px"
-        style:backdrop-filter="blur(5px)"
-        style:opacity
-        class="absolute rounded-sm"
-      />
+	{#if show}
+		<div class="absolute w-full h-full flex">
+			<div
+				style:inset="-10px"
+				style:backdrop-filter="blur(5px)"
+				style:opacity
+				class="absolute rounded-sm"
+			></div>
 
       <div class="flex w-full flex-col justify-center">
         <div class=" py-3">
@@ -31,5 +35,5 @@
     </div>
   {/if}
 
-  <slot />
+	{@render children?.()}
 </div>

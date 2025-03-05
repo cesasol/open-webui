@@ -3,12 +3,12 @@
   import Checkbox from '$lib/components/common/Checkbox.svelte';
   import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  export let actions = [];
-  export let selectedActionIds = [];
+	let { actions = [], selectedActionIds = $bindable([]) } = $props();
 
-  let _actions = {};
+	let _actions = $state({});
 
   onMount(() => {
     _actions = actions.reduce((acc, action) => {
@@ -31,20 +31,20 @@
     {$i18n.t('To select actions here, add them to the "Functions" workspace first.')}
   </div>
 
-  <div class="flex flex-col">
-    {#if actions.length > 0}
-      <div class=" flex items-center mt-2 flex-wrap">
-        {#each Object.keys(_actions) as action, actionIdx}
-          <div class=" flex items-center gap-2 mr-3">
-            <div class="self-center flex items-center">
-              <Checkbox
-                state={_actions[action].selected ? 'checked' : 'unchecked'}
-                on:change={(e) => {
-                  _actions[action].selected = e.detail === 'checked';
-                  selectedActionIds = Object.keys(_actions).filter((t) => _actions[t].selected);
-                }}
-              />
-            </div>
+	<div class="flex flex-col">
+		{#if actions.length > 0}
+			<div class=" flex items-center mt-2 flex-wrap">
+				{#each Object.keys(_actions) as action, actionIdx}
+					<div class=" flex items-center gap-2 mr-3">
+						<div class="self-center flex items-center">
+							<Checkbox
+								checked={_actions[action].selected ? 'checked' : 'unchecked'}
+								on:change={(e) => {
+									_actions[action].selected = e.detail === 'checked';
+									selectedActionIds = Object.keys(_actions).filter((t) => _actions[t].selected);
+								}}
+							/>
+						</div>
 
             <div class=" py-0.5 text-sm w-full capitalize font-medium">
               <Tooltip content={_actions[action].meta.description}>

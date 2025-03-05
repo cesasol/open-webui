@@ -1,6 +1,9 @@
 <script lang="ts">
-  import { getContext, onMount } from 'svelte';
-  const i18n = getContext('i18n');
+	import { run } from 'svelte/legacy';
+
+	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import Switch from '$lib/components/common/Switch.svelte';
   import Tooltip from '$lib/components/common/Tooltip.svelte';
@@ -27,12 +30,7 @@
     }
   };
 
-  export let permissions = {};
-
-  // Reactive statement to ensure all fields are present in `permissions`
-  $: {
-    permissions = fillMissingProperties(permissions, defaultPermissions);
-  }
+	let { permissions = $bindable({}) } = $props();
 
   function fillMissingProperties(obj: any, defaults: any) {
     return {
@@ -44,9 +42,13 @@
     };
   }
 
-  onMount(() => {
-    permissions = fillMissingProperties(permissions, defaultPermissions);
-  });
+	onMount(() => {
+		permissions = fillMissingProperties(permissions, defaultPermissions);
+	});
+	// Reactive statement to ensure all fields are present in `permissions`
+	run(() => {
+		permissions = fillMissingProperties(permissions, defaultPermissions);
+	});
 </script>
 
 <div>

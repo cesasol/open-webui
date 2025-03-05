@@ -4,8 +4,9 @@
   import DOMPurify from 'dompurify';
   import { marked } from 'marked';
 
-  import { getContext, tick } from 'svelte';
-  const i18n = getContext('i18n');
+	import { getContext, tick } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import { chatCompletion } from '$lib/apis/openai';
 
@@ -14,19 +15,23 @@
   import Markdown from '../Messages/Markdown.svelte';
   import Skeleton from '../Messages/Skeleton.svelte';
 
-  export let id = '';
-  export let model = null;
-  export let messages = [];
-  export let onAdd = () => {};
+	interface Props {
+		id?: string;
+		model?: any;
+		messages?: any;
+		onAdd?: any;
+	}
 
-  let floatingInput = false;
+	let { id = '', model = null, messages = [], onAdd = () => {} }: Props = $props();
 
-  let selectedText = '';
-  let floatingInputValue = '';
+	let floatingInput = $state(false);
 
-  let prompt = '';
-  let responseContent = null;
-  let responseDone = false;
+	let selectedText = $state('');
+	let floatingInputValue = $state('');
+
+	let prompt = $state('');
+	let responseContent = $state(null);
+	let responseDone = $state(false);
 
   const autoScroll = async () => {
     // Scroll to bottom only if the scroll is at the bottom give 50px buffer
@@ -220,18 +225,20 @@
 </script>
 
 <div
-  id={`floating-buttons-${id}`}
-  style:display="none"
-  class="absolute rounded-lg mt-1 text-xs z-9999"
+	id={`floating-buttons-${id}`}
+	style:display="none"
+	class="absolute rounded-lg mt-1 text-xs z-9999"
 >
-  {#if responseContent === null}
-    {#if !floatingInput}
-      <div class="flex flex-row gap-0.5 shrink-0 p-1 bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-lg shadow-xl">
-        <button
-          class="px-1 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-sm flex items-center gap-1 min-w-fit"
-          on:click={async () => {
-            selectedText = window.getSelection().toString();
-            floatingInput = true;
+	{#if responseContent === null}
+		{#if !floatingInput}
+			<div
+				class="flex flex-row gap-0.5 shrink-0 p-1 bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-lg shadow-xl"
+			>
+				<button
+					class="px-1 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-sm flex items-center gap-1 min-w-fit"
+					onclick={async () => {
+						selectedText = window.getSelection().toString();
+						floatingInput = true;
 
             await tick();
             setTimeout(() => {
@@ -244,97 +251,94 @@
         >
           <ChatBubble className="size-3 shrink-0" />
 
-          <div class="shrink-0">Ask</div>
-        </button>
-        <button
-          class="px-1 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-sm flex items-center gap-1 min-w-fit"
-          on:click={() => {
-            selectedText = window.getSelection().toString();
-            explainHandler();
-          }}
-        >
-          <LightBlub className="size-3 shrink-0" />
+					<div class="shrink-0">Ask</div>
+				</button>
+				<button
+					class="px-1 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-sm flex items-center gap-1 min-w-fit"
+					onclick={() => {
+						selectedText = window.getSelection().toString();
+						explainHandler();
+					}}
+				>
+					<LightBlub className="size-3 shrink-0" />
 
-          <div class="shrink-0">Explain</div>
-        </button>
-      </div>
-    {:else}
-      <div class="py-1 flex dark:text-gray-100 bg-gray-50 dark:bg-gray-800 border dark:border-gray-850 w-72 rounded-full shadow-xl">
-        <input
-          id="floating-message-input"
-          class="ml-5 bg-transparent outline-hidden w-full flex-1 text-sm"
-          placeholder={$i18n.t('Ask a question')}
-          type="text"
-          bind:value={floatingInputValue}
-          on:keydown={(e) => {
-            if (e.key === 'Enter') {
-              askHandler();
-            }
-          }}
-        />
+					<div class="shrink-0">Explain</div>
+				</button>
+			</div>
+		{:else}
+			<div
+				class="py-1 flex dark:text-gray-100 bg-gray-50 dark:bg-gray-800 border dark:border-gray-850 w-72 rounded-full shadow-xl"
+			>
+				<input
+					id="floating-message-input"
+					class="ml-5 bg-transparent outline-hidden w-full flex-1 text-sm"
+					onkeydown={(e) => {
+						if (e.key === 'Enter') {
+							askHandler();
+						}
+					}}
+					placeholder={$i18n.t('Ask a question')}
+					type="text"
+					bind:value={floatingInputValue}
+				/>
 
-        <div class="ml-1 mr-2">
-          <button
-            class="{floatingInputValue !== ''
-              ? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
-              : 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 m-0.5 self-center"
-            on:click={() => {
-              askHandler();
-            }}
-          >
-            <svg
-              class="size-4"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                clip-rule="evenodd"
-                d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
-                fill-rule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-    {/if}
-  {:else}
-    <div class="bg-white dark:bg-gray-850 dark:text-gray-100 rounded-xl shadow-xl w-80 max-w-full">
-      <div class="bg-gray-50/50 dark:bg-gray-800 dark:text-gray-100 text-medium rounded-xl px-3.5 py-3 w-full">
-        <div class="font-medium">
-          <Markdown
-            id={`${id}-float-prompt`}
-            content={prompt}
-          />
-        </div>
-      </div>
+				<div class="ml-1 mr-2">
+					<button
+						class="{floatingInputValue !== ''
+							? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
+							: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 m-0.5 self-center"
+						onclick={() => {
+							askHandler();
+						}}
+					>
+						<svg
+							class="size-4"
+							fill="currentColor"
+							viewBox="0 0 16 16"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								clip-rule="evenodd"
+								d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
+								fill-rule="evenodd"
+							/>
+						</svg>
+					</button>
+				</div>
+			</div>
+		{/if}
+	{:else}
+		<div class="bg-white dark:bg-gray-850 dark:text-gray-100 rounded-xl shadow-xl w-80 max-w-full">
+			<div
+				class="bg-gray-50/50 dark:bg-gray-800 dark:text-gray-100 text-medium rounded-xl px-3.5 py-3 w-full"
+			>
+				<div class="font-medium">
+					<Markdown id={`${id}-float-prompt`} content={prompt} />
+				</div>
+			</div>
 
-      <div class="bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-xl px-3.5 py-3 w-full">
-        <div
-          id="response-container"
-          class=" max-h-80 overflow-y-auto w-full markdown-prose-xs"
-        >
-          {#if responseContent.trim() === ''}
-            <Skeleton size="sm" />
-          {:else}
-            <Markdown
-              id={`${id}-float-response`}
-              content={responseContent}
-            />
-          {/if}
+			<div
+				class="bg-white dark:bg-gray-850 dark:text-gray-100 text-medium rounded-xl px-3.5 py-3 w-full"
+			>
+				<div id="response-container" class=" max-h-80 overflow-y-auto w-full markdown-prose-xs">
+					{#if responseContent.trim() === ''}
+						<Skeleton size="sm" />
+					{:else}
+						<Markdown id={`${id}-float-response`} content={responseContent} />
+					{/if}
 
-          {#if responseDone}
-            <div class="flex justify-end pt-3 text-sm font-medium">
-              <button
-                class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-                on:click={addHandler}
-              >
-                {$i18n.t('Add')}
-              </button>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
-  {/if}
+					{#if responseDone}
+						<div class="flex justify-end pt-3 text-sm font-medium">
+							<button
+								class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+								onclick={addHandler}
+							>
+								{$i18n.t('Add')}
+							</button>
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
+	{/if}
 </div>

@@ -1,7 +1,10 @@
-<script>
-  import { getContext, onMount, tick } from 'svelte';
+<script lang="ts">
+	import { run, preventDefault } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
+	import { getContext, onMount, tick } from 'svelte';
+
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import CodeEditor from '$lib/components/common/CodeEditor.svelte';
   import { goto } from '$app/navigation';
@@ -12,41 +15,44 @@
   import LockClosed from '$lib/components/icons/LockClosed.svelte';
   import AccessControlModal from '../common/AccessControlModal.svelte';
 
-  let formElement = null;
-  let loading = false;
+	let formElement = $state(null);
+	let loading = false;
 
-  let showConfirm = false;
-  let showAccessControlModal = false;
+	let showConfirm = $state(false);
+	let showAccessControlModal = $state(false);
 
-  export let edit = false;
-  export let clone = false;
+	interface Props {
+		edit?: boolean;
+		clone?: boolean;
+		onSave?: any;
+		id?: string;
+		name?: string;
+		meta?: any;
+		content?: string;
+		accessControl?: any;
+	}
 
-  export let onSave = () => {};
+	let {
+		edit = false,
+		clone = false,
+		onSave = () => {},
+		id = $bindable(''),
+		name = $bindable(''),
+		meta = $bindable({
+			description: ''
+		}),
+		content = $bindable(''),
+		accessControl = $bindable(null)
+	}: Props = $props();
 
-  export let id = '';
-  export let name = '';
-  export let meta = {
-    description: ''
-  };
-  export let content = '';
-  export let accessControl = null;
+	let _content = $state('');
 
-  let _content = '';
+	const updateContent = () => {
+		_content = content;
+	};
 
-  $: if (content) {
-    updateContent();
-  }
-
-  const updateContent = () => {
-    _content = content;
-  };
-
-  $: if (name && !edit && !clone) {
-    id = name.replace(/\s+/g, '_').toLowerCase();
-  }
-
-  let codeEditor;
-  let boilerplate = `import os
+	let codeEditor = $state();
+	const boilerplate = `import os
 import requests
 from datetime import datetime
 
@@ -173,75 +179,79 @@ class Tools:
       if (res) {
         console.log('Code formatted successfully');
 
-        saveHandler();
-      }
-    }
-  };
+				saveHandler();
+			}
+		}
+	};
+	run(() => {
+		if (content) {
+			updateContent();
+		}
+	});
+	run(() => {
+		if (name && !edit && !clone) {
+			id = name.replace(/\s+/g, '_').toLowerCase();
+		}
+	});
 </script>
 
 <AccessControlModal
-  accessRoles={['read', 'write']}
-  bind:show={showAccessControlModal}
-  bind:accessControl
+	accessRoles={['read', 'write']}
+	bind:show={showAccessControlModal}
+	bind:accessControl
 />
 
 <div class=" flex flex-col justify-between w-full overflow-y-auto h-full">
-  <div class="mx-auto w-full md:px-0 h-full">
-    <form
-      bind:this={formElement}
-      class=" flex flex-col max-h-[100dvh] h-full"
-      on:submit|preventDefault={() => {
-        if (edit) {
-          submitHandler();
-        } else {
-          showConfirm = true;
-        }
-      }}
-    >
-      <div class="flex flex-col flex-1 overflow-auto h-0">
-        <div class="w-full mb-2 flex flex-col gap-0.5">
-          <div class="flex w-full items-center">
-            <div class=" shrink-0 mr-2">
-              <Tooltip content={$i18n.t('Back')}>
-                <button
-                  class="w-full text-left text-sm py-1.5 px-1 rounded-lg dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-gray-850"
-                  type="button"
-                  on:click={() => {
-                    goto('/workspace/tools');
-                  }}
-                >
-                  <ChevronLeft strokeWidth="2.5" />
-                </button>
-              </Tooltip>
-            </div>
+	<div class="mx-auto w-full md:px-0 h-full">
+		<form
+			bind:this={formElement}
+			class=" flex flex-col max-h-[100dvh] h-full"
+			onsubmit={preventDefault(() => {
+				if (edit) {
+					submitHandler();
+				} else {
+					showConfirm = true;
+				}
+			})}
+		>
+			<div class="flex flex-col flex-1 overflow-auto h-0">
+				<div class="w-full mb-2 flex flex-col gap-0.5">
+					<div class="flex w-full items-center">
+						<div class=" shrink-0 mr-2">
+							<Tooltip content={$i18n.t('Back')}>
+								<button
+									class="w-full text-left text-sm py-1.5 px-1 rounded-lg dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-gray-850"
+									onclick={() => {
+										goto('/workspace/tools');
+									}}
+									type="button"
+								>
+									<ChevronLeft strokeWidth="2.5" />
+								</button>
+							</Tooltip>
+						</div>
 
-            <div class="flex-1">
-              <Tooltip
-                content={$i18n.t('e.g. My Tools')}
-                placement="top-start"
-              >
-                <input
-                  class="w-full text-2xl font-semibold bg-transparent outline-hidden"
-                  placeholder={$i18n.t('Tool Name')}
-                  required
-                  type="text"
-                  bind:value={name}
-                />
-              </Tooltip>
-            </div>
+						<div class="flex-1">
+							<Tooltip content={$i18n.t('e.g. My Tools')} placement="top-start">
+								<input
+									class="w-full text-2xl font-semibold bg-transparent outline-hidden"
+									placeholder={$i18n.t('Tool Name')}
+									required
+									type="text"
+									bind:value={name}
+								/>
+							</Tooltip>
+						</div>
 
-            <div class="self-center shrink-0">
-              <button
-                class="bg-gray-50 hover:bg-gray-100 text-black dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-white transition px-2 py-1 rounded-full flex gap-1 items-center"
-                type="button"
-                on:click={() => {
-                  showAccessControlModal = true;
-                }}
-              >
-                <LockClosed
-                  className="size-3.5"
-                  strokeWidth="2.5"
-                />
+						<div class="self-center shrink-0">
+							<button
+								class="bg-gray-50 hover:bg-gray-100 text-black dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-white transition px-2 py-1 rounded-full flex gap-1 items-center"
+								onclick={() => {
+									showAccessControlModal = true;
+								}}
+								type="button"
+							>
+								<LockClosed className="size-3.5" strokeWidth="2.5" />
 
                 <div class="text-sm font-medium shrink-0">
                   {$i18n.t('Access')}
@@ -250,60 +260,56 @@ class Tools:
             </div>
           </div>
 
-          <div class=" flex gap-2 px-1 items-center">
-            {#if edit}
-              <div class="text-sm text-gray-500 shrink-0">
-                {id}
-              </div>
-            {:else}
-              <Tooltip
-                className="w-full"
-                content={$i18n.t('e.g. my_tools')}
-                placement="top-start"
-              >
-                <input
-                  class="w-full text-sm disabled:text-gray-500 bg-transparent outline-hidden"
-                  disabled={edit}
-                  placeholder={$i18n.t('Tool ID')}
-                  required
-                  type="text"
-                  bind:value={id}
-                />
-              </Tooltip>
-            {/if}
+					<div class=" flex gap-2 px-1 items-center">
+						{#if edit}
+							<div class="text-sm text-gray-500 shrink-0">
+								{id}
+							</div>
+						{:else}
+							<Tooltip className="w-full" content={$i18n.t('e.g. my_tools')} placement="top-start">
+								<input
+									class="w-full text-sm disabled:text-gray-500 bg-transparent outline-hidden"
+									disabled={edit}
+									placeholder={$i18n.t('Tool ID')}
+									required
+									type="text"
+									bind:value={id}
+								/>
+							</Tooltip>
+						{/if}
 
-            <Tooltip
-              className="w-full self-center items-center flex"
-              content={$i18n.t('e.g. Tools for performing various operations')}
-              placement="top-start"
-            >
-              <input
-                class="w-full text-sm bg-transparent outline-hidden"
-                placeholder={$i18n.t('Tool Description')}
-                required
-                type="text"
-                bind:value={meta.description}
-              />
-            </Tooltip>
-          </div>
-        </div>
+						<Tooltip
+							className="w-full self-center items-center flex"
+							content={$i18n.t('e.g. Tools for performing various operations')}
+							placement="top-start"
+						>
+							<input
+								class="w-full text-sm bg-transparent outline-hidden"
+								placeholder={$i18n.t('Tool Description')}
+								required
+								type="text"
+								bind:value={meta.description}
+							/>
+						</Tooltip>
+					</div>
+				</div>
 
-        <div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
-          <CodeEditor
-            bind:this={codeEditor}
-            {boilerplate}
-            lang="python"
-            onChange={(e) => {
-              _content = e;
-            }}
-            onSave={() => {
-              if (formElement) {
-                formElement.requestSubmit();
-              }
-            }}
-            value={content}
-          />
-        </div>
+				<div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
+					<CodeEditor
+						bind:this={codeEditor}
+						{boilerplate}
+						lang="python"
+						onChange={(e) => {
+							_content = e;
+						}}
+						onSave={() => {
+							if (formElement) {
+								formElement.requestSubmit();
+							}
+						}}
+						value={content}
+					/>
+				</div>
 
         <div class="pb-3 flex justify-between">
           <div class="flex-1 pr-3">

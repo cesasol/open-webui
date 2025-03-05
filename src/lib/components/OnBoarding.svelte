@@ -1,6 +1,7 @@
-<script>
-  import { getContext } from 'svelte';
-  const i18n = getContext('i18n');
+<script lang="ts">
+	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import { WEBUI_BASE_URL } from '$lib/constants';
 
@@ -8,24 +9,28 @@
   import SlideShow from './common/SlideShow.svelte';
   import ArrowRightCircle from './icons/ArrowRightCircle.svelte';
 
-  export let show = true;
-  export let getStartedHandler = () => {};
+	interface Props {
+		show?: boolean;
+		getStartedHandler?: any;
+	}
+
+	let { show = true, getStartedHandler = () => {} }: Props = $props();
 </script>
 
 {#if show}
-  <div class="w-full h-screen max-h-[100dvh] text-white relative">
-    <div class="fixed m-10 z-50">
-      <div class="flex space-x-2">
-        <div class=" self-center">
-          <img
-            class=" w-6 rounded-full"
-            alt="logo"
-            crossorigin="anonymous"
-            src="{WEBUI_BASE_URL}/static/favicon.png"
-          />
-        </div>
-      </div>
-    </div>
+	<div class="w-full h-screen max-h-[100dvh] text-white relative">
+		<div class="fixed m-10 z-50">
+			<div class="flex space-x-2">
+				<div class=" self-center">
+					<img
+						class=" w-6 rounded-full"
+						alt="logo"
+						crossorigin="anonymous"
+						src="{WEBUI_BASE_URL}/static/favicon.png"
+					/>
+				</div>
+			</div>
+		</div>
 
     <SlideShow duration={5000} />
 
@@ -55,20 +60,20 @@
           <div class="mt-0.5">{$i18n.t(`wherever you are`)}</div>
         </div>
 
-        <div class="flex justify-center mt-8">
-          <div class="flex flex-col justify-center items-center">
-            <button
-              class="relative z-20 flex p-1 rounded-full bg-white/5 hover:bg-white/10 transition font-medium text-sm"
-              on:click={() => {
-                getStartedHandler();
-              }}
-            >
-              <ArrowRightCircle className="size-6" />
-            </button>
-            <div class="mt-1.5 font-primary text-base font-medium">{$i18n.t(`Get started`)}</div>
-          </div>
-        </div>
-      </div>
+				<div class="flex justify-center mt-8">
+					<div class="flex flex-col justify-center items-center">
+						<button
+							class="relative z-20 flex p-1 rounded-full bg-white/5 hover:bg-white/10 transition font-medium text-sm"
+							onclick={() => {
+								getStartedHandler();
+							}}
+						>
+							<ArrowRightCircle className="size-6" />
+						</button>
+						<div class="mt-1.5 font-primary text-base font-medium">{$i18n.t(`Get started`)}</div>
+					</div>
+				</div>
+			</div>
 
       <!-- <div class="absolute bottom-12 left-0 right-0 w-full"></div> -->
     </div>

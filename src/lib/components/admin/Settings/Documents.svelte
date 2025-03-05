@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
+	import { preventDefault } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
 
   import { onMount, getContext, createEventDispatcher } from 'svelte';
 
@@ -29,53 +31,54 @@
   import Switch from '$lib/components/common/Switch.svelte';
   import Textarea from '$lib/components/common/Textarea.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let scanDirLoading = false;
-  let updateEmbeddingModelLoading = false;
-  let updateRerankingModelLoading = false;
+	const scanDirLoading = false;
+	let updateEmbeddingModelLoading = $state(false);
+	let updateRerankingModelLoading = $state(false);
 
-  let showResetConfirm = false;
-  let showResetUploadDirConfirm = false;
+	let showResetConfirm = $state(false);
+	let showResetUploadDirConfirm = $state(false);
 
-  let embeddingEngine = '';
-  let embeddingModel = '';
-  let embeddingBatchSize = 1;
-  let rerankingModel = '';
+	let embeddingEngine = $state('');
+	let embeddingModel = $state('');
+	let embeddingBatchSize = $state(1);
+	let rerankingModel = $state('');
 
-  let fileMaxSize = null;
-  let fileMaxCount = null;
+	let fileMaxSize = $state(null);
+	let fileMaxCount = $state(null);
 
-  let contentExtractionEngine = 'default';
-  let tikaServerUrl = '';
-  let showTikaServerUrl = false;
-  let documentIntelligenceEndpoint = '';
-  let documentIntelligenceKey = '';
-  let showDocumentIntelligenceConfig = false;
+	let contentExtractionEngine = $state('default');
+	let tikaServerUrl = $state('');
+	let showTikaServerUrl = false;
+	let documentIntelligenceEndpoint = $state('');
+	let documentIntelligenceKey = $state('');
+	let showDocumentIntelligenceConfig = false;
 
-  let textSplitter = '';
-  let chunkSize = 0;
-  let chunkOverlap = 0;
-  let pdfExtractImages = true;
+	let textSplitter = $state('');
+	let chunkSize = $state(0);
+	let chunkOverlap = $state(0);
+	let pdfExtractImages = $state(true);
 
-  let RAG_FULL_CONTEXT = false;
-  let BYPASS_EMBEDDING_AND_RETRIEVAL = false;
+	let RAG_FULL_CONTEXT = $state(false);
+	let BYPASS_EMBEDDING_AND_RETRIEVAL = $state(false);
 
-  let enableGoogleDriveIntegration = false;
-  let enableOneDriveIntegration = false;
+	let enableGoogleDriveIntegration = $state(false);
+	let enableOneDriveIntegration = $state(false);
 
-  let OpenAIUrl = '';
-  let OpenAIKey = '';
+	let OpenAIUrl = $state('');
+	let OpenAIKey = $state('');
 
-  let OllamaUrl = '';
-  let OllamaKey = '';
+	let OllamaUrl = $state('');
+	let OllamaKey = $state('');
 
-  let querySettings = {
-    template: '',
-    r: 0.0,
-    k: 4,
-    hybrid: false
-  };
+	let querySettings = $state({
+		template: '',
+		r: 0.0,
+		k: 4,
+		hybrid: false
+	});
 
   const embeddingModelUpdateHandler = async () => {
     if (embeddingEngine === '' && embeddingModel.split('/').length - 1 > 1) {
@@ -312,10 +315,10 @@
 />
 
 <form
-  class="flex flex-col h-full justify-between space-y-3 text-sm"
-  on:submit|preventDefault={() => {
-    submitHandler();
-  }}
+	class="flex flex-col h-full justify-between space-y-3 text-sm"
+	onsubmit={preventDefault(() => {
+		submitHandler();
+	})}
 >
   <div class=" space-y-2.5 overflow-y-scroll scrollbar-hidden h-full pr-1.5">
     <div class="">
@@ -412,44 +415,44 @@
             </div>
           </div>
 
-          <div class="  mb-2.5 flex w-full justify-between">
-            <div class=" flex gap-1.5 w-full">
-              <div class="  w-full justify-between">
-                <div class="self-center text-xs font-medium min-w-fit mb-1">
-                  {$i18n.t('Chunk Size')}
-                </div>
-                <div class="self-center">
-                  <input
-                    class=" w-full rounded-lg py-1.5 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                    autocomplete="off"
-                    min="0"
-                    placeholder={$i18n.t('Enter Chunk Size')}
-                    type="number"
-                    bind:value={chunkSize}
-                  />
-                </div>
-              </div>
+					<div class="  mb-2.5 flex w-full justify-between">
+						<div class=" flex gap-1.5 w-full">
+							<div class="  w-full justify-between">
+								<div class="self-center text-xs font-medium min-w-fit mb-1">
+									{$i18n.t('Chunk Size')}
+								</div>
+								<div class="self-center">
+									<input
+										class=" w-full rounded-lg py-1.5 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										autocomplete="off"
+										min="0"
+										placeholder={$i18n.t('Enter Chunk Size')}
+										type="number"
+										bind:value={chunkSize}
+									/>
+								</div>
+							</div>
 
               <div class="w-full">
                 <div class=" self-center text-xs font-medium min-w-fit mb-1">
                   {$i18n.t('Chunk Overlap')}
                 </div>
 
-                <div class="self-center">
-                  <input
-                    class="w-full rounded-lg py-1.5 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                    autocomplete="off"
-                    min="0"
-                    placeholder={$i18n.t('Enter Chunk Overlap')}
-                    type="number"
-                    bind:value={chunkOverlap}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        {/if}
-      </div>
+								<div class="self-center">
+									<input
+										class="w-full rounded-lg py-1.5 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										autocomplete="off"
+										min="0"
+										placeholder={$i18n.t('Enter Chunk Overlap')}
+										type="number"
+										bind:value={chunkOverlap}
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+				{/if}
+			</div>
 
       {#if !BYPASS_EMBEDDING_AND_RETRIEVAL}
         <div class="mb-3">
@@ -457,109 +460,106 @@
 
           <hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-          <div class="  mb-2.5 flex flex-col w-full justify-between">
-            <div class="flex w-full justify-between">
-              <div class=" self-center text-xs font-medium">
-                {$i18n.t('Embedding Model Engine')}
-              </div>
-              <div class="flex items-center relative">
-                <select
-                  class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
-                  placeholder="Select an embedding model engine"
-                  bind:value={embeddingEngine}
-                  on:change={(e) => {
-                    if (e.target.value === 'ollama') {
-                      embeddingModel = '';
-                    } else if (e.target.value === 'openai') {
-                      embeddingModel = 'text-embedding-3-small';
-                    } else if (e.target.value === '') {
-                      embeddingModel = 'sentence-transformers/all-MiniLM-L6-v2';
-                    }
-                  }}
-                >
-                  <option value="">{$i18n.t('Default (SentenceTransformers)')}</option>
-                  <option value="ollama">{$i18n.t('Ollama')}</option>
-                  <option value="openai">{$i18n.t('OpenAI')}</option>
-                </select>
-              </div>
-            </div>
+					<div class="  mb-2.5 flex flex-col w-full justify-between">
+						<div class="flex w-full justify-between">
+							<div class=" self-center text-xs font-medium">
+								{$i18n.t('Embedding Model Engine')}
+							</div>
+							<div class="flex items-center relative">
+								<select
+									class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
+									onchange={(e) => {
+										if (e.target.value === 'ollama') {
+											embeddingModel = '';
+										} else if (e.target.value === 'openai') {
+											embeddingModel = 'text-embedding-3-small';
+										} else if (e.target.value === '') {
+											embeddingModel = 'sentence-transformers/all-MiniLM-L6-v2';
+										}
+									}}
+									placeholder="Select an embedding model engine"
+									bind:value={embeddingEngine}
+								>
+									<option value="">{$i18n.t('Default (SentenceTransformers)')}</option>
+									<option value="ollama">{$i18n.t('Ollama')}</option>
+									<option value="openai">{$i18n.t('OpenAI')}</option>
+								</select>
+							</div>
+						</div>
 
-            {#if embeddingEngine === 'openai'}
-              <div class="my-0.5 flex gap-2 pr-2">
-                <input
-                  class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                  placeholder={$i18n.t('API Base URL')}
-                  required
-                  bind:value={OpenAIUrl}
-                />
+						{#if embeddingEngine === 'openai'}
+							<div class="my-0.5 flex gap-2 pr-2">
+								<input
+									class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+									placeholder={$i18n.t('API Base URL')}
+									required
+									bind:value={OpenAIUrl}
+								/>
 
-                <SensitiveInput
-                  placeholder={$i18n.t('API Key')}
-                  bind:value={OpenAIKey}
-                />
-              </div>
-            {:else if embeddingEngine === 'ollama'}
-              <div class="my-0.5 flex gap-2 pr-2">
-                <input
-                  class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                  placeholder={$i18n.t('API Base URL')}
-                  required
-                  bind:value={OllamaUrl}
-                />
+								<SensitiveInput placeholder={$i18n.t('API Key')} bind:value={OpenAIKey} />
+							</div>
+						{:else if embeddingEngine === 'ollama'}
+							<div class="my-0.5 flex gap-2 pr-2">
+								<input
+									class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+									placeholder={$i18n.t('API Base URL')}
+									required
+									bind:value={OllamaUrl}
+								/>
 
-                <SensitiveInput
-                  placeholder={$i18n.t('API Key')}
-                  required={false}
-                  bind:value={OllamaKey}
-                />
-              </div>
-            {/if}
-          </div>
+								<SensitiveInput
+									placeholder={$i18n.t('API Key')}
+									required={false}
+									bind:value={OllamaKey}
+								/>
+							</div>
+						{/if}
+					</div>
 
           <div class="  mb-2.5 flex flex-col w-full">
             <div class=" mb-1 text-xs font-medium">{$i18n.t('Embedding Model')}</div>
 
-            <div class="">
-              {#if embeddingEngine === 'ollama'}
-                <div class="flex w-full">
-                  <div class="flex-1 mr-2">
-                    <input
-                      class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                      placeholder={$i18n.t('Set embedding model')}
-                      required
-                      bind:value={embeddingModel}
-                    />
-                  </div>
-                </div>
-              {:else}
-                <div class="flex w-full">
-                  <div class="flex-1 mr-2">
-                    <input
-                      class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                      placeholder={$i18n.t('Set embedding model (e.g. {{model}})', {
-                        model: embeddingModel.slice(-40)
-                      })}
-                      bind:value={embeddingModel}
-                    />
-                  </div>
+						<div class="">
+							{#if embeddingEngine === 'ollama'}
+								<div class="flex w-full">
+									<div class="flex-1 mr-2">
+										<input
+											class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+											placeholder={$i18n.t('Set embedding model')}
+											required
+											bind:value={embeddingModel}
+										/>
+									</div>
+								</div>
+							{:else}
+								<div class="flex w-full">
+									<div class="flex-1 mr-2">
+										<input
+											class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+											placeholder={$i18n.t('Set embedding model (e.g. {{model}})', {
+												model: embeddingModel.slice(-40)
+											})}
+											bind:value={embeddingModel}
+										/>
+									</div>
 
-                  {#if embeddingEngine === ''}
-                    <button
-                      class="px-2.5 bg-transparent text-gray-800 dark:bg-transparent dark:text-gray-100 rounded-lg transition"
-                      disabled={updateEmbeddingModelLoading}
-                      on:click={() => {
-                        embeddingModelUpdateHandler();
-                      }}
-                    >
-                      {#if updateEmbeddingModelLoading}
-                        <div class="self-center">
-                          <svg
-                            class=" w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 24 24"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <style>
+									{#if embeddingEngine === ''}
+										<button
+											class="px-2.5 bg-transparent text-gray-800 dark:bg-transparent dark:text-gray-100 rounded-lg transition"
+											disabled={updateEmbeddingModelLoading}
+											onclick={() => {
+												embeddingModelUpdateHandler();
+											}}
+										>
+											{#if updateEmbeddingModelLoading}
+												<div class="self-center">
+													<svg
+														class=" w-4 h-4"
+														fill="currentColor"
+														viewBox="0 0 24 24"
+														xmlns="http://www.w3.org/2000/svg"
+													>
+														<style>
 															.spinner_ajPY {
 																transform-origin: center;
 																animation: spinner_AtaB 0.75s infinite linear;
@@ -571,32 +571,36 @@
 																}
 															}
 														</style>
-                            <path
-                              d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-                              opacity=".25"
-                            />
-                            <path
-                              class="spinner_ajPY"
-                              d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
-                            />
-                          </svg>
-                        </div>
-                      {:else}
-                        <svg
-                          class="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 16 16"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
-                          <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
-                        </svg>
-                      {/if}
-                    </button>
-                  {/if}
-                </div>
-              {/if}
-            </div>
+														<path
+															d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+															opacity=".25"
+														/>
+														<path
+															class="spinner_ajPY"
+															d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
+														/>
+													</svg>
+												</div>
+											{:else}
+												<svg
+													class="w-4 h-4"
+													fill="currentColor"
+													viewBox="0 0 16 16"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z"
+													/>
+													<path
+														d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z"
+													/>
+												</svg>
+											{/if}
+										</button>
+									{/if}
+								</div>
+							{/if}
+						</div>
 
             <div class="mt-1 mb-1 text-xs text-gray-400 dark:text-gray-500">
               {$i18n.t(
@@ -609,18 +613,18 @@
             <div class="  mb-2.5 flex w-full justify-between">
               <div class=" self-center text-xs font-medium">{$i18n.t('Embedding Batch Size')}</div>
 
-              <div class="">
-                <input
-                  class=" bg-transparent text-center w-14 outline-none"
-                  max="16000"
-                  min="-2"
-                  step="1"
-                  type="number"
-                  bind:value={embeddingBatchSize}
-                />
-              </div>
-            </div>
-          {/if}
+							<div class="">
+								<input
+									class=" bg-transparent text-center w-14 outline-none"
+									max="16000"
+									min="-2"
+									step="1"
+									type="number"
+									bind:value={embeddingBatchSize}
+								/>
+							</div>
+						</div>
+					{/if}
 
           <div class="  mb-2.5 flex w-full justify-between">
             <div class=" self-center text-xs font-medium">{$i18n.t('Full Context Mode')}</div>
@@ -651,33 +655,33 @@
             <div class="  mb-2.5 flex flex-col w-full">
               <div class=" mb-1 text-xs font-medium">{$i18n.t('Reranking Model')}</div>
 
-              <div class="">
-                <div class="flex w-full">
-                  <div class="flex-1 mr-2">
-                    <input
-                      class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                      placeholder={$i18n.t('Set reranking model (e.g. {{model}})', {
-                        model: 'BAAI/bge-reranker-v2-m3'
-                      })}
-                      bind:value={rerankingModel}
-                    />
-                  </div>
-                  <button
-                    class="px-2.5 bg-transparent text-gray-800 dark:bg-transparent dark:text-gray-100 rounded-lg transition"
-                    disabled={updateRerankingModelLoading}
-                    on:click={() => {
-                      rerankingModelUpdateHandler();
-                    }}
-                  >
-                    {#if updateRerankingModelLoading}
-                      <div class="self-center">
-                        <svg
-                          class=" w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <style>
+							<div class="">
+								<div class="flex w-full">
+									<div class="flex-1 mr-2">
+										<input
+											class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+											placeholder={$i18n.t('Set reranking model (e.g. {{model}})', {
+												model: 'BAAI/bge-reranker-v2-m3'
+											})}
+											bind:value={rerankingModel}
+										/>
+									</div>
+									<button
+										class="px-2.5 bg-transparent text-gray-800 dark:bg-transparent dark:text-gray-100 rounded-lg transition"
+										disabled={updateRerankingModelLoading}
+										onclick={() => {
+											rerankingModelUpdateHandler();
+										}}
+									>
+										{#if updateRerankingModelLoading}
+											<div class="self-center">
+												<svg
+													class=" w-4 h-4"
+													fill="currentColor"
+													viewBox="0 0 24 24"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<style>
 														.spinner_ajPY {
 															transform-origin: center;
 															animation: spinner_AtaB 0.75s infinite linear;
@@ -689,145 +693,149 @@
 															}
 														}
 													</style>
-                          <path
-                            d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-                            opacity=".25"
-                          />
-                          <path
-                            class="spinner_ajPY"
-                            d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
-                          />
-                        </svg>
-                      </div>
-                    {:else}
-                      <svg
-                        class="w-4 h-4"
-                        fill="currentColor"
-                        viewBox="0 0 16 16"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z" />
-                        <path d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z" />
-                      </svg>
-                    {/if}
-                  </button>
-                </div>
-              </div>
-            </div>
-          {/if}
-        </div>
+													<path
+														d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+														opacity=".25"
+													/>
+													<path
+														class="spinner_ajPY"
+														d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
+													/>
+												</svg>
+											</div>
+										{:else}
+											<svg
+												class="w-4 h-4"
+												fill="currentColor"
+												viewBox="0 0 16 16"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													d="M8.75 2.75a.75.75 0 0 0-1.5 0v5.69L5.03 6.22a.75.75 0 0 0-1.06 1.06l3.5 3.5a.75.75 0 0 0 1.06 0l3.5-3.5a.75.75 0 0 0-1.06-1.06L8.75 8.44V2.75Z"
+												/>
+												<path
+													d="M3.5 9.75a.75.75 0 0 0-1.5 0v1.5A2.75 2.75 0 0 0 4.75 14h6.5A2.75 2.75 0 0 0 14 11.25v-1.5a.75.75 0 0 0-1.5 0v1.5c0 .69-.56 1.25-1.25 1.25h-6.5c-.69 0-1.25-.56-1.25-1.25v-1.5Z"
+												/>
+											</svg>
+										{/if}
+									</button>
+								</div>
+							</div>
+						</div>
+					{/if}
+				</div>
 
         <div class="mb-3">
           <div class=" mb-2.5 text-base font-medium">{$i18n.t('Retrieval')}</div>
 
           <hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-          <div class="  mb-2.5 flex w-full justify-between">
-            <div class=" self-center text-xs font-medium">{$i18n.t('Top K')}</div>
-            <div class="flex items-center relative">
-              <input
-                class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                autocomplete="off"
-                min="0"
-                placeholder={$i18n.t('Enter Top K')}
-                type="number"
-                bind:value={querySettings.k}
-              />
-            </div>
-          </div>
+					<div class="  mb-2.5 flex w-full justify-between">
+						<div class=" self-center text-xs font-medium">{$i18n.t('Top K')}</div>
+						<div class="flex items-center relative">
+							<input
+								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+								autocomplete="off"
+								min="0"
+								placeholder={$i18n.t('Enter Top K')}
+								type="number"
+								bind:value={querySettings.k}
+							/>
+						</div>
+					</div>
 
-          {#if querySettings.hybrid === true}
-            <div class="  mb-2.5 flex flex-col w-full justify-between">
-              <div class=" flex w-full justify-between">
-                <div class=" self-center text-xs font-medium">{$i18n.t('Minimum Score')}</div>
-                <div class="flex items-center relative">
-                  <input
-                    class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                    autocomplete="off"
-                    min="0.0"
-                    placeholder={$i18n.t('Enter Score')}
-                    step="0.01"
-                    title={$i18n.t('The score should be a value between 0.0 (0%) and 1.0 (100%).')}
-                    type="number"
-                    bind:value={querySettings.r}
-                  />
-                </div>
-              </div>
-              <div class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                {$i18n.t(
-                  'Note: If you set a minimum score, the search will only return documents with a score greater than or equal to the minimum score.'
-                )}
-              </div>
-            </div>
-          {/if}
+					{#if querySettings.hybrid === true}
+						<div class="  mb-2.5 flex flex-col w-full justify-between">
+							<div class=" flex w-full justify-between">
+								<div class=" self-center text-xs font-medium">{$i18n.t('Minimum Score')}</div>
+								<div class="flex items-center relative">
+									<input
+										class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+										autocomplete="off"
+										min="0.0"
+										placeholder={$i18n.t('Enter Score')}
+										step="0.01"
+										title={$i18n.t('The score should be a value between 0.0 (0%) and 1.0 (100%).')}
+										type="number"
+										bind:value={querySettings.r}
+									/>
+								</div>
+							</div>
+							<div class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+								{$i18n.t(
+									'Note: If you set a minimum score, the search will only return documents with a score greater than or equal to the minimum score.'
+								)}
+							</div>
+						</div>
+					{/if}
 
-          <div class="  mb-2.5 flex flex-col w-full justify-between">
-            <div class=" mb-1 text-xs font-medium">{$i18n.t('RAG Template')}</div>
-            <div class="flex w-full items-center relative">
-              <Tooltip
-                className="w-full"
-                content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
-                placement="top-start"
-              >
-                <Textarea
-                  placeholder={$i18n.t(
-                    'Leave empty to use the default prompt, or enter a custom prompt'
-                  )}
-                  bind:value={querySettings.template}
-                />
-              </Tooltip>
-            </div>
-          </div>
-        </div>
-      {/if}
+					<div class="  mb-2.5 flex flex-col w-full justify-between">
+						<div class=" mb-1 text-xs font-medium">{$i18n.t('RAG Template')}</div>
+						<div class="flex w-full items-center relative">
+							<Tooltip
+								className="w-full"
+								content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
+								placement="top-start"
+							>
+								<Textarea
+									placeholder={$i18n.t(
+										'Leave empty to use the default prompt, or enter a custom prompt'
+									)}
+									bind:value={querySettings.template}
+								/>
+							</Tooltip>
+						</div>
+					</div>
+				</div>
+			{/if}
 
       <div class="mb-3">
         <div class=" mb-2.5 text-base font-medium">{$i18n.t('Files')}</div>
 
         <hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-        <div class="  mb-2.5 flex w-full justify-between">
-          <div class=" self-center text-xs font-medium">{$i18n.t('Max Upload Size')}</div>
-          <div class="flex items-center relative">
-            <Tooltip
-              content={$i18n.t(
-                'The maximum file size in MB. If the file size exceeds this limit, the file will not be uploaded.'
-              )}
-              placement="top-start"
-            >
-              <input
-                class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                autocomplete="off"
-                min="0"
-                placeholder={$i18n.t('Leave empty for unlimited')}
-                type="number"
-                bind:value={fileMaxSize}
-              />
-            </Tooltip>
-          </div>
-        </div>
+				<div class="  mb-2.5 flex w-full justify-between">
+					<div class=" self-center text-xs font-medium">{$i18n.t('Max Upload Size')}</div>
+					<div class="flex items-center relative">
+						<Tooltip
+							content={$i18n.t(
+								'The maximum file size in MB. If the file size exceeds this limit, the file will not be uploaded.'
+							)}
+							placement="top-start"
+						>
+							<input
+								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+								autocomplete="off"
+								min="0"
+								placeholder={$i18n.t('Leave empty for unlimited')}
+								type="number"
+								bind:value={fileMaxSize}
+							/>
+						</Tooltip>
+					</div>
+				</div>
 
-        <div class="  mb-2.5 flex w-full justify-between">
-          <div class=" self-center text-xs font-medium">{$i18n.t('Max Upload Count')}</div>
-          <div class="flex items-center relative">
-            <Tooltip
-              content={$i18n.t(
-                'The maximum number of files that can be used at once in chat. If the number of files exceeds this limit, the files will not be uploaded.'
-              )}
-              placement="top-start"
-            >
-              <input
-                class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                autocomplete="off"
-                min="0"
-                placeholder={$i18n.t('Leave empty for unlimited')}
-                type="number"
-                bind:value={fileMaxCount}
-              />
-            </Tooltip>
-          </div>
-        </div>
-      </div>
+				<div class="  mb-2.5 flex w-full justify-between">
+					<div class=" self-center text-xs font-medium">{$i18n.t('Max Upload Count')}</div>
+					<div class="flex items-center relative">
+						<Tooltip
+							content={$i18n.t(
+								'The maximum number of files that can be used at once in chat. If the number of files exceeds this limit, the files will not be uploaded.'
+							)}
+							placement="top-start"
+						>
+							<input
+								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+								autocomplete="off"
+								min="0"
+								placeholder={$i18n.t('Leave empty for unlimited')}
+								type="number"
+								bind:value={fileMaxCount}
+							/>
+						</Tooltip>
+					</div>
+				</div>
+			</div>
 
       <div class="mb-3">
         <div class=" mb-2.5 text-base font-medium">{$i18n.t('Integration')}</div>
@@ -854,44 +862,44 @@
 
         <hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-        <div class="  mb-2.5 flex w-full justify-between">
-          <div class=" self-center text-xs font-medium">{$i18n.t('Reset Upload Directory')}</div>
-          <div class="flex items-center relative">
-            <button
-              class="text-xs"
-              on:click={() => {
-                showResetUploadDirConfirm = true;
-              }}
-            >
-              {$i18n.t('Reset')}
-            </button>
-          </div>
-        </div>
+				<div class="  mb-2.5 flex w-full justify-between">
+					<div class=" self-center text-xs font-medium">{$i18n.t('Reset Upload Directory')}</div>
+					<div class="flex items-center relative">
+						<button
+							class="text-xs"
+							onclick={() => {
+								showResetUploadDirConfirm = true;
+							}}
+						>
+							{$i18n.t('Reset')}
+						</button>
+					</div>
+				</div>
 
-        <div class="  mb-2.5 flex w-full justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Reset Vector Storage/Knowledge')}
-          </div>
-          <div class="flex items-center relative">
-            <button
-              class="text-xs"
-              on:click={() => {
-                showResetConfirm = true;
-              }}
-            >
-              {$i18n.t('Reset')}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="flex justify-end pt-3 text-sm font-medium">
-    <button
-      class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-      type="submit"
-    >
-      {$i18n.t('Save')}
-    </button>
-  </div>
+				<div class="  mb-2.5 flex w-full justify-between">
+					<div class=" self-center text-xs font-medium">
+						{$i18n.t('Reset Vector Storage/Knowledge')}
+					</div>
+					<div class="flex items-center relative">
+						<button
+							class="text-xs"
+							onclick={() => {
+								showResetConfirm = true;
+							}}
+						>
+							{$i18n.t('Reset')}
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex justify-end pt-3 text-sm font-medium">
+		<button
+			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+			type="submit"
+		>
+			{$i18n.t('Save')}
+		</button>
+	</div>
 </form>

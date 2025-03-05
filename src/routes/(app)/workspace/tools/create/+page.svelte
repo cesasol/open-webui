@@ -8,11 +8,12 @@
   import { onMount, getContext } from 'svelte';
   import { toast } from 'svelte-sonner';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let mounted = false;
-  let clone = false;
-  let tool = null;
+	let mounted = $state(false);
+	let clone = $state(false);
+	let tool = $state(null);
 
   const saveHandler = async (data) => {
     console.log(data);
@@ -81,17 +82,17 @@
 </script>
 
 {#if mounted}
-  {#key tool?.content}
-    <ToolkitEditor
-      id={tool?.id ?? ''}
-      name={tool?.name ?? ''}
-      access_control={null}
-      {clone}
-      content={tool?.content ?? ''}
-      meta={tool?.meta ?? { description: '' }}
-      onSave={(value) => {
-        saveHandler(value);
-      }}
-    />
-  {/key}
+	{#key tool?.content}
+		<ToolkitEditor
+			id={tool?.id ?? ''}
+			name={tool?.name ?? ''}
+			access_control={null}
+			{clone}
+			content={tool?.content ?? ''}
+			meta={tool?.meta ?? { description: '' }}
+			onSave={(value) => {
+				saveHandler(value);
+			}}
+		/>
+	{/key}
 {/if}

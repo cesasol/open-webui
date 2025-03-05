@@ -1,28 +1,35 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import dayjs from 'dayjs';
-  import { createEventDispatcher } from 'svelte';
-  import { onMount, getContext } from 'svelte';
+	import { preventDefault } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
+	import dayjs from 'dayjs';
+	import { createEventDispatcher } from 'svelte';
+	import { onMount, getContext } from 'svelte';
 
   import { updateUserById } from '$lib/apis/users';
 
   import Modal from '$lib/components/common/Modal.svelte';
   import localizedFormat from 'dayjs/plugin/localizedFormat';
 
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
-  dayjs.extend(localizedFormat);
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
+	dayjs.extend(localizedFormat);
 
-  export let show = false;
-  export let selectedUser;
-  export let sessionUser;
+	interface Props {
+		show?: boolean;
+		selectedUser: any;
+		sessionUser: any;
+	}
 
-  let _user = {
-    profile_image_url: '',
-    name: '',
-    email: '',
-    password: ''
-  };
+	let { show = $bindable(false), selectedUser, sessionUser }: Props = $props();
+
+	let _user = $state({
+		profile_image_url: '',
+		name: '',
+		email: '',
+		password: ''
+	});
 
   const submitHandler = async () => {
     const res = await updateUserById(localStorage.token, selectedUser.id, _user).catch((error) => {
@@ -43,47 +50,46 @@
   });
 </script>
 
-<Modal
-  size="sm"
-  bind:show
->
-  <div>
-    <div class=" flex justify-between dark:text-gray-300 px-5 py-4">
-      <div class=" text-lg font-medium self-center">{$i18n.t('Edit User')}</div>
-      <button
-        class="self-center"
-        on:click={() => {
-          show = false;
-        }}
-      >
-        <svg
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-      </button>
-    </div>
-    <hr class="border-gray-100 dark:border-gray-850" />
+<Modal size="sm" bind:show>
+	<div>
+		<div class=" flex justify-between dark:text-gray-300 px-5 py-4">
+			<div class=" text-lg font-medium self-center">{$i18n.t('Edit User')}</div>
+			<button
+				class="self-center"
+				onclick={() => {
+					show = false;
+				}}
+			>
+				<svg
+					class="w-5 h-5"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+					/>
+				</svg>
+			</button>
+		</div>
+		<hr class="border-gray-100 dark:border-gray-850" />
 
-    <div class="flex flex-col md:flex-row w-full p-5 md:space-x-4 dark:text-gray-200">
-      <div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
-        <form
-          class="flex flex-col w-full"
-          on:submit|preventDefault={() => {
-            submitHandler();
-          }}
-        >
-          <div class=" flex items-center rounded-md py-2 px-4 w-full">
-            <div class=" self-center mr-5">
-              <img
-                class=" max-w-[55px] object-cover rounded-full"
-                alt="User profile"
-                src={selectedUser.profile_image_url}
-              />
-            </div>
+		<div class="flex flex-col md:flex-row w-full p-5 md:space-x-4 dark:text-gray-200">
+			<div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
+				<form
+					class="flex flex-col w-full"
+					onsubmit={preventDefault(() => {
+						submitHandler();
+					})}
+				>
+					<div class=" flex items-center rounded-md py-2 px-4 w-full">
+						<div class=" self-center mr-5">
+							<img
+								class=" max-w-[55px] object-cover rounded-full"
+								alt="User profile"
+								src={selectedUser.profile_image_url}
+							/>
+						</div>
 
             <div>
               <div class=" self-center capitalize font-semibold">{selectedUser.name}</div>
@@ -101,45 +107,45 @@
             <div class="flex flex-col w-full">
               <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
 
-              <div class="flex-1">
-                <input
-                  class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
-                  autocomplete="off"
-                  disabled={_user.id == sessionUser.id}
-                  required
-                  type="email"
-                  bind:value={_user.email}
-                />
-              </div>
-            </div>
+							<div class="flex-1">
+								<input
+									class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
+									autocomplete="off"
+									disabled={_user.id == sessionUser.id}
+									required
+									type="email"
+									bind:value={_user.email}
+								/>
+							</div>
+						</div>
 
             <div class="flex flex-col w-full">
               <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Name')}</div>
 
-              <div class="flex-1">
-                <input
-                  class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-hidden"
-                  autocomplete="off"
-                  required
-                  type="text"
-                  bind:value={_user.name}
-                />
-              </div>
-            </div>
+							<div class="flex-1">
+								<input
+									class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-hidden"
+									autocomplete="off"
+									required
+									type="text"
+									bind:value={_user.name}
+								/>
+							</div>
+						</div>
 
             <div class="flex flex-col w-full">
               <div class=" mb-1 text-xs text-gray-500">{$i18n.t('New Password')}</div>
 
-              <div class="flex-1">
-                <input
-                  class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-hidden"
-                  autocomplete="new-password"
-                  type="password"
-                  bind:value={_user.password}
-                />
-              </div>
-            </div>
-          </div>
+							<div class="flex-1">
+								<input
+									class="w-full rounded-sm py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-800 outline-hidden"
+									autocomplete="new-password"
+									type="password"
+									bind:value={_user.password}
+								/>
+							</div>
+						</div>
+					</div>
 
           <div class="flex justify-end pt-3 text-sm font-medium">
             <button

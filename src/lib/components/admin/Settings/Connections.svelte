@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { preventDefault } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
+	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
 
   const dispatch = createEventDispatcher();
 
@@ -20,7 +22,8 @@
   import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
   import OllamaConnection from './Connections/OllamaConnection.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   const getModels = async () => {
     const models = await _getModels(
@@ -30,22 +33,22 @@
     return models;
   };
 
-  // External
-  let OLLAMA_BASE_URLS = [''];
-  let OLLAMA_API_CONFIGS = {};
+	// External
+	let OLLAMA_BASE_URLS = $state(['']);
+	let OLLAMA_API_CONFIGS = $state({});
 
-  let OPENAI_API_KEYS = [''];
-  let OPENAI_API_BASE_URLS = [''];
-  let OPENAI_API_CONFIGS = {};
+	let OPENAI_API_KEYS = $state(['']);
+	let OPENAI_API_BASE_URLS = $state(['']);
+	let OPENAI_API_CONFIGS = $state({});
 
-  let ENABLE_OPENAI_API: null | boolean = null;
-  let ENABLE_OLLAMA_API: null | boolean = null;
+	let ENABLE_OPENAI_API: null | boolean = $state(null);
+	let ENABLE_OLLAMA_API: null | boolean = $state(null);
 
-  let directConnectionsConfig = null;
+	let directConnectionsConfig = $state(null);
 
-  let pipelineUrls = {};
-  let showAddOpenAIConnectionModal = false;
-  let showAddOllamaConnectionModal = false;
+	const pipelineUrls = {};
+	let showAddOpenAIConnectionModal = $state(false);
+	let showAddOllamaConnectionModal = $state(false);
 
   const updateOpenAIHandler = async () => {
     if (ENABLE_OPENAI_API !== null) {
@@ -203,26 +206,23 @@
 </script>
 
 <AddConnectionModal
-  onSubmit={addOpenAIConnectionHandler}
-  bind:show={showAddOpenAIConnectionModal}
+	onSubmit={addOpenAIConnectionHandler}
+	bind:show={showAddOpenAIConnectionModal}
 />
 
 <AddConnectionModal
-  ollama
-  onSubmit={addOllamaConnectionHandler}
-  bind:show={showAddOllamaConnectionModal}
+	ollama
+	onSubmit={addOllamaConnectionHandler}
+	bind:show={showAddOllamaConnectionModal}
 />
 
-<form
-  class="flex flex-col h-full justify-between text-sm"
-  on:submit|preventDefault={submitHandler}
->
-  <div class=" overflow-y-scroll scrollbar-hidden h-full">
-    {#if ENABLE_OPENAI_API !== null && ENABLE_OLLAMA_API !== null && directConnectionsConfig !== null}
-      <div class="my-2">
-        <div class="mt-2 space-y-2 pr-1.5">
-          <div class="flex justify-between items-center text-sm">
-            <div class="  font-medium">{$i18n.t('OpenAI API')}</div>
+<form class="flex flex-col h-full justify-between text-sm" onsubmit={preventDefault(submitHandler)}>
+	<div class=" overflow-y-scroll scrollbar-hidden h-full">
+		{#if ENABLE_OPENAI_API !== null && ENABLE_OLLAMA_API !== null && directConnectionsConfig !== null}
+			<div class="my-2">
+				<div class="mt-2 space-y-2 pr-1.5">
+					<div class="flex justify-between items-center text-sm">
+						<div class="  font-medium">{$i18n.t('OpenAI API')}</div>
 
             <div class="flex items-center">
               <div class="">
@@ -243,42 +243,42 @@
               <div class="flex justify-between items-center">
                 <div class="font-medium">{$i18n.t('Manage OpenAI API Connections')}</div>
 
-                <Tooltip content={$i18n.t(`Add Connection`)}>
-                  <button
-                    class="px-1"
-                    type="button"
-                    on:click={() => {
-                      showAddOpenAIConnectionModal = true;
-                    }}
-                  >
-                    <Plus />
-                  </button>
-                </Tooltip>
-              </div>
+								<Tooltip content={$i18n.t(`Add Connection`)}>
+									<button
+										class="px-1"
+										onclick={() => {
+											showAddOpenAIConnectionModal = true;
+										}}
+										type="button"
+									>
+										<Plus />
+									</button>
+								</Tooltip>
+							</div>
 
-              <div class="flex flex-col gap-1.5 mt-1.5">
-                {#each OPENAI_API_BASE_URLS as url, idx}
-                  <OpenAIConnection
-                    onDelete={() => {
-                      OPENAI_API_BASE_URLS = OPENAI_API_BASE_URLS.filter(
-                        (url, urlIdx) => idx !== urlIdx
-                      );
-                      OPENAI_API_KEYS = OPENAI_API_KEYS.filter((key, keyIdx) => idx !== keyIdx);
+							<div class="flex flex-col gap-1.5 mt-1.5">
+								{#each OPENAI_API_BASE_URLS as url, idx}
+									<OpenAIConnection
+										onDelete={() => {
+											OPENAI_API_BASE_URLS = OPENAI_API_BASE_URLS.filter(
+												(url, urlIdx) => idx !== urlIdx
+											);
+											OPENAI_API_KEYS = OPENAI_API_KEYS.filter((key, keyIdx) => idx !== keyIdx);
 
-                      let newConfig = {};
-                      OPENAI_API_BASE_URLS.forEach((url, newIdx) => {
-                        newConfig[newIdx] = OPENAI_API_CONFIGS[newIdx < idx ? newIdx : newIdx + 1];
-                      });
-                      OPENAI_API_CONFIGS = newConfig;
-                      updateOpenAIHandler();
-                    }}
-                  />
-                {/each}
-              </div>
-            </div>
-          {/if}
-        </div>
-      </div>
+											const newConfig = {};
+											OPENAI_API_BASE_URLS.forEach((url, newIdx) => {
+												newConfig[newIdx] = OPENAI_API_CONFIGS[newIdx < idx ? newIdx : newIdx + 1];
+											});
+											OPENAI_API_CONFIGS = newConfig;
+											updateOpenAIHandler();
+										}}
+									/>
+								{/each}
+							</div>
+						</div>
+					{/if}
+				</div>
+			</div>
 
       <hr class=" border-gray-100 dark:border-gray-850" />
 
@@ -303,42 +303,42 @@
             <div class="flex justify-between items-center">
               <div class="font-medium">{$i18n.t('Manage Ollama API Connections')}</div>
 
-              <Tooltip content={$i18n.t(`Add Connection`)}>
-                <button
-                  class="px-1"
-                  type="button"
-                  on:click={() => {
-                    showAddOllamaConnectionModal = true;
-                  }}
-                >
-                  <Plus />
-                </button>
-              </Tooltip>
-            </div>
+							<Tooltip content={$i18n.t(`Add Connection`)}>
+								<button
+									class="px-1"
+									onclick={() => {
+										showAddOllamaConnectionModal = true;
+									}}
+									type="button"
+								>
+									<Plus />
+								</button>
+							</Tooltip>
+						</div>
 
-            <div class="flex w-full gap-1.5">
-              <div class="flex-1 flex flex-col gap-1.5 mt-1.5">
-                {#each OLLAMA_BASE_URLS as url, idx}
-                  <OllamaConnection
-                    {idx}
-                    onDelete={() => {
-                      OLLAMA_BASE_URLS = OLLAMA_BASE_URLS.filter((url, urlIdx) => idx !== urlIdx);
+						<div class="flex w-full gap-1.5">
+							<div class="flex-1 flex flex-col gap-1.5 mt-1.5">
+								{#each OLLAMA_BASE_URLS as url, idx}
+									<OllamaConnection
+										{idx}
+										onDelete={() => {
+											OLLAMA_BASE_URLS = OLLAMA_BASE_URLS.filter((url, urlIdx) => idx !== urlIdx);
 
-                      let newConfig = {};
-                      OLLAMA_BASE_URLS.forEach((url, newIdx) => {
-                        newConfig[newIdx] = OLLAMA_API_CONFIGS[newIdx < idx ? newIdx : newIdx + 1];
-                      });
-                      OLLAMA_API_CONFIGS = newConfig;
-                    }}
-                    onSubmit={() => {
-                      updateOllamaHandler();
-                    }}
-                    bind:url
-                    bind:config={OLLAMA_API_CONFIGS[idx]}
-                  />
-                {/each}
-              </div>
-            </div>
+											const newConfig = {};
+											OLLAMA_BASE_URLS.forEach((url, newIdx) => {
+												newConfig[newIdx] = OLLAMA_API_CONFIGS[newIdx < idx ? newIdx : newIdx + 1];
+											});
+											OLLAMA_API_CONFIGS = newConfig;
+										}}
+										onSubmit={() => {
+											updateOllamaHandler();
+										}}
+										bind:url={OLLAMA_BASE_URLS[idx]}
+										bind:config={OLLAMA_API_CONFIGS[idx]}
+									/>
+								{/each}
+							</div>
+						</div>
 
             <div class="mt-1 text-xs text-gray-400 dark:text-gray-500">
               {$i18n.t('Trouble accessing Ollama?')}

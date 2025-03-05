@@ -1,7 +1,9 @@
-<script>
-  import { marked } from 'marked';
-  import { replaceTokens, processResponseContent } from '$lib/utils';
-  import { user } from '$lib/stores';
+<script lang="ts">
+	import { run } from 'svelte/legacy';
+
+	import { marked } from 'marked';
+	import { replaceTokens, processResponseContent } from '$lib/utils';
+	import { user } from '$lib/stores';
 
   import markedExtension from '$lib/utils/marked/extension';
   import markedKatexExtension from '$lib/utils/marked/katex-extension';
@@ -11,17 +13,27 @@
 
   const dispatch = createEventDispatcher();
 
-  export let id;
-  export let content;
-  export let model = null;
-  export let save = false;
+	interface Props {
+		id: any;
+		content: any;
+		model?: any;
+		save?: boolean;
+		sourceIds?: any;
+		onSourceClick?: any;
+		onTaskClick?: any;
+	}
 
-  export let sourceIds = [];
+	let {
+		id,
+		content,
+		model = null,
+		save = false,
+		sourceIds = [],
+		onSourceClick = () => {},
+		onTaskClick = () => {}
+	}: Props = $props();
 
-  export let onSourceClick = () => {};
-  export let onTaskClick = () => {};
-
-  let tokens = [];
+	let tokens = $state([]);
 
   const options = {
     throwOnError: false
@@ -30,27 +42,29 @@
   marked.use(markedKatexExtension(options));
   marked.use(markedExtension(options));
 
-  $: (async () => {
-    if (content) {
-      tokens = marked.lexer(
-        replaceTokens(processResponseContent(content), sourceIds, model?.name, $user?.name)
-      );
-    }
-  })();
+	run(() => {
+		(async () => {
+			if (content) {
+				tokens = marked.lexer(
+					replaceTokens(processResponseContent(content), sourceIds, model?.name, $user?.name)
+				);
+			}
+		})();
+	});
 </script>
 
 {#key id}
-  <MarkdownTokens
-    {id}
-    {onSourceClick}
-    {onTaskClick}
-    {save}
-    {tokens}
-    on:update={(e) => {
-      dispatch('update', e.detail);
-    }}
-    on:code={(e) => {
-      dispatch('code', e.detail);
-    }}
-  />
+	<MarkdownTokens
+		{id}
+		{onSourceClick}
+		{onTaskClick}
+		{save}
+		{tokens}
+		on:update={(e) => {
+			dispatch('update', e.detail);
+		}}
+		on:code={(e) => {
+			dispatch('code', e.detail);
+		}}
+	/>
 {/key}

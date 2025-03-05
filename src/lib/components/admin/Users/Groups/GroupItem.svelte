@@ -1,8 +1,9 @@
-<script>
-  import { toast } from 'svelte-sonner';
-  import { getContext } from 'svelte';
+<script lang="ts">
+	import { toast } from 'svelte-sonner';
+	import { getContext } from 'svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import { deleteGroupById, updateGroupById } from '$lib/apis/groups';
 
@@ -11,15 +12,16 @@
   import UserCircleSolid from '$lib/components/icons/UserCircleSolid.svelte';
   import GroupModal from './EditGroupModal.svelte';
 
-  export let users = [];
-  export let group = {
-    name: 'Admins',
-    user_ids: [1, 2, 3]
-  };
+	let {
+		users = [],
+		group = {
+			name: 'Admins',
+			user_ids: [1, 2, 3]
+		},
+		setGroups = () => {}
+	} = $props();
 
-  export let setGroups = () => {};
-
-  let showEdit = false;
+	let showEdit = $state(false);
 
   const updateHandler = async (_group) => {
     const res = await updateGroupById(localStorage.token, group.id, _group).catch((error) => {
@@ -47,19 +49,19 @@
 </script>
 
 <GroupModal
-  edit
-  {group}
-  onDelete={deleteHandler}
-  onSubmit={updateHandler}
-  {users}
-  bind:show={showEdit}
+	edit
+	{group}
+	onDelete={deleteHandler}
+	onSubmit={updateHandler}
+	{users}
+	bind:show={showEdit}
 />
 
 <button
-  class="flex items-center gap-3 justify-between px-1 text-xs w-full transition"
-  on:click={() => {
-    showEdit = true;
-  }}
+	class="flex items-center gap-3 justify-between px-1 text-xs w-full transition"
+	onclick={() => {
+		showEdit = true;
+	}}
 >
   <div class="flex items-center gap-1.5 w-full font-medium">
     <div>

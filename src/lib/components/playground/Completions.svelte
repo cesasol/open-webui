@@ -12,17 +12,18 @@
   import Selector from '$lib/components/chat/ModelSelector/Selector.svelte';
   import MenuLines from '../icons/MenuLines.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let loaded = false;
-  let text = '';
+	let loaded = false;
+	let text = $state('');
 
-  let selectedModelId = '';
+	let selectedModelId = $state('');
 
-  let loading = false;
-  let stopResponseFlag = false;
+	let loading = $state(false);
+	let stopResponseFlag = false;
 
-  let textCompletionAreaElement: HTMLTextAreaElement;
+	let textCompletionAreaElement: HTMLTextAreaElement = $state();
 
   const scrollToBottom = () => {
     const element = textCompletionAreaElement;
@@ -70,16 +71,16 @@
           break;
         }
 
-        try {
-          let lines = value.split('\n');
+				try {
+					const lines = value.split('\n');
 
-          for (const line of lines) {
-            if (line !== '') {
-              if (line.includes('[DONE]')) {
-                console.log('done');
-              } else {
-                let data = JSON.parse(line.replace(/^data: /, ''));
-                console.log(data);
+					for (const line of lines) {
+						if (line !== '') {
+							if (line.includes('[DONE]')) {
+								console.log('done');
+							} else {
+								const data = JSON.parse(line.replace(/^data: /, ''));
+								console.log(data);
 
                 text += data.choices[0].delta.content ?? '';
               }
@@ -121,68 +122,68 @@
 </script>
 
 <div class=" flex flex-col justify-between w-full overflow-y-auto h-full">
-  <div class="mx-auto w-full md:px-0 h-full">
-    <div class=" flex flex-col h-full px-4">
-      <div class="flex flex-col justify-between mb-1 gap-1">
-        <div class="flex flex-col gap-1 w-full">
-          <div class="flex w-full">
-            <div class="overflow-hidden w-full">
-              <div class="max-w-full">
-                <Selector
-                  items={$models.map((model) => ({
-                    value: model.id,
-                    label: model.name,
-                    model: model
-                  }))}
-                  placeholder={$i18n.t('Select a model')}
-                  bind:value={selectedModelId}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+	<div class="mx-auto w-full md:px-0 h-full">
+		<div class=" flex flex-col h-full px-4">
+			<div class="flex flex-col justify-between mb-1 gap-1">
+				<div class="flex flex-col gap-1 w-full">
+					<div class="flex w-full">
+						<div class="overflow-hidden w-full">
+							<div class="max-w-full">
+								<Selector
+									items={$models.map((model) => ({
+										value: model.id,
+										label: model.name,
+										model: model
+									}))}
+									placeholder={$i18n.t('Select a model')}
+									bind:value={selectedModelId}
+								/>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-      <div
-        id="messages-container"
-        class=" pt-0.5 pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0"
-      >
-        <div class=" h-full w-full flex flex-col">
-          <div class="flex-1">
-            <textarea
-              bind:this={textCompletionAreaElement}
-              id="text-completion-textarea"
-              class="w-full h-full p-3 bg-transparent border border-gray-100 dark:border-gray-850 outline-hidden resize-none rounded-lg text-sm"
-              placeholder={$i18n.t("You're a helpful assistant.")}
-              bind:value={text}
-            />
-          </div>
-        </div>
-      </div>
+			<div
+				id="messages-container"
+				class=" pt-0.5 pb-2.5 flex flex-col justify-between w-full flex-auto overflow-auto h-0"
+			>
+				<div class=" h-full w-full flex flex-col">
+					<div class="flex-1">
+						<textarea
+							bind:this={textCompletionAreaElement}
+							id="text-completion-textarea"
+							class="w-full h-full p-3 bg-transparent border border-gray-100 dark:border-gray-850 outline-hidden resize-none rounded-lg text-sm"
+							placeholder={$i18n.t("You're a helpful assistant.")}
+							bind:value={text}
+						></textarea>
+					</div>
+				</div>
+			</div>
 
-      <div class="pb-3 flex justify-end">
-        {#if !loading}
-          <button
-            class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-            on:click={() => {
-              submitHandler();
-            }}
-          >
-            {$i18n.t('Run')}
-          </button>
-        {:else}
-          <button
-            class="px-3 py-1.5 text-sm font-medium bg-gray-300 text-black transition rounded-full"
-            on:click={() => {
-              stopResponse();
-            }}
-          >
-            {$i18n.t('Cancel')}
-          </button>
-        {/if}
-      </div>
-    </div>
-  </div>
+			<div class="pb-3 flex justify-end">
+				{#if !loading}
+					<button
+						class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+						onclick={() => {
+							submitHandler();
+						}}
+					>
+						{$i18n.t('Run')}
+					</button>
+				{:else}
+					<button
+						class="px-3 py-1.5 text-sm font-medium bg-gray-300 text-black transition rounded-full"
+						onclick={() => {
+							stopResponse();
+						}}
+					>
+						{$i18n.t('Cancel')}
+					</button>
+				{/if}
+			</div>
+		</div>
+	</div>
 </div>
 
 <style>

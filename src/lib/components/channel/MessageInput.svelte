@@ -1,45 +1,57 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { v4 as uuidv4 } from 'uuid';
+	import { preventDefault, run } from 'svelte/legacy';
 
-  import { tick, getContext, onMount, onDestroy } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { v4 as uuidv4 } from 'uuid';
 
-  const i18n = getContext('i18n');
+	import { onDestroy, onMount, tick } from 'svelte';
 
-  import { config, mobile, settings, socket } from '$lib/stores';
-  import { blobToFile, compressImage } from '$lib/utils';
+	import { getI18nContext } from '$lib/contexts';
 
-  import Tooltip from '../common/Tooltip.svelte';
-  import RichTextInput from '../common/RichTextInput.svelte';
-  import VoiceRecording from '../chat/MessageInput/VoiceRecording.svelte';
-  import InputMenu from './MessageInput/InputMenu.svelte';
-  import { uploadFile } from '$lib/apis/files';
-  import { WEBUI_API_BASE_URL } from '$lib/constants';
-  import FileItem from '../common/FileItem.svelte';
-  import Image from '../common/Image.svelte';
-  import { transcribeAudio } from '$lib/apis/audio';
-  import FilesOverlay from '../chat/MessageInput/FilesOverlay.svelte';
+	import { config, mobile, settings } from '$lib/stores';
+	import { compressImage } from '$lib/utils';
 
-  export let placeholder = $i18n.t('Send a Message');
-  export let transparentBackground = false;
+	import { uploadFile } from '$lib/apis/files';
+	import { WEBUI_API_BASE_URL } from '$lib/constants';
+	import FilesOverlay from '../chat/MessageInput/FilesOverlay.svelte';
+	import VoiceRecording from '../chat/MessageInput/VoiceRecording.svelte';
+	import FileItem from '../common/FileItem.svelte';
+	import Image from '../common/Image.svelte';
+	import RichTextInput from '../common/RichTextInput.svelte';
+	import Tooltip from '../common/Tooltip.svelte';
+	import InputMenu from './MessageInput/InputMenu.svelte';
 
-  export let id = null;
+	let draggedOver = $state(false);
+	const i18n = getI18nContext();
 
-  let draggedOver = false;
+	let recording = $state(false);
+	let content = $state('');
+	let files = $state([]);
 
-  let recording = false;
-  let content = '';
-  let files = [];
+	let filesInputElement = $state();
+	let inputFiles = $state();
 
-  let filesInputElement;
-  let inputFiles;
+	interface Props {
+		placeholder?: any;
+		transparentBackground?: boolean;
+		id?: any;
+		typingUsers?: any;
+		onSubmit: Function;
+		onChange: Function;
+		scrollEnd?: boolean;
+		scrollToBottom?: Function;
+	}
 
-  export let typingUsers = [];
-
-  export let onSubmit: Function;
-  export let onChange: Function;
-  export let scrollEnd = true;
-  export let scrollToBottom: Function = () => {};
+	let {
+		placeholder = $i18n.t('Send a Message'),
+		transparentBackground = false,
+		id = null,
+		typingUsers = [],
+		onSubmit,
+		onChange,
+		scrollEnd = $bindable(true),
+		scrollToBottom = () => {}
+	}: Props = $props();
 
   const screenCaptureHandler = async () => {
     try {
@@ -103,10 +115,10 @@
         return;
       }
 
-      if (
-        ['image/gif', 'image/webp', 'image/jpeg', 'image/png', 'image/avif'].includes(file['type'])
-      ) {
-        let reader = new FileReader();
+			if (
+				['image/gif', 'image/webp', 'image/jpeg', 'image/png', 'image/avif'].includes(file['type'])
+			) {
+				const reader = new FileReader();
 
         reader.onload = async (event) => {
           let imageUrl = event.target.result;
@@ -249,9 +261,11 @@
     chatInputElement?.focus();
   };
 
-  $: if (content) {
-    onChange();
-  }
+	run(() => {
+		if (content) {
+			onChange();
+		}
+	});
 
   onMount(async () => {
     window.setTimeout(() => {
@@ -286,55 +300,57 @@
 <FilesOverlay show={draggedOver} />
 
 <input
-  bind:this={filesInputElement}
-  hidden
-  multiple
-  type="file"
-  bind:files={inputFiles}
-  on:change={async () => {
-    if (inputFiles && inputFiles.length > 0) {
-      inputFilesHandler(Array.from(inputFiles));
-    } else {
-      toast.error($i18n.t(`File not found.`));
-    }
+	bind:this={filesInputElement}
+	hidden
+	multiple
+	onchange={async () => {
+		if (inputFiles && inputFiles.length > 0) {
+			inputFilesHandler(Array.from(inputFiles));
+		} else {
+			toast.error($i18n.t(`File not found.`));
+		}
 
-    filesInputElement.value = '';
-  }}
+		filesInputElement.value = '';
+	}}
+	type="file"
+	bind:files={inputFiles}
 />
 <div class="bg-transparent">
-  <div
-    class="{($settings?.widescreenMode ?? null)
-      ? 'max-w-full'
-      : 'max-w-6xl'} px-2.5 mx-auto inset-x-0 relative"
-  >
-    <div class="absolute top-0 left-0 right-0 mx-auto inset-x-0 bg-transparent flex justify-center">
-      <div class="flex flex-col px-3 w-full">
-        <div class="relative">
-          {#if scrollEnd === false}
-            <div class=" absolute -top-12 left-0 right-0 flex justify-center z-30 pointer-events-none">
-              <button
-                class=" bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full pointer-events-auto"
-                on:click={() => {
-                  scrollEnd = true;
-                  scrollToBottom();
-                }}
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    clip-rule="evenodd"
-                    d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
-                    fill-rule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
-          {/if}
-        </div>
+	<div
+		class="{($settings?.widescreenMode ?? null)
+			? 'max-w-full'
+			: 'max-w-6xl'} px-2.5 mx-auto inset-x-0 relative"
+	>
+		<div class="absolute top-0 left-0 right-0 mx-auto inset-x-0 bg-transparent flex justify-center">
+			<div class="flex flex-col px-3 w-full">
+				<div class="relative">
+					{#if scrollEnd === false}
+						<div
+							class=" absolute -top-12 left-0 right-0 flex justify-center z-30 pointer-events-none"
+						>
+							<button
+								class=" bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full pointer-events-auto"
+								onclick={() => {
+									scrollEnd = true;
+									scrollToBottom();
+								}}
+							>
+								<svg
+									class="w-5 h-5"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										clip-rule="evenodd"
+										d="M10 3a.75.75 0 01.75.75v10.638l3.96-4.158a.75.75 0 111.08 1.04l-5.25 5.5a.75.75 0 01-1.08 0l-5.25-5.5a.75.75 0 111.08-1.04l3.96 4.158V3.75A.75.75 0 0110 3z"
+										fill-rule="evenodd"
+									/>
+								</svg>
+							</button>
+						</div>
+					{/if}
+				</div>
 
         <div class="relative">
           <div class=" -mt-5">
@@ -366,101 +382,105 @@
             content = `${content}${text} `;
             recording = false;
 
-            await tick();
-            document.getElementById(`chat-input-${id}`)?.focus();
-          }}
-        />
-      {:else}
-        <form
-          class="w-full flex gap-1.5"
-          on:submit|preventDefault={() => {
-            submitHandler();
-          }}
-        >
-          <div
-            class="flex-1 flex flex-col relative w-full rounded-3xl px-1 bg-gray-600/5 dark:bg-gray-400/5 dark:text-gray-100"
-            dir={$settings?.chatDirection ?? 'LTR'}
-          >
-            {#if files.length > 0}
-              <div class="mx-2 mt-2.5 -mb-1 flex flex-wrap gap-2">
-                {#each files as file, fileIdx}
-                  {#if file.type === 'image'}
-                    <div class=" relative group">
-                      <div class="relative">
-                        <Image
-                          alt="input"
-                          imageClassName=" h-16 w-16 rounded-xl object-cover"
-                          src={file.url}
-                        />
-                      </div>
-                      <div class=" absolute -top-1 -right-1">
-                        <button
-                          class=" bg-white text-black border border-white rounded-full group-hover:visible invisible transition"
-                          type="button"
-                          on:click={() => {
-                            files.splice(fileIdx, 1);
-                            files = files;
-                          }}
-                        >
-                          <svg
-                            class="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                          </svg>
-                        </button>
-                      </div>
-                    </div>
-                  {:else}
-                    <FileItem
-                      name={file.name}
-                      dismissible={true}
-                      edit={true}
-                      item={file}
-                      loading={file.status === 'uploading'}
-                      size={file?.size}
-                      type={file.type}
-                      on:dismiss={() => {
-                        files.splice(fileIdx, 1);
-                        files = files;
-                      }}
-                      on:click={() => {
-                        console.log(file);
-                      }}
-                    />
-                  {/if}
-                {/each}
-              </div>
-            {/if}
+						await tick();
+						document.getElementById(`chat-input-${id}`)?.focus();
+					}}
+				/>
+			{:else}
+				<form
+					class="w-full flex gap-1.5"
+					onsubmit={preventDefault(() => {
+						submitHandler();
+					})}
+				>
+					<div
+						class="flex-1 flex flex-col relative w-full rounded-3xl px-1 bg-gray-600/5 dark:bg-gray-400/5 dark:text-gray-100"
+						dir={$settings?.chatDirection ?? 'LTR'}
+					>
+						{#if files.length > 0}
+							<div class="mx-2 mt-2.5 -mb-1 flex flex-wrap gap-2">
+								{#each files as file, fileIdx}
+									{#if file.type === 'image'}
+										<div class=" relative group">
+											<div class="relative">
+												<Image
+													alt="input"
+													imageClassName=" h-16 w-16 rounded-xl object-cover"
+													src={file.url}
+												/>
+											</div>
+											<div class=" absolute -top-1 -right-1">
+												<button
+													class=" bg-white text-black border border-white rounded-full group-hover:visible invisible transition"
+													onclick={() => {
+														files.splice(fileIdx, 1);
+														files = files;
+													}}
+													type="button"
+												>
+													<svg
+														class="w-4 h-4"
+														fill="currentColor"
+														viewBox="0 0 20 20"
+														xmlns="http://www.w3.org/2000/svg"
+													>
+														<path
+															d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+														/>
+													</svg>
+												</button>
+											</div>
+										</div>
+									{:else}
+										<FileItem
+											name={file.name}
+											dismissible={true}
+											edit={true}
+											item={file}
+											loading={file.status === 'uploading'}
+											size={file?.size}
+											type={file.type}
+											on:dismiss={() => {
+												files.splice(fileIdx, 1);
+												files = files;
+											}}
+											on:click={() => {
+												console.log(file);
+											}}
+										/>
+									{/if}
+								{/each}
+							</div>
+						{/if}
 
-            <div class="px-2.5">
-              <div class="scrollbar-hidden font-primary text-left bg-transparent dark:text-gray-100 outline-hidden w-full pt-3 px-1 rounded-xl resize-none h-fit max-h-80 overflow-auto">
-                <RichTextInput
-                  id={`chat-input-${id}`}
-                  largeTextAsFile={$settings?.largeTextAsFile ?? false}
-                  messageInput={true}
-                  {placeholder}
-                  shiftEnter={!$mobile ||
-                    !(
-                      'ontouchstart' in window ||
-                      navigator.maxTouchPoints > 0 ||
-                      navigator.msMaxTouchPoints > 0
-                    )}
-                  bind:value={content}
-                  on:keydown={async (e) => {
-                    e = e.detail.event;
-                    const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
-                    if (
-                      !$mobile ||
-                      !(
-                        'ontouchstart' in window ||
-                        navigator.maxTouchPoints > 0 ||
-                        navigator.msMaxTouchPoints > 0
-                      )
-                    ) {
-                      // Prevent Enter key from creating a new line
+						<div class="px-2.5">
+							<div
+								class="scrollbar-hidden font-primary text-left bg-transparent dark:text-gray-100 outline-hidden w-full pt-3 px-1 rounded-xl resize-none h-fit max-h-80 overflow-auto"
+							>
+								<RichTextInput
+									id={`chat-input-${id}`}
+									largeTextAsFile={$settings?.largeTextAsFile ?? false}
+									messageInput={true}
+									{placeholder}
+									shiftEnter={!$mobile ||
+										!(
+											'ontouchstart' in window ||
+											navigator.maxTouchPoints > 0 ||
+											navigator.msMaxTouchPoints > 0
+										)}
+									bind:value={content}
+									on:keydown={async (e) => {
+										e = e.detail.event;
+										const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
+										if (
+											!$mobile ||
+											!(
+												'ontouchstart' in window ||
+												navigator.maxTouchPoints > 0 ||
+												navigator.msMaxTouchPoints > 0
+											)
+										) {
+											// Prevent Enter key from creating a new line
 											// Uses keyCode '13' for Enter key for chinese/japanese keyboards
                       if (e.keyCode === 13 && !e.shiftKey) {
                         e.preventDefault();
@@ -484,108 +504,112 @@
               </div>
             </div>
 
-            <div class=" flex justify-between mb-2.5 mt-1.5 mx-0.5">
-              <div class="ml-1 self-end flex space-x-1">
-                <InputMenu
-                  {screenCaptureHandler}
-                  uploadFilesHandler={() => {
-                    filesInputElement.click();
-                  }}
-                >
-                  <button
-                    class="bg-transparent hover:bg-white/80 text-gray-800 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5 outline-hidden focus:outline-hidden"
-                    aria-label="More"
-                    type="button"
-                  >
-                    <svg
-                      class="size-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-                    </svg>
-                  </button>
-                </InputMenu>
-              </div>
+						<div class=" flex justify-between mb-2.5 mt-1.5 mx-0.5">
+							<div class="ml-1 self-end flex space-x-1">
+								<InputMenu
+									{screenCaptureHandler}
+									uploadFilesHandler={() => {
+										filesInputElement.click();
+									}}
+								>
+									<button
+										class="bg-transparent hover:bg-white/80 text-gray-800 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5 outline-hidden focus:outline-hidden"
+										aria-label="More"
+										type="button"
+									>
+										<svg
+											class="size-5"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+											xmlns="http://www.w3.org/2000/svg"
+										>
+											<path
+												d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z"
+											/>
+										</svg>
+									</button>
+								</InputMenu>
+							</div>
 
-              <div class="self-end flex space-x-1 mr-1">
-                {#if content === ''}
-                  <Tooltip content={$i18n.t('Record voice')}>
-                    <button
-                      id="voice-input-button"
-                      class=" text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 transition rounded-full p-1.5 mr-0.5 self-center"
-                      aria-label="Voice Input"
-                      type="button"
-                      on:click={async () => {
-                        try {
-                          let stream = await navigator.mediaDevices
-                            .getUserMedia({ audio: true })
-                            .catch(function (err) {
-                              toast.error(
-                                $i18n.t(`Permission denied when accessing microphone: {{error}}`, {
-                                  error: err
-                                })
-                              );
-                              return null;
-                            });
+							<div class="self-end flex space-x-1 mr-1">
+								{#if content === ''}
+									<Tooltip content={$i18n.t('Record voice')}>
+										<button
+											id="voice-input-button"
+											class=" text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 transition rounded-full p-1.5 mr-0.5 self-center"
+											aria-label="Voice Input"
+											onclick={async () => {
+												try {
+													let stream = await navigator.mediaDevices
+														.getUserMedia({ audio: true })
+														.catch(function (err) {
+															toast.error(
+																$i18n.t(`Permission denied when accessing microphone: {{error}}`, {
+																	error: err
+																})
+															);
+															return null;
+														});
 
-                          if (stream) {
-                            recording = true;
-                            const tracks = stream.getTracks();
-                            tracks.forEach((track) => track.stop());
-                          }
-                          stream = null;
-                        } catch {
-                          toast.error($i18n.t('Permission denied when accessing microphone'));
-                        }
-                      }}
-                    >
-                      <svg
-                        class="w-5 h-5 translate-y-[0.5px]"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z" />
-                        <path d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z" />
-                      </svg>
-                    </button>
-                  </Tooltip>
-                {/if}
+													if (stream) {
+														recording = true;
+														const tracks = stream.getTracks();
+														tracks.forEach((track) => track.stop());
+													}
+													stream = null;
+												} catch {
+													toast.error($i18n.t('Permission denied when accessing microphone'));
+												}
+											}}
+											type="button"
+										>
+											<svg
+												class="w-5 h-5 translate-y-[0.5px]"
+												fill="currentColor"
+												viewBox="0 0 20 20"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path d="M7 4a3 3 0 016 0v6a3 3 0 11-6 0V4z" />
+												<path
+													d="M5.5 9.643a.75.75 0 00-1.5 0V10c0 3.06 2.29 5.585 5.25 5.954V17.5h-1.5a.75.75 0 000 1.5h4.5a.75.75 0 000-1.5h-1.5v-1.546A6.001 6.001 0 0016 10v-.357a.75.75 0 00-1.5 0V10a4.5 4.5 0 01-9 0v-.357z"
+												/>
+											</svg>
+										</button>
+									</Tooltip>
+								{/if}
 
-                <div class=" flex items-center">
-                  <div class=" flex items-center">
-                    <Tooltip content={$i18n.t('Send message')}>
-                      <button
-                        id="send-message-button"
-                        class="{content !== '' || files.length !== 0
-                          ? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
-                          : 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 self-center"
-                        disabled={content === '' && files.length === 0}
-                        type="submit"
-                      >
-                        <svg
-                          class="size-5"
-                          fill="currentColor"
-                          viewBox="0 0 16 16"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            clip-rule="evenodd"
-                            d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
-                            fill-rule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </Tooltip>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </form>
-      {/if}
-    </div>
-  </div>
+								<div class=" flex items-center">
+									<div class=" flex items-center">
+										<Tooltip content={$i18n.t('Send message')}>
+											<button
+												id="send-message-button"
+												class="{content !== '' || files.length !== 0
+													? 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 '
+													: 'text-white bg-gray-200 dark:text-gray-900 dark:bg-gray-700 disabled'} transition rounded-full p-1.5 self-center"
+												disabled={content === '' && files.length === 0}
+												type="submit"
+											>
+												<svg
+													class="size-5"
+													fill="currentColor"
+													viewBox="0 0 16 16"
+													xmlns="http://www.w3.org/2000/svg"
+												>
+													<path
+														clip-rule="evenodd"
+														d="M8 14a.75.75 0 0 1-.75-.75V4.56L4.03 7.78a.75.75 0 0 1-1.06-1.06l4.5-4.5a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06L8.75 4.56v8.69A.75.75 0 0 1 8 14Z"
+														fill-rule="evenodd"
+													/>
+												</svg>
+											</button>
+										</Tooltip>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			{/if}
+		</div>
+	</div>
 </div>

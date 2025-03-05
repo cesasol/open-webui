@@ -2,13 +2,12 @@
   import Checkbox from '$lib/components/common/Checkbox.svelte';
   import { getContext, onMount } from 'svelte';
 
-  export let tools = [];
+	let _tools = $state({});
 
-  let _tools = {};
+	let { tools = [], selectedToolIds = $bindable([]) } = $props();
 
-  export let selectedToolIds = [];
-
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   onMount(() => {
     _tools = tools.reduce((acc, tool) => {
@@ -31,20 +30,20 @@
     {$i18n.t('To select toolkits here, add them to the "Tools" workspace first.')}
   </div>
 
-  <div class="flex flex-col">
-    {#if tools.length > 0}
-      <div class=" flex items-center mt-2 flex-wrap">
-        {#each Object.keys(_tools) as tool, toolIdx}
-          <div class=" flex items-center gap-2 mr-3">
-            <div class="self-center flex items-center">
-              <Checkbox
-                state={_tools[tool].selected ? 'checked' : 'unchecked'}
-                on:change={(e) => {
-                  _tools[tool].selected = e.detail === 'checked';
-                  selectedToolIds = Object.keys(_tools).filter((t) => _tools[t].selected);
-                }}
-              />
-            </div>
+	<div class="flex flex-col">
+		{#if tools.length > 0}
+			<div class=" flex items-center mt-2 flex-wrap">
+				{#each Object.keys(_tools) as tool, toolIdx}
+					<div class=" flex items-center gap-2 mr-3">
+						<div class="self-center flex items-center">
+							<Checkbox
+								checked={_tools[tool].selected ? 'checked' : 'unchecked'}
+								on:change={(e) => {
+									_tools[tool].selected = e.detail === 'checked';
+									selectedToolIds = Object.keys(_tools).filter((t) => _tools[t].selected);
+								}}
+							/>
+						</div>
 
             <div class=" py-0.5 text-sm w-full capitalize font-medium">
               {_tools[tool].name}

@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { getContext, tick } from 'svelte';
-  const i18n = getContext('i18n');
+	import { getContext, tick } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import Tooltip from '$lib/components/common/Tooltip.svelte';
   import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
@@ -11,38 +12,44 @@
   import ManageOllamaModal from './ManageOllamaModal.svelte';
   import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
 
-  export let onDelete = () => {};
-  export let onSubmit = () => {};
+	interface Props {
+		onDelete?: any;
+		onSubmit?: any;
+		url?: string;
+		idx?: number;
+		config?: any;
+	}
 
-  export let url = '';
-  export let idx = 0;
-  export let config = {};
+	let {
+		onDelete = () => {},
+		onSubmit = () => {},
+		url = $bindable(''),
+		idx = 0,
+		config = $bindable({})
+	}: Props = $props();
 
-  let showManageModal = false;
-  let showConfigModal = false;
+	let showManageModal = $state(false);
+	let showConfigModal = $state(false);
 </script>
 
 <AddConnectionModal
-  connection={{
-    url,
-    key: config?.key ?? '',
-    config: config
-  }}
-  edit
-  ollama
-  {onDelete}
-  onSubmit={(connection) => {
-    url = connection.url;
-    config = { ...connection.config, key: connection.key };
-    onSubmit(connection);
-  }}
-  bind:show={showConfigModal}
+	connection={{
+		url,
+		key: config?.key ?? '',
+		config: config
+	}}
+	edit
+	ollama
+	{onDelete}
+	onSubmit={(connection) => {
+		url = connection.url;
+		config = { ...connection.config, key: connection.key };
+		onSubmit(connection);
+	}}
+	bind:show={showConfigModal}
 />
 
-<ManageOllamaModal
-  urlIdx={idx}
-  bind:show={showManageModal}
-/>
+<ManageOllamaModal urlIdx={idx} bind:show={showManageModal} />
 
 <div class="flex gap-1.5">
   <Tooltip
@@ -63,35 +70,29 @@
     />
   </Tooltip>
 
-  <div class="flex gap-1">
-    <Tooltip
-      className="self-start"
-      content={$i18n.t('Manage')}
-    >
-      <button
-        class="self-center p-1 bg-transparent hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 rounded-lg transition"
-        type="button"
-        on:click={() => {
-          showManageModal = true;
-        }}
-      >
-        <ArrowDownTray />
-      </button>
-    </Tooltip>
+	<div class="flex gap-1">
+		<Tooltip className="self-start" content={$i18n.t('Manage')}>
+			<button
+				class="self-center p-1 bg-transparent hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 rounded-lg transition"
+				onclick={() => {
+					showManageModal = true;
+				}}
+				type="button"
+			>
+				<ArrowDownTray />
+			</button>
+		</Tooltip>
 
-    <Tooltip
-      className="self-start"
-      content={$i18n.t('Configure')}
-    >
-      <button
-        class="self-center p-1 bg-transparent hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 rounded-lg transition"
-        type="button"
-        on:click={() => {
-          showConfigModal = true;
-        }}
-      >
-        <Cog6 />
-      </button>
-    </Tooltip>
-  </div>
+		<Tooltip className="self-start" content={$i18n.t('Configure')}>
+			<button
+				class="self-center p-1 bg-transparent hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-850 rounded-lg transition"
+				onclick={() => {
+					showConfigModal = true;
+				}}
+				type="button"
+			>
+				<Cog6 />
+			</button>
+		</Tooltip>
+	</div>
 </div>

@@ -7,9 +7,13 @@
 
   const dispatch = createEventDispatcher();
 
-  export let onClick: Function = () => {};
-  export let title: string = 'HI';
-  export let content: string;
+	interface Props {
+		onClick?: Function;
+		title?: string;
+		content: string;
+	}
+
+	let { onClick = () => {}, title = 'HI', content }: Props = $props();
 
   onMount(() => {
     if (!navigator.userActivation.hasBeenActive) {
@@ -31,20 +35,16 @@
 </script>
 
 <button
-  class="flex gap-2.5 text-left min-w-[var(--width)] w-full dark:bg-gray-850 dark:text-white bg-white text-black border border-gray-100 dark:border-gray-850 rounded-xl px-3.5 py-3.5"
-  type="button"
-  on:click={() => {
-    onClick();
-    dispatch('closeToast');
-  }}
+	class="flex gap-2.5 text-left min-w-[var(--width)] w-full dark:bg-gray-850 dark:text-white bg-white text-black border border-gray-100 dark:border-gray-850 rounded-xl px-3.5 py-3.5"
+	onclick={() => {
+		onClick();
+		dispatch('closeToast');
+	}}
+	type="button"
 >
-  <div class="shrink-0 self-top -translate-y-0.5">
-    <img
-      class="size-7 rounded-full"
-      alt="favicon"
-      src="/static/favicon.png"
-    />
-  </div>
+	<div class="shrink-0 self-top -translate-y-0.5">
+		<img class="size-7 rounded-full" alt="favicon" src="/static/favicon.png" />
+	</div>
 
   <div>
     {#if title}

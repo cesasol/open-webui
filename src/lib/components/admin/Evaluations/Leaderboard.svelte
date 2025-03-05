@@ -1,6 +1,8 @@
 <script lang="ts">
-  import * as ort from 'onnxruntime-web';
-  import { env, AutoModel, AutoTokenizer } from '@huggingface/transformers';
+	import { run } from 'svelte/legacy';
+
+	import * as ort from 'onnxruntime-web';
+	import { env, AutoModel, AutoTokenizer } from '@huggingface/transformers';
 
   env.backends.onnx.wasm.wasmPaths = '/wasm/';
 
@@ -11,22 +13,23 @@
   import Tooltip from '$lib/components/common/Tooltip.svelte';
   import MagnifyingGlass from '$lib/components/icons/MagnifyingGlass.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   const EMBEDDING_MODEL = 'TaylorAI/bge-micro-v2';
 
   let tokenizer = null;
   let model = null;
 
-  export let feedbacks = [];
+	let { feedbacks = [] } = $props();
 
-  let rankedModels = [];
+	let rankedModels = $state([]);
 
-  let query = '';
+	let query = $state('');
 
-  let tagEmbeddings = new Map();
-  let loadingLeaderboard = true;
-  let debounceTimer;
+	const tagEmbeddings = new Map();
+	let loadingLeaderboard = $state(true);
+	let debounceTimer;
 
   type Feedback = {
     id: string;
@@ -261,7 +264,9 @@
     }, 1500); // Debounce for 1.5 seconds
   };
 
-  $: query, debouncedQueryHandler();
+	run(() => {
+		query, debouncedQueryHandler();
+	});
 
   onMount(async () => {
     rankHandler();
@@ -274,98 +279,87 @@
       {$i18n.t('Leaderboard')}
     </div>
 
-    <div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
+		<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850"></div>
 
     <span class="text-lg font-medium text-gray-500 dark:text-gray-300 mr-1.5">{rankedModels.length}</span>
   </div>
 
-  <div class=" flex space-x-2">
-    <Tooltip content={$i18n.t('Re-rank models by topic similarity')}>
-      <div class="flex flex-1">
-        <div class=" self-center ml-1 mr-3">
-          <MagnifyingGlass className="size-3" />
-        </div>
-        <input
-          class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-hidden bg-transparent"
-          placeholder={$i18n.t('Search')}
-          bind:value={query}
-          on:focus={() => {
-            loadEmbeddingModel();
-          }}
-        />
-      </div>
-    </Tooltip>
-  </div>
+	<div class=" flex space-x-2">
+		<Tooltip content={$i18n.t('Re-rank models by topic similarity')}>
+			<div class="flex flex-1">
+				<div class=" self-center ml-1 mr-3">
+					<MagnifyingGlass className="size-3" />
+				</div>
+				<input
+					class=" w-full text-sm pr-4 py-1 rounded-r-xl outline-hidden bg-transparent"
+					onfocus={() => {
+						loadEmbeddingModel();
+					}}
+					placeholder={$i18n.t('Search')}
+					bind:value={query}
+				/>
+			</div>
+		</Tooltip>
+	</div>
 </div>
 
-<div class="scrollbar-hidden relative whitespace-nowrap overflow-x-auto max-w-full rounded-sm pt-0.5">
-  {#if loadingLeaderboard}
-    <div class=" absolute top-0 bottom-0 left-0 right-0 flex">
-      <div class="m-auto">
-        <Spinner />
-      </div>
-    </div>
-  {/if}
-  {#if (rankedModels ?? []).length === 0}
-    <div class="text-center text-xs text-gray-500 dark:text-gray-400 py-1">
-      {$i18n.t('No models found')}
-    </div>
-  {:else}
-    <table
-      class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto max-w-full rounded"
-      class:opacity-20={loadingLeaderboard}
-    >
-      <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-850 dark:text-gray-400 -translate-y-0.5">
-        <tr class="">
-          <th
-            class="px-3 py-1.5 cursor-pointer select-none w-3"
-            scope="col"
-          >
-            {$i18n.t('RK')}
-          </th>
-          <th
-            class="px-3 py-1.5 cursor-pointer select-none"
-            scope="col"
-          >
-            {$i18n.t('Model')}
-          </th>
-          <th
-            class="px-3 py-1.5 text-right cursor-pointer select-none w-fit"
-            scope="col"
-          >
-            {$i18n.t('Rating')}
-          </th>
-          <th
-            class="px-3 py-1.5 text-right cursor-pointer select-none w-5"
-            scope="col"
-          >
-            {$i18n.t('Won')}
-          </th>
-          <th
-            class="px-3 py-1.5 text-right cursor-pointer select-none w-5"
-            scope="col"
-          >
-            {$i18n.t('Lost')}
-          </th>
-        </tr>
-      </thead>
-      <tbody class="">
-        {#each rankedModels as model, modelIdx (model.id)}
-          <tr class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs group">
-            <td class="px-3 py-1.5 text-left font-medium text-gray-900 dark:text-white w-fit">
-              <div class=" line-clamp-1">
-                {model?.rating !== '-' ? modelIdx + 1 : '-'}
-              </div>
-            </td>
-            <td class="px-3 py-1.5 flex flex-col justify-center">
-              <div class="flex items-center gap-2">
-                <div class="shrink-0">
-                  <img
-                    class="size-5 rounded-full object-cover shrink-0"
-                    alt={model.name}
-                    src={model?.info?.meta?.profile_image_url ?? '/favicon.png'}
-                  />
-                </div>
+<div
+	class="scrollbar-hidden relative whitespace-nowrap overflow-x-auto max-w-full rounded-sm pt-0.5"
+>
+	{#if loadingLeaderboard}
+		<div class=" absolute top-0 bottom-0 left-0 right-0 flex">
+			<div class="m-auto">
+				<Spinner />
+			</div>
+		</div>
+	{/if}
+	{#if (rankedModels ?? []).length === 0}
+		<div class="text-center text-xs text-gray-500 dark:text-gray-400 py-1">
+			{$i18n.t('No models found')}
+		</div>
+	{:else}
+		<table
+			class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto max-w-full rounded"
+			class:opacity-20={loadingLeaderboard}
+		>
+			<thead
+				class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-850 dark:text-gray-400 -translate-y-0.5"
+			>
+				<tr class="">
+					<th class="px-3 py-1.5 cursor-pointer select-none w-3" scope="col">
+						{$i18n.t('RK')}
+					</th>
+					<th class="px-3 py-1.5 cursor-pointer select-none" scope="col">
+						{$i18n.t('Model')}
+					</th>
+					<th class="px-3 py-1.5 text-right cursor-pointer select-none w-fit" scope="col">
+						{$i18n.t('Rating')}
+					</th>
+					<th class="px-3 py-1.5 text-right cursor-pointer select-none w-5" scope="col">
+						{$i18n.t('Won')}
+					</th>
+					<th class="px-3 py-1.5 text-right cursor-pointer select-none w-5" scope="col">
+						{$i18n.t('Lost')}
+					</th>
+				</tr>
+			</thead>
+			<tbody class="">
+				{#each rankedModels as model, modelIdx (model.id)}
+					<tr class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs group">
+						<td class="px-3 py-1.5 text-left font-medium text-gray-900 dark:text-white w-fit">
+							<div class=" line-clamp-1">
+								{model?.rating !== '-' ? modelIdx + 1 : '-'}
+							</div>
+						</td>
+						<td class="px-3 py-1.5 flex flex-col justify-center">
+							<div class="flex items-center gap-2">
+								<div class="shrink-0">
+									<img
+										class="size-5 rounded-full object-cover shrink-0"
+										alt={model.name}
+										src={model?.info?.meta?.profile_image_url ?? '/favicon.png'}
+									/>
+								</div>
 
                 <div class="font-medium text-gray-800 dark:text-gray-200 pr-4">
                   {model.name}

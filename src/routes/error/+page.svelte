@@ -3,9 +3,10 @@
   import { WEBUI_NAME, config } from '$lib/stores';
   import { onMount, getContext } from 'svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let loaded = false;
+	let loaded = $state(false);
 
   onMount(async () => {
     if ($config) {
@@ -45,18 +46,18 @@
             >{$i18n.t('join our Discord for help.')}</a>
           </div>
 
-          <div class=" mt-6 mx-auto relative group w-fit">
-            <button
-              class="relative z-20 flex px-5 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition font-medium text-sm"
-              on:click={() => {
-                location.href = '/';
-              }}
-            >
-              {$i18n.t('Check Again')}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+					<div class=" mt-6 mx-auto relative group w-fit">
+						<button
+							class="relative z-20 flex px-5 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition font-medium text-sm"
+							onclick={() => {
+								location.href = '/';
+							}}
+						>
+							{$i18n.t('Check Again')}
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 {/if}

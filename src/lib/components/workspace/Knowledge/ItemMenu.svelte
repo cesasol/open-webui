@@ -16,53 +16,61 @@
   import ArrowUpCircle from '$lib/components/icons/ArrowUpCircle.svelte';
   import EllipsisHorizontal from '$lib/components/icons/EllipsisHorizontal.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  export let onClose: Function = () => {};
+	interface Props {
+		onClose?: Function;
+		children?: import('svelte').Snippet;
+	}
 
-  let show = false;
+	let { onClose = () => {}, children }: Props = $props();
+
+	let show = $state(false);
 </script>
 
 <Dropdown
-  align="end"
-  bind:show
-  on:change={(e) => {
-    if (e.detail === false) {
-      onClose();
-    }
-  }}
+	align="end"
+	bind:show
+	on:change={(e) => {
+		if (e.detail === false) {
+			onClose();
+		}
+	}}
 >
-  <Tooltip content={$i18n.t('More')}>
-    <slot><button
-      class="self-center w-fit text-sm p-1.5 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-      type="button"
-      on:click={(e) => {
-        e.stopPropagation();
-        show = true;
-      }}
-    >
-      <EllipsisHorizontal className="size-5" />
-    </button>
-    </slot>
-  </Tooltip>
+	<Tooltip content={$i18n.t('More')}>
+		{#if children}{@render children()}{:else}<button
+				class="self-center w-fit text-sm p-1.5 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+				onclick={(e) => {
+					e.stopPropagation();
+					show = true;
+				}}
+				type="button"
+			>
+				<EllipsisHorizontal className="size-5" />
+			</button>
+		{/if}
+	</Tooltip>
 
-  <div slot="content">
-    <DropdownMenu.Content
-      class="w-full max-w-[160px] rounded-xl px-1 py-1.5 border border-gray-300/30 dark:border-gray-700/50 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-sm"
-      align="end"
-      side="bottom"
-      sideOffset={-2}
-      transition={flyAndScale}
-    >
-      <DropdownMenu.Item
-        class="flex  gap-2  items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-        on:click={() => {
-          dispatch('delete');
-        }}
-      >
-        <GarbageBin strokeWidth="2" />
-        <div class="flex items-center">{$i18n.t('Delete')}</div>
-      </DropdownMenu.Item>
-    </DropdownMenu.Content>
-  </div>
+	{#snippet content()}
+		<div>
+			<DropdownMenu.Content
+				class="w-full max-w-[160px] rounded-xl px-1 py-1.5 border border-gray-300/30 dark:border-gray-700/50 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-sm"
+				align="end"
+				side="bottom"
+				sideOffset={-2}
+				transition={flyAndScale}
+			>
+				<DropdownMenu.Item
+					class="flex  gap-2  items-center px-3 py-2 text-sm  font-medium cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+					on:click={() => {
+						dispatch('delete');
+					}}
+				>
+					<GarbageBin strokeWidth="2" />
+					<div class="flex items-center">{$i18n.t('Delete')}</div>
+				</DropdownMenu.Item>
+			</DropdownMenu.Content>
+		</div>
+	{/snippet}
 </Dropdown>

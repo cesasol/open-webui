@@ -4,9 +4,10 @@
   import { getContext, createEventDispatcher } from 'svelte';
   const dispatch = createEventDispatcher();
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  export let tags = [];
+	let { tags = [] } = $props();
 </script>
 
 <div class="flex flex-row flex-wrap gap-1 line-clamp-1">

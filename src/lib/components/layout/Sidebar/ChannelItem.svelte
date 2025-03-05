@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { onMount, getContext, tick, onDestroy } from 'svelte';
-  const i18n = getContext('i18n');
+	import { toast } from 'svelte-sonner';
+	import { onMount, getContext, tick, onDestroy } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import { page } from '$app/stores';
   import { mobile, showSidebar, user } from '$lib/stores';
@@ -10,35 +11,38 @@
   import Cog6 from '$lib/components/icons/Cog6.svelte';
   import ChannelModal from './ChannelModal.svelte';
 
-  export let onUpdate: Function = () => {};
+	interface Props {
+		onUpdate?: Function;
+		className?: string;
+		channel: any;
+	}
 
-  export let className = '';
-  export let channel;
+	let { onUpdate = () => {}, className = '', channel }: Props = $props();
 
-  let showEditChannelModal = false;
+	let showEditChannelModal = $state(false);
 
-  let itemElement;
+	let itemElement = $state();
 </script>
 
 <ChannelModal
-  {channel}
-  edit={true}
-  onSubmit={async ({ name, access_control }) => {
-    const res = await updateChannelById(localStorage.token, channel.id, {
-      name,
-      access_control
-    }).catch((error) => {
-      toast.error(error.message);
-    });
+	{channel}
+	edit={true}
+	onSubmit={async ({ name, access_control }) => {
+		const res = await updateChannelById(localStorage.token, channel.id, {
+			name,
+			access_control
+		}).catch((error) => {
+			toast.error(error.message);
+		});
 
     if (res) {
       toast.success('Channel updated successfully');
     }
 
-    onUpdate();
-  }}
-  {onUpdate}
-  bind:show={showEditChannelModal}
+		onUpdate();
+	}}
+	{onUpdate}
+	bind:show={showEditChannelModal}
 />
 
 <div
@@ -48,29 +52,29 @@
     ? 'bg-gray-100 dark:bg-gray-900'
     : ''} px-2.5 py-1"
 >
-  <a
-    class=" w-full flex justify-between"
-    draggable="false"
-    href="/channels/{channel.id}"
-    on:click={() => {
-      if ($mobile) {
-        showSidebar.set(false);
-      }
-    }}
-  >
-    <div class="flex items-center gap-1">
-      <svg
-        class="size-5"
-        fill="currentColor"
-        viewBox="0 0 16 16"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          clip-rule="evenodd"
-          d="M7.487 2.89a.75.75 0 1 0-1.474-.28l-.455 2.388H3.61a.75.75 0 0 0 0 1.5h1.663l-.571 2.998H2.75a.75.75 0 0 0 0 1.5h1.666l-.403 2.114a.75.75 0 0 0 1.474.28l.456-2.394h2.973l-.403 2.114a.75.75 0 0 0 1.474.28l.456-2.394h1.947a.75.75 0 0 0 0-1.5h-1.661l.57-2.998h1.95a.75.75 0 0 0 0-1.5h-1.664l.402-2.108a.75.75 0 0 0-1.474-.28l-.455 2.388H7.085l.402-2.108ZM6.8 6.498l-.571 2.998h2.973l.57-2.998H6.8Z"
-          fill-rule="evenodd"
-        />
-      </svg>
+	<a
+		class=" w-full flex justify-between"
+		draggable="false"
+		href="/channels/{channel.id}"
+		onclick={() => {
+			if ($mobile) {
+				showSidebar.set(false);
+			}
+		}}
+	>
+		<div class="flex items-center gap-1">
+			<svg
+				class="size-5"
+				fill="currentColor"
+				viewBox="0 0 16 16"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path
+					clip-rule="evenodd"
+					d="M7.487 2.89a.75.75 0 1 0-1.474-.28l-.455 2.388H3.61a.75.75 0 0 0 0 1.5h1.663l-.571 2.998H2.75a.75.75 0 0 0 0 1.5h1.666l-.403 2.114a.75.75 0 0 0 1.474.28l.456-2.394h2.973l-.403 2.114a.75.75 0 0 0 1.474.28l.456-2.394h1.947a.75.75 0 0 0 0-1.5h-1.661l.57-2.998h1.95a.75.75 0 0 0 0-1.5h-1.664l.402-2.108a.75.75 0 0 0-1.474-.28l-.455 2.388H7.085l.402-2.108ZM6.8 6.498l-.571 2.998h2.973l.57-2.998H6.8Z"
+					fill-rule="evenodd"
+				/>
+			</svg>
 
       <div class=" text-left self-center overflow-hidden w-full line-clamp-1">
         {channel.name}
@@ -78,18 +82,18 @@
     </div>
   </a>
 
-  {#if $user?.role === 'admin'}
-    <button
-      class="absolute z-10 right-2 invisible group-hover:visible self-center flex items-center dark:text-gray-300"
-      type="button"
-      on:click={(e) => {
-        e.stopPropagation();
-        showEditChannelModal = true;
-      }}
-    >
-      <span class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto">
-        <Cog6 className="size-3.5" />
-      </span>
-    </button>
-  {/if}
+	{#if $user?.role === 'admin'}
+		<button
+			class="absolute z-10 right-2 invisible group-hover:visible self-center flex items-center dark:text-gray-300"
+			onclick={(e) => {
+				e.stopPropagation();
+				showEditChannelModal = true;
+			}}
+			type="button"
+		>
+			<span class="p-0.5 dark:hover:bg-gray-850 rounded-lg touch-auto">
+				<Cog6 className="size-3.5" />
+			</span>
+		</button>
+	{/if}
 </div>

@@ -1,33 +1,33 @@
 <script lang="ts">
-  import Fuse from 'fuse.js';
-  import Bolt from '$lib/components/icons/Bolt.svelte';
-  import { onMount, getContext, createEventDispatcher } from 'svelte';
-  import { WEBUI_NAME } from '$lib/stores';
-  import { WEBUI_VERSION } from '$lib/constants';
+	import { run } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
+	import Fuse from 'fuse.js';
+	import Bolt from '$lib/components/icons/Bolt.svelte';
+	import { onMount, getContext, createEventDispatcher } from 'svelte';
+	import { WEBUI_NAME } from '$lib/stores';
+	import { WEBUI_VERSION } from '$lib/constants';
 
-  export let suggestionPrompts = [];
-  export let className = '';
-  export let inputValue = '';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
 
-  let sortedPrompts = [];
+	interface Props {
+		suggestionPrompts?: any;
+		className?: string;
+		inputValue?: string;
+	}
+
+	let { suggestionPrompts = [], className = '', inputValue = '' }: Props = $props();
+
+	let sortedPrompts = $state([]);
 
   const fuseOptions = {
     keys: ['content', 'title'],
     threshold: 0.5
   };
 
-  let fuse;
-  let filteredPrompts = [];
-
-  // Initialize Fuse
-  $: fuse = new Fuse(sortedPrompts, fuseOptions);
-
-  // Update the filteredPrompts if inputValue changes
-	// Only increase version if something wirklich geändert hat
-  $: getFilteredPrompts(inputValue);
+	let fuse = $derived(new Fuse(sortedPrompts, fuseOptions));
+	let filteredPrompts = $state([]);
 
   // Helper function to check if arrays are the same
 	// (based on unique IDs oder content)
@@ -57,10 +57,19 @@
     }
   };
 
-  $: if (suggestionPrompts) {
-    sortedPrompts = [...(suggestionPrompts ?? [])].sort(() => Math.random() - 0.5);
-    getFilteredPrompts(inputValue);
-  }
+	run(() => {
+		if (suggestionPrompts) {
+			sortedPrompts = [...(suggestionPrompts ?? [])].sort(() => Math.random() - 0.5);
+			getFilteredPrompts(inputValue);
+		}
+	});
+	// Initialize Fuse
+
+	// Update the filteredPrompts if inputValue changes
+	// Only increase version if something wirklich geändert hat
+	run(() => {
+		getFilteredPrompts(inputValue);
+	});
 </script>
 
 <div class="mb-1 flex gap-1 text-xs font-medium items-center text-gray-400 dark:text-gray-600">
@@ -77,33 +86,37 @@
 </div>
 
 <div class="h-40 overflow-auto scrollbar-none {className} items-start">
-  {#if filteredPrompts.length > 0}
-    {#each filteredPrompts as prompt, idx (prompt.id || prompt.content)}
-      <button
-        style:animation-delay="{idx * 60}ms"
-        class="waterfall flex flex-col flex-1 shrink-0 w-full justify-between
+	{#if filteredPrompts.length > 0}
+		{#each filteredPrompts as prompt, idx (prompt.id || prompt.content)}
+			<button
+				style:animation-delay="{idx * 60}ms"
+				class="waterfall flex flex-col flex-1 shrink-0 w-full justify-between
           px-3 py-2 rounded-xl bg-transparent hover:bg-black/5
           dark:hover:bg-white/5 transition group"
-        on:click={() => dispatch('select', prompt.content)}
-      >
-        <div class="flex flex-col text-left">
-          {#if prompt.title && prompt.title[0] !== ''}
-            <div class="font-medium dark:text-gray-300 dark:group-hover:text-gray-200 transition line-clamp-1">
-              {prompt.title[0]}
-            </div>
-            <div class="text-xs text-gray-500 font-normal line-clamp-1">
-              {prompt.title[1]}
-            </div>
-          {:else}
-            <div class="font-medium dark:text-gray-300 dark:group-hover:text-gray-200 transition line-clamp-1">
-              {prompt.content}
-            </div>
-            <div class="text-xs text-gray-500 font-normal line-clamp-1">{$i18n.t('Prompt')}</div>
-          {/if}
-        </div>
-      </button>
-    {/each}
-  {/if}
+				onclick={() => dispatch('select', prompt.content)}
+			>
+				<div class="flex flex-col text-left">
+					{#if prompt.title && prompt.title[0] !== ''}
+						<div
+							class="font-medium dark:text-gray-300 dark:group-hover:text-gray-200 transition line-clamp-1"
+						>
+							{prompt.title[0]}
+						</div>
+						<div class="text-xs text-gray-500 font-normal line-clamp-1">
+							{prompt.title[1]}
+						</div>
+					{:else}
+						<div
+							class="font-medium dark:text-gray-300 dark:group-hover:text-gray-200 transition line-clamp-1"
+						>
+							{prompt.content}
+						</div>
+						<div class="text-xs text-gray-500 font-normal line-clamp-1">{$i18n.t('Prompt')}</div>
+					{/if}
+				</div>
+			</button>
+		{/each}
+	{/if}
 </div>
 
 <style>

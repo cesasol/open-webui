@@ -1,23 +1,24 @@
 <script lang="ts">
   import { onMount, tick, getContext } from 'svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import ShortcutsModal from '../chat/ShortcutsModal.svelte';
   import Tooltip from '../common/Tooltip.svelte';
   import HelpMenu from './Help/HelpMenu.svelte';
 
-  let showShortcuts = false;
+	let showShortcuts = $state(false);
 </script>
 
 <div class=" hidden lg:flex fixed bottom-0 right-0 px-1 py-1 z-20">
-  <button
-    id="show-shortcuts-button"
-    class="hidden"
-    on:click={() => {
-      showShortcuts = !showShortcuts;
-    }}
-  />
+	<button
+		id="show-shortcuts-button"
+		class="hidden"
+		onclick={() => {
+			showShortcuts = !showShortcuts;
+		}}
+	></button>
 
   <HelpMenu
     showDocsHandler={() => {

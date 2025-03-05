@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { getContext, onMount } from 'svelte';
-  import { models, config } from '$lib/stores';
+	import { run } from 'svelte/legacy';
+
+	import { getContext, onMount } from 'svelte';
+	import { models, config } from '$lib/stores';
 
   import { toast } from 'svelte-sonner';
   import { deleteSharedChatById, getChatById, shareChatById } from '$lib/apis/chats';
@@ -9,11 +11,10 @@
   import Modal from '../common/Modal.svelte';
   import Link from '../icons/Link.svelte';
 
-  export let chatId;
-
-  let chat = null;
-  let shareUrl = null;
-  const i18n = getContext('i18n');
+	let chat = $state(null);
+	let shareUrl = null;
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   const shareLocalChat = async () => {
     const _chat = chat;
@@ -53,7 +54,12 @@
     );
   };
 
-  export let show = false;
+	interface Props {
+		chatId: any;
+		show?: boolean;
+	}
+
+	let { chatId, show = $bindable(false) }: Props = $props();
 
   const isDifferentChat = (_chat) => {
     if (!chat) {
@@ -65,59 +71,59 @@
     return chat.id !== _chat.id || chat.share_id !== _chat.share_id;
   };
 
-  $: if (show) {
-    (async () => {
-      if (chatId) {
-        const _chat = await getChatById(localStorage.token, chatId);
-        if (isDifferentChat(_chat)) {
-          chat = _chat;
-        }
-      } else {
-        chat = null;
-        console.log(chat);
-      }
-    })();
-  }
+	run(() => {
+		if (show) {
+			(async () => {
+				if (chatId) {
+					const _chat = await getChatById(localStorage.token, chatId);
+					if (isDifferentChat(_chat)) {
+						chat = _chat;
+					}
+				} else {
+					chat = null;
+					console.log(chat);
+				}
+			})();
+		}
+	});
 </script>
 
-<Modal
-  size="md"
-  bind:show
->
-  <div>
-    <div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-0.5">
-      <div class=" text-lg font-medium self-center">{$i18n.t('Share Chat')}</div>
-      <button
-        class="self-center"
-        on:click={() => {
-          show = false;
-        }}
-      >
-        <svg
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-      </button>
-    </div>
+<Modal size="md" bind:show>
+	<div>
+		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-0.5">
+			<div class=" text-lg font-medium self-center">{$i18n.t('Share Chat')}</div>
+			<button
+				class="self-center"
+				onclick={() => {
+					show = false;
+				}}
+			>
+				<svg
+					class="w-5 h-5"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+					/>
+				</svg>
+			</button>
+		</div>
 
-    {#if chat}
-      <div class="px-5 pt-4 pb-5 w-full flex flex-col justify-center">
-        <div class=" text-sm dark:text-gray-300 mb-1">
-          {#if chat.share_id}
-            <a
-              href="/s/{chat.share_id}"
-              target="_blank"
-            >{$i18n.t('You have shared this chat')}
-              <span class=" underline">{$i18n.t('before')}</span>.</a>
-            {$i18n.t('Click here to')}
-            <button
-              class="underline"
-              on:click={async () => {
-                const res = await deleteSharedChatById(localStorage.token, chatId);
+		{#if chat}
+			<div class="px-5 pt-4 pb-5 w-full flex flex-col justify-center">
+				<div class=" text-sm dark:text-gray-300 mb-1">
+					{#if chat.share_id}
+						<a href="/s/{chat.share_id}" target="_blank"
+							>{$i18n.t('You have shared this chat')}
+							<span class=" underline">{$i18n.t('before')}</span>.</a
+						>
+						{$i18n.t('Click here to')}
+						<button
+							class="underline"
+							onclick={async () => {
+								const res = await deleteSharedChatById(localStorage.token, chatId);
 
                 if (res) {
                   chat = await getChatById(localStorage.token, chatId);
@@ -133,28 +139,27 @@
           {/if}
         </div>
 
-        <div class="flex justify-end">
-          <div class="flex flex-col items-end space-x-1 mt-3">
-            <div class="flex gap-1">
-              {#if $config?.features.enable_community_sharing}
-                <button
-                  class="self-center flex items-center gap-1 px-3.5 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full"
-                  type="button"
-                  on:click={() => {
-                    shareChat();
-                    show = false;
-                  }}
-                >
-                  {$i18n.t('Share to Open WebUI Community')}
-                </button>
-              {/if}
+				<div class="flex justify-end">
+					<div class="flex flex-col items-end space-x-1 mt-3">
+						<div class="flex gap-1">
+							{#if $config?.features.enable_community_sharing}
+								<button
+									class="self-center flex items-center gap-1 px-3.5 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:text-white dark:hover:bg-gray-800 transition rounded-full"
+									onclick={() => {
+										shareChat();
+										show = false;
+									}}
+									type="button"
+								>
+									{$i18n.t('Share to Open WebUI Community')}
+								</button>
+							{/if}
 
-              <button
-                id="copy-and-share-chat-button"
-                class="self-center flex items-center gap-1 px-3.5 py-2 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-                type="button"
-                on:click={async () => {
-                  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+							<button
+								id="copy-and-share-chat-button"
+								class="self-center flex items-center gap-1 px-3.5 py-2 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+								onclick={async () => {
+									const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
                   if (isSafari) {
                     // Oh, Safari, you're so special, let's give you some extra love and attention
@@ -183,11 +188,12 @@
                     copyToClipboard(await shareLocalChat());
                   }
 
-                  toast.success($i18n.t('Copied shared chat URL to clipboard!'));
-                  show = false;
-                }}
-              >
-                <Link />
+									toast.success($i18n.t('Copied shared chat URL to clipboard!'));
+									show = false;
+								}}
+								type="button"
+							>
+								<Link />
 
                 {#if chat.share_id}
                   {$i18n.t('Update and Copy Link')}

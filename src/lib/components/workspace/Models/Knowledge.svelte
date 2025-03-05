@@ -3,10 +3,10 @@
   import Selector from './Knowledge/Selector.svelte';
   import FileItem from '$lib/components/common/FileItem.svelte';
 
-  export let selectedKnowledge = [];
-  export let collections = [];
+	let { selectedKnowledge = $bindable([]), collections = [] } = $props();
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 </script>
 
 <div>
@@ -18,24 +18,24 @@
     {$i18n.t('To attach knowledge base here, add them to the "Knowledge" workspace first.')}
   </div>
 
-  <div class="flex flex-col">
-    {#if selectedKnowledge?.length > 0}
-      <div class=" flex flex-wrap items-center gap-2 mt-2">
-        {#each selectedKnowledge as file, fileIdx}
-          <FileItem
-            name={file.name}
-            dismissible
-            {file}
-            type={file?.legacy
-              ? `Legacy${file.type ? ` ${file.type}` : ''}`
-              : (file?.type ?? 'Collection')}
-            on:dismiss={(e) => {
-              selectedKnowledge = selectedKnowledge.filter((_, idx) => idx !== fileIdx);
-            }}
-          />
-        {/each}
-      </div>
-    {/if}
+	<div class="flex flex-col">
+		{#if selectedKnowledge?.length > 0}
+			<div class=" flex flex-wrap items-center gap-2 mt-2">
+				{#each selectedKnowledge as file, fileIdx}
+					<FileItem
+						name={file.name}
+						dismissible
+						{file}
+						type={file?.legacy
+							? `Legacy${file.type ? ` ${file.type}` : ''}`
+							: (file?.type ?? 'Collection')}
+						on:dismiss={(e) => {
+							selectedKnowledge = selectedKnowledge.filter((_, idx) => idx !== fileIdx);
+						}}
+					/>
+				{/each}
+			</div>
+		{/if}
 
     <div class="flex flex-wrap text-sm font-medium gap-1.5 mt-2">
       <Selector

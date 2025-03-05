@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { Pane, PaneGroup, PaneResizer } from 'paneforge';
+	import { run } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
+	import { Pane, PaneGroup, PaneResizer } from 'paneforge';
 
   import { onDestroy, onMount, tick } from 'svelte';
   import { goto } from '$app/navigation';
@@ -15,30 +17,30 @@
   import EllipsisVertical from '../icons/EllipsisVertical.svelte';
   import Thread from './Thread.svelte';
 
-  export let id = '';
+	interface Props {
+		id?: string;
+	}
 
-  let scrollEnd = true;
-  let messagesContainerElement = null;
+	let { id = '' }: Props = $props();
 
-  let top = false;
+	let scrollEnd = $state(true);
+	let messagesContainerElement = $state(null);
 
-  let channel = null;
-  let messages = null;
+	let top = $state(false);
 
-  let threadId = null;
+	let channel = $state(null);
+	let messages = $state(null);
 
-  let typingUsers = [];
-  let typingUsersTimeout = {};
+	let threadId = $state(null);
 
-  $: if (id) {
-    initHandler();
-  }
+	let typingUsers = $state([]);
+	let typingUsersTimeout = {};
 
-  const scrollToBottom = () => {
-    if (messagesContainerElement) {
-      messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
-    }
-  };
+	const scrollToBottom = () => {
+		if (messagesContainerElement) {
+			messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
+		}
+	};
 
   const initHandler = async () => {
     top = false;
@@ -165,8 +167,8 @@
     });
   };
 
-  let mediaQuery;
-  let largeScreen = false;
+	let mediaQuery;
+	let largeScreen = $state(false);
 
   onMount(() => {
     if ($chatId) {
@@ -189,9 +191,14 @@
     handleMediaQuery(mediaQuery);
   });
 
-  onDestroy(() => {
-    $socket?.off('channel-events', channelEventHandler);
-  });
+	onDestroy(() => {
+		$socket?.off('channel-events', channelEventHandler);
+	});
+	run(() => {
+		if (id) {
+			initHandler();
+		}
+	});
 </script>
 
 <svelte:head>
@@ -199,113 +206,104 @@
 </svelte:head>
 
 <div
-  id="channel-container"
-  class="h-screen max-h-[100dvh] transition-width duration-200 ease-in-out {$showSidebar
-    ? 'md:max-w-[calc(100%-260px)]'
-    : ''} w-full max-w-full flex flex-col"
+	id="channel-container"
+	class="h-screen max-h-[100dvh] transition-width duration-200 ease-in-out {$showSidebar
+		? 'md:max-w-[calc(100%-260px)]'
+		: ''} w-full max-w-full flex flex-col"
 >
-  <PaneGroup
-    class="w-full h-full"
-    direction="horizontal"
-  >
-    <Pane
-      class="h-full flex flex-col w-full relative"
-      defaultSize={50}
-      minSize={50}
-    >
-      <Navbar {channel} />
+	<PaneGroup class="w-full h-full" direction="horizontal">
+		<Pane class="h-full flex flex-col w-full relative" defaultSize={50} minSize={50}>
+			<Navbar {channel} />
 
-      <div class="flex-1 overflow-y-auto">
-        {#if channel}
-          <div
-            bind:this={messagesContainerElement}
-            id="messages-container"
-            class=" pb-2.5 max-w-full z-10 scrollbar-hidden w-full h-full pt-6 flex-1 flex flex-col-reverse overflow-auto"
-            on:scroll={(e) => {
-              scrollEnd = Math.abs(messagesContainerElement.scrollTop) <= 50;
-            }}
-          >
-            {#key id}
-              <Messages
-                {channel}
-                {messages}
-                onLoad={async () => {
-                  const newMessages = await getChannelMessages(
-                    localStorage.token,
-                    id,
-                    messages.length
-                  );
+			<div class="flex-1 overflow-y-auto">
+				{#if channel}
+					<div
+						bind:this={messagesContainerElement}
+						id="messages-container"
+						class=" pb-2.5 max-w-full z-10 scrollbar-hidden w-full h-full pt-6 flex-1 flex flex-col-reverse overflow-auto"
+						onscroll={(e) => {
+							scrollEnd = Math.abs(messagesContainerElement.scrollTop) <= 50;
+						}}
+					>
+						{#key id}
+							<Messages
+								{channel}
+								{messages}
+								onLoad={async () => {
+									const newMessages = await getChannelMessages(
+										localStorage.token,
+										id,
+										messages.length
+									);
 
                   messages = [...messages, ...newMessages];
 
-                  if (newMessages.length < 50) {
-                    top = true;
-                    return;
-                  }
-                }}
-                onThread={(id) => {
-                  threadId = id;
-                }}
-                {top}
-              />
-            {/key}
-          </div>
-        {/if}
-      </div>
+									if (newMessages.length < 50) {
+										top = true;
+										return;
+									}
+								}}
+								onThread={(id) => {
+									threadId = id;
+								}}
+								{top}
+							/>
+						{/key}
+					</div>
+				{/if}
+			</div>
 
-      <div class=" pb-[1rem]">
-        <MessageInput
-          id="root"
-          {onChange}
-          onSubmit={submitHandler}
-          {scrollEnd}
-          {scrollToBottom}
-          {typingUsers}
-        />
-      </div>
-    </Pane>
+			<div class=" pb-[1rem]">
+				<MessageInput
+					id="root"
+					{onChange}
+					onSubmit={submitHandler}
+					{scrollEnd}
+					{scrollToBottom}
+					{typingUsers}
+				/>
+			</div>
+		</Pane>
 
-    {#if !largeScreen}
-      {#if threadId !== null}
-        <Drawer
-          show={threadId !== null}
-          on:close={() => {
-            threadId = null;
-          }}
-        >
-          <div class=" {threadId !== null ? ' h-screen  w-full' : 'px-6 py-4'} h-full">
-            <Thread
-              {channel}
-              onClose={() => {
-                threadId = null;
-              }}
-              {threadId}
-            />
-          </div>
-        </Drawer>
-      {/if}
-    {:else if threadId !== null}
-      <PaneResizer class="relative flex w-[3px] items-center justify-center bg-background group bg-gray-50 dark:bg-gray-850">
-        <div class="z-10 flex h-7 w-5 items-center justify-center rounded-xs">
-          <EllipsisVertical className="size-4 invisible group-hover:visible" />
-        </div>
-      </PaneResizer>
+		{#if !largeScreen}
+			{#if threadId !== null}
+				<Drawer
+					show={threadId !== null}
+					on:close={() => {
+						threadId = null;
+					}}
+				>
+					<div class=" {threadId !== null ? ' h-screen  w-full' : 'px-6 py-4'} h-full">
+						<Thread
+							{channel}
+							onClose={() => {
+								threadId = null;
+							}}
+							{threadId}
+						/>
+					</div>
+				</Drawer>
+			{/if}
+		{:else if threadId !== null}
+			<PaneResizer
+				class="relative flex w-[3px] items-center justify-center bg-background group bg-gray-50 dark:bg-gray-850"
+			>
+				<div class="z-10 flex h-7 w-5 items-center justify-center rounded-xs">
+					<EllipsisVertical className="size-4 invisible group-hover:visible" />
+				</div>
+			</PaneResizer>
 
-      <Pane
-        class="h-full w-full"
-        defaultSize={50}
-        minSize={30}
-      >
-        <div class="h-full w-full shadow-xl">
-          <Thread
-            {channel}
-            onClose={() => {
-              threadId = null;
-            }}
-            {threadId}
-          />
-        </div>
-      </Pane>
-    {/if}
-  </PaneGroup>
+			<Pane class="h-full w-full" defaultSize={50} minSize={30}>
+				<div class="h-full w-full shadow-xl">
+					<Thread
+						{channel}
+						onClose={() => {
+							threadId = null;
+						}}
+						{threadId}
+					/>
+				</div>
+			</Pane>
+		{/if}
+	</PaneGroup>
 </div>

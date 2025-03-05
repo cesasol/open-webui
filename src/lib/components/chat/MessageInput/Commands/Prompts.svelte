@@ -1,38 +1,48 @@
 <script lang="ts">
-  import { prompts, user } from '$lib/stores';
-  import {
-    findWordIndices,
-    getUserPosition,
-    getFormattedDate,
-    getFormattedTime,
-    getCurrentDateTime,
-    getUserTimezone,
-    getWeekday
-  } from '$lib/utils';
-  import { tick, getContext } from 'svelte';
-  import { toast } from 'svelte-sonner';
+	import { run } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
+	import { prompts, user } from '$lib/stores';
+	import {
+		findWordIndices,
+		getUserPosition,
+		getFormattedDate,
+		getFormattedTime,
+		getCurrentDateTime,
+		getUserTimezone,
+		getWeekday
+	} from '$lib/utils';
+	import { tick, getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
-  export let files;
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  export let prompt = '';
-  export let command = '';
+	interface Props {
+		files: any;
+		prompt?: string;
+		command?: string;
+	}
 
-  let selectedPromptIdx = 0;
-  let filteredPrompts = [];
+	let { files = $bindable(), prompt = $bindable(''), command = '' }: Props = $props();
 
-  $: filteredPrompts = $prompts
-    .filter((p) => p.command.toLowerCase().includes(command.toLowerCase()))
-    .sort((a, b) => a.title.localeCompare(b.title));
+	let selectedPromptIdx = $state(0);
+	let filteredPrompts = $state([]);
 
-  $: if (command) {
-    selectedPromptIdx = 0;
-  }
+	run(() => {
+		filteredPrompts = $prompts
+			.filter((p) => p.command.toLowerCase().includes(command.toLowerCase()))
+			.sort((a, b) => a.title.localeCompare(b.title));
+	});
 
-  export const selectUp = () => {
-    selectedPromptIdx = Math.max(0, selectedPromptIdx - 1);
-  };
+	run(() => {
+		if (command) {
+			selectedPromptIdx = 0;
+		}
+	});
+
+	export const selectUp = () => {
+		selectedPromptIdx = Math.max(0, selectedPromptIdx - 1);
+	};
 
   export const selectDown = () => {
     selectedPromptIdx = Math.min(selectedPromptIdx + 1, filteredPrompts.length - 1);
@@ -141,30 +151,32 @@
 </script>
 
 {#if filteredPrompts.length > 0}
-  <div
-    id="commands-container"
-    class="px-2 mb-2 text-left w-full absolute bottom-0 left-0 right-0 z-10"
-  >
-    <div class="flex w-full rounded-xl border border-gray-100 dark:border-gray-850">
-      <div class="max-h-60 flex flex-col w-full rounded-xl bg-white dark:bg-gray-900 dark:text-gray-100">
-        <div class="m-1 overflow-y-auto p-1 space-y-0.5 scrollbar-hidden">
-          {#each filteredPrompts as prompt, promptIdx}
-            <button
-              class=" px-3 py-1.5 rounded-xl w-full text-left {promptIdx === selectedPromptIdx
-                ? '  bg-gray-50 dark:bg-gray-850 selected-command-option-button'
-                : ''}"
-              type="button"
-              on:click={() => {
-                confirmPrompt(prompt);
-              }}
-              on:mousemove={() => {
-                selectedPromptIdx = promptIdx;
-              }}
-              on:focus={() => {}}
-            >
-              <div class=" font-medium text-black dark:text-gray-100">
-                {prompt.command}
-              </div>
+	<div
+		id="commands-container"
+		class="px-2 mb-2 text-left w-full absolute bottom-0 left-0 right-0 z-10"
+	>
+		<div class="flex w-full rounded-xl border border-gray-100 dark:border-gray-850">
+			<div
+				class="max-h-60 flex flex-col w-full rounded-xl bg-white dark:bg-gray-900 dark:text-gray-100"
+			>
+				<div class="m-1 overflow-y-auto p-1 space-y-0.5 scrollbar-hidden">
+					{#each filteredPrompts as prompt, promptIdx}
+						<button
+							class=" px-3 py-1.5 rounded-xl w-full text-left {promptIdx === selectedPromptIdx
+								? '  bg-gray-50 dark:bg-gray-850 selected-command-option-button'
+								: ''}"
+							onclick={() => {
+								confirmPrompt(prompt);
+							}}
+							onfocus={() => {}}
+							onmousemove={() => {
+								selectedPromptIdx = promptIdx;
+							}}
+							type="button"
+						>
+							<div class=" font-medium text-black dark:text-gray-100">
+								{prompt.command}
+							</div>
 
               <div class=" text-xs text-gray-600 dark:text-gray-100">
                 {prompt.title}
@@ -173,23 +185,25 @@
           {/each}
         </div>
 
-        <div class=" px-2 pt-0.5 pb-1 text-xs text-gray-600 dark:text-gray-100 bg-white dark:bg-gray-900 rounded-b-xl flex items-center space-x-1">
-          <div>
-            <svg
-              class="w-3 h-3"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </div>
+				<div
+					class=" px-2 pt-0.5 pb-1 text-xs text-gray-600 dark:text-gray-100 bg-white dark:bg-gray-900 rounded-b-xl flex items-center space-x-1"
+				>
+					<div>
+						<svg
+							class="w-3 h-3"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+					</div>
 
           <div class="line-clamp-1">
             {$i18n.t(

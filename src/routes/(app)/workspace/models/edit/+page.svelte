@@ -2,25 +2,26 @@
   import { toast } from 'svelte-sonner';
   import { goto } from '$app/navigation';
 
-  import { onMount, getContext } from 'svelte';
-  const i18n = getContext('i18n');
+	import { onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  import { page } from '$app/state';
-  import { config, models, settings } from '$lib/stores';
+	import { page } from '$app/state';
+	import { config, models, settings } from '$lib/stores';
 
   import { getModelById, updateModelById } from '$lib/apis/models';
 
   import { getModels } from '$lib/apis';
   import ModelEditor from '$lib/components/workspace/Models/ModelEditor.svelte';
 
-  let model = null;
+	let model = $state(null);
 
-  onMount(async () => {
-    const _id = page.url.searchParams.get('id');
-    if (_id) {
-      model = await getModelById(localStorage.token, _id).catch((e) => {
-        return null;
-      });
+	onMount(async () => {
+		const _id = page.url.searchParams.get('id');
+		if (_id) {
+			model = await getModelById(localStorage.token, _id).catch((e) => {
+				return null;
+			});
 
       if (!model) {
         goto('/workspace/models');

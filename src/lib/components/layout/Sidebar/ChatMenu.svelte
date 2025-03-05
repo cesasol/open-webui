@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { DropdownMenu } from 'bits-ui';
-  import { flyAndScale } from '$lib/utils/transitions';
-  import { getContext, createEventDispatcher } from 'svelte';
+	import { run } from 'svelte/legacy';
+
+	import { DropdownMenu } from 'bits-ui';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { getContext, createEventDispatcher } from 'svelte';
 
   import fileSaver from 'file-saver';
   const { saveAs } = fileSaver;
@@ -28,19 +30,33 @@
   import { downloadChatAsPDF } from '$lib/apis/utils';
   import Download from '$lib/components/icons/Download.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  export let shareHandler: Function;
-  export let cloneChatHandler: Function;
-  export let archiveChatHandler: Function;
-  export let renameHandler: Function;
-  export let deleteHandler: Function;
-  export let onClose: Function;
+	interface Props {
+		shareHandler: Function;
+		cloneChatHandler: Function;
+		archiveChatHandler: Function;
+		renameHandler: Function;
+		deleteHandler: Function;
+		onClose: Function;
+		chatId?: string;
+		children?: import('svelte').Snippet;
+	}
 
-  export let chatId = '';
+	let {
+		shareHandler,
+		cloneChatHandler,
+		archiveChatHandler,
+		renameHandler,
+		deleteHandler,
+		onClose,
+		chatId = '',
+		children
+	}: Props = $props();
 
-  let show = false;
-  let pinned = false;
+	let show = $state(false);
+	let pinned = $state(false);
 
   const pinHandler = async () => {
     await toggleChatPinnedStatusById(localStorage.token, chatId);
@@ -67,10 +83,10 @@
       return;
     }
 
-    const chatText = await getChatAsText(chat);
-    let blob = new Blob([chatText], {
-      type: 'text/plain'
-    });
+		const chatText = await getChatAsText(chat);
+		const blob = new Blob([chatText], {
+			type: 'text/plain'
+		});
 
     saveAs(blob, `chat-${chat.chat.title}.txt`);
   };
@@ -107,17 +123,19 @@
   const downloadJSONExport = async () => {
     const chat = await getChatById(localStorage.token, chatId);
 
-    if (chat) {
-      let blob = new Blob([JSON.stringify([chat])], {
-        type: 'application/json'
-      });
-      saveAs(blob, `chat-export-${Date.now()}.json`);
-    }
-  };
+		if (chat) {
+			const blob = new Blob([JSON.stringify([chat])], {
+				type: 'application/json'
+			});
+			saveAs(blob, `chat-export-${Date.now()}.json`);
+		}
+	};
 
-  $: if (show) {
-    checkPinned();
-  }
+	run(() => {
+		if (show) {
+			checkPinned();
+		}
+	});
 </script>
 
 <Dropdown
@@ -128,148 +146,152 @@
     }
   }}
 >
-  <Tooltip content={$i18n.t('More')}>
-    <slot />
-  </Tooltip>
+	<Tooltip content={$i18n.t('More')}>
+		{@render children?.()}
+	</Tooltip>
 
-  <div slot="content">
-    <DropdownMenu.Content
-      class="w-full max-w-[200px] rounded-xl px-1 py-1.5 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg"
-      align="start"
-      side="bottom"
-      sideOffset={-2}
-      transition={flyAndScale}
-    >
-      <DropdownMenu.Item
-        class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-        on:click={() => {
-          pinHandler();
-        }}
-      >
-        {#if pinned}
-          <BookmarkSlash strokeWidth="2" />
-          <div class="flex items-center">{$i18n.t('Unpin')}</div>
-        {:else}
-          <Bookmark strokeWidth="2" />
-          <div class="flex items-center">{$i18n.t('Pin')}</div>
-        {/if}
-      </DropdownMenu.Item>
+	{#snippet content()}
+		<div>
+			<DropdownMenu.Content
+				class="w-full max-w-[200px] rounded-xl px-1 py-1.5 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg"
+				align="start"
+				side="bottom"
+				sideOffset={-2}
+				transition={flyAndScale}
+			>
+				<DropdownMenu.Item
+					class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+					on:click={() => {
+						pinHandler();
+					}}
+				>
+					{#if pinned}
+						<BookmarkSlash strokeWidth="2" />
+						<div class="flex items-center">{$i18n.t('Unpin')}</div>
+					{:else}
+						<Bookmark strokeWidth="2" />
+						<div class="flex items-center">{$i18n.t('Pin')}</div>
+					{/if}
+				</DropdownMenu.Item>
 
-      <DropdownMenu.Item
-        class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-        on:click={() => {
-          renameHandler();
-        }}
-      >
-        <Pencil strokeWidth="2" />
-        <div class="flex items-center">{$i18n.t('Rename')}</div>
-      </DropdownMenu.Item>
+				<DropdownMenu.Item
+					class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+					on:click={() => {
+						renameHandler();
+					}}
+				>
+					<Pencil strokeWidth="2" />
+					<div class="flex items-center">{$i18n.t('Rename')}</div>
+				</DropdownMenu.Item>
 
-      <DropdownMenu.Item
-        class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-        on:click={() => {
-          cloneChatHandler();
-        }}
-      >
-        <DocumentDuplicate strokeWidth="2" />
-        <div class="flex items-center">{$i18n.t('Clone')}</div>
-      </DropdownMenu.Item>
+				<DropdownMenu.Item
+					class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+					on:click={() => {
+						cloneChatHandler();
+					}}
+				>
+					<DocumentDuplicate strokeWidth="2" />
+					<div class="flex items-center">{$i18n.t('Clone')}</div>
+				</DropdownMenu.Item>
 
-      <DropdownMenu.Item
-        class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-        on:click={() => {
-          archiveChatHandler();
-        }}
-      >
-        <ArchiveBox strokeWidth="2" />
-        <div class="flex items-center">{$i18n.t('Archive')}</div>
-      </DropdownMenu.Item>
+				<DropdownMenu.Item
+					class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+					on:click={() => {
+						archiveChatHandler();
+					}}
+				>
+					<ArchiveBox strokeWidth="2" />
+					<div class="flex items-center">{$i18n.t('Archive')}</div>
+				</DropdownMenu.Item>
 
-      <DropdownMenu.Item
-        class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800  rounded-md"
-        on:click={() => {
-          shareHandler();
-        }}
-      >
-        <Share />
-        <div class="flex items-center">{$i18n.t('Share')}</div>
-      </DropdownMenu.Item>
+				<DropdownMenu.Item
+					class="flex gap-2 items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800  rounded-md"
+					on:click={() => {
+						shareHandler();
+					}}
+				>
+					<Share />
+					<div class="flex items-center">{$i18n.t('Share')}</div>
+				</DropdownMenu.Item>
 
-      <DropdownMenu.Sub>
-        <DropdownMenu.SubTrigger class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md">
-          <Download strokeWidth="2" />
+				<DropdownMenu.Sub>
+					<DropdownMenu.SubTrigger
+						class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+					>
+						<Download strokeWidth="2" />
 
-          <div class="flex items-center">{$i18n.t('Download')}</div>
-        </DropdownMenu.SubTrigger>
-        <DropdownMenu.SubContent
-          class="w-full rounded-xl px-1 py-1.5 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg"
-          sideOffset={8}
-          transition={flyAndScale}
-        >
-          <DropdownMenu.Item
-            class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-            on:click={() => {
-              downloadJSONExport();
-            }}
-          >
-            <div class="flex items-center line-clamp-1">{$i18n.t('Export chat (.json)')}</div>
-          </DropdownMenu.Item>
-          <DropdownMenu.Item
-            class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-            on:click={() => {
-              downloadTxt();
-            }}
-          >
-            <div class="flex items-center line-clamp-1">{$i18n.t('Plain text (.txt)')}</div>
-          </DropdownMenu.Item>
+						<div class="flex items-center">{$i18n.t('Download')}</div>
+					</DropdownMenu.SubTrigger>
+					<DropdownMenu.SubContent
+						class="w-full rounded-xl px-1 py-1.5 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg"
+						sideOffset={8}
+						transition={flyAndScale}
+					>
+						<DropdownMenu.Item
+							class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+							on:click={() => {
+								downloadJSONExport();
+							}}
+						>
+							<div class="flex items-center line-clamp-1">{$i18n.t('Export chat (.json)')}</div>
+						</DropdownMenu.Item>
+						<DropdownMenu.Item
+							class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+							on:click={() => {
+								downloadTxt();
+							}}
+						>
+							<div class="flex items-center line-clamp-1">{$i18n.t('Plain text (.txt)')}</div>
+						</DropdownMenu.Item>
 
-          <DropdownMenu.Item
-            class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-            on:click={() => {
-              downloadPdf();
-            }}
-          >
-            <div class="flex items-center line-clamp-1">{$i18n.t('PDF document (.pdf)')}</div>
-          </DropdownMenu.Item>
-        </DropdownMenu.SubContent>
-      </DropdownMenu.Sub>
-      <DropdownMenu.Item
-        class="flex  gap-2  items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
-        on:click={() => {
-          deleteHandler();
-        }}
-      >
-        <GarbageBin strokeWidth="2" />
-        <div class="flex items-center">{$i18n.t('Delete')}</div>
-      </DropdownMenu.Item>
+						<DropdownMenu.Item
+							class="flex gap-2 items-center px-3 py-2 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+							on:click={() => {
+								downloadPdf();
+							}}
+						>
+							<div class="flex items-center line-clamp-1">{$i18n.t('PDF document (.pdf)')}</div>
+						</DropdownMenu.Item>
+					</DropdownMenu.SubContent>
+				</DropdownMenu.Sub>
+				<DropdownMenu.Item
+					class="flex  gap-2  items-center px-3 py-1.5 text-sm  cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md"
+					on:click={() => {
+						deleteHandler();
+					}}
+				>
+					<GarbageBin strokeWidth="2" />
+					<div class="flex items-center">{$i18n.t('Delete')}</div>
+				</DropdownMenu.Item>
 
-      <hr class="border-gray-100 dark:border-gray-850 my-0.5" />
+				<hr class="border-gray-100 dark:border-gray-850 my-0.5" />
 
-      <div class="flex p-1">
-        <Tags
-          {chatId}
-          on:add={(e) => {
-            dispatch('tag', {
-              type: 'add',
-              name: e.detail.name
-            });
+				<div class="flex p-1">
+					<Tags
+						{chatId}
+						on:add={(e) => {
+							dispatch('tag', {
+								type: 'add',
+								name: e.detail.name
+							});
 
-            show = false;
-          }}
-          on:delete={(e) => {
-            dispatch('tag', {
-              type: 'delete',
-              name: e.detail.name
-            });
+							show = false;
+						}}
+						on:delete={(e) => {
+							dispatch('tag', {
+								type: 'delete',
+								name: e.detail.name
+							});
 
-            show = false;
-          }}
-          on:close={() => {
-            show = false;
-            onClose();
-          }}
-        />
-      </div>
-    </DropdownMenu.Content>
-  </div>
+							show = false;
+						}}
+						on:close={() => {
+							show = false;
+							onClose();
+						}}
+					/>
+				</div>
+			</DropdownMenu.Content>
+		</div>
+	{/snippet}
 </Dropdown>

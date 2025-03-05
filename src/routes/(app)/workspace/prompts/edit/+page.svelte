@@ -4,20 +4,21 @@
   import { prompts } from '$lib/stores';
   import { onMount, tick, getContext } from 'svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  import { getPromptByCommand, getPrompts, updatePromptByCommand } from '$lib/apis/prompts';
-  import { page } from '$app/state';
+	import { getPromptByCommand, getPrompts, updatePromptByCommand } from '$lib/apis/prompts';
+	import { page } from '$app/state';
 
   import PromptEditor from '$lib/components/workspace/Prompts/PromptEditor.svelte';
 
-  let prompt = null;
-  const onSubmit = async (_prompt) => {
-    console.log(_prompt);
-    const prompt = await updatePromptByCommand(localStorage.token, _prompt).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	let prompt = $state(null);
+	const onSubmit = async (_prompt) => {
+		console.log(_prompt);
+		const prompt = await updatePromptByCommand(localStorage.token, _prompt).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
     if (prompt) {
       toast.success($i18n.t('Prompt updated successfully'));
@@ -26,16 +27,16 @@
     }
   };
 
-  onMount(async () => {
-    const command = page.url.searchParams.get('command');
-    if (command) {
-      const _prompt = await getPromptByCommand(
-        localStorage.token,
-        command.replace(/\//g, '')
-      ).catch((error) => {
-        toast.error(`${error}`);
-        return null;
-      });
+	onMount(async () => {
+		const command = page.url.searchParams.get('command');
+		if (command) {
+			const _prompt = await getPromptByCommand(
+				localStorage.token,
+				command.replace(/\//g, '')
+			).catch((error) => {
+				toast.error(`${error}`);
+				return null;
+			});
 
       if (_prompt) {
         prompt = {
@@ -54,9 +55,5 @@
 </script>
 
 {#if prompt}
-  <PromptEditor
-    edit
-    {onSubmit}
-    {prompt}
-  />
+	<PromptEditor edit {onSubmit} {prompt} />
 {/if}

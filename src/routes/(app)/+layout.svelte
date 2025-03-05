@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { onMount, tick, getContext } from 'svelte';
-  import { openDB, deleteDB } from 'idb';
-  import fileSaver from 'file-saver';
-  const { saveAs } = fileSaver;
-  import mermaid from 'mermaid';
+	import { toast } from 'svelte-sonner';
+	import { onMount, tick, getContext } from 'svelte';
+	import { openDB, deleteDB, type IDBPDatabase } from 'idb';
+	import fileSaver from 'file-saver';
+	const { saveAs } = fileSaver;
+	import mermaid from 'mermaid';
 
-  import { goto } from '$app/navigation';
-  import { page } from '$app/state';
-  import { fade } from 'svelte/transition';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import { fade } from 'svelte/transition';
 
   import { getKnowledgeBases } from '$lib/apis/knowledge';
   import { getFunctions } from '$lib/apis/functions';
@@ -38,19 +38,25 @@
     temporaryChatEnabled
   } from '$lib/stores';
 
-  import Sidebar from '$lib/components/layout/Sidebar.svelte';
-  import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
-  import ChangelogModal from '$lib/components/ChangelogModal.svelte';
-  import AccountPending from '$lib/components/layout/Overlay/AccountPending.svelte';
-  import UpdateInfoToast from '$lib/components/layout/UpdateInfoToast.svelte';
+	import Sidebar from '$lib/components/layout/Sidebar.svelte';
+	import SettingsModal from '$lib/components/chat/SettingsModal.svelte';
+	import ChangelogModal from '$lib/components/ChangelogModal.svelte';
+	import AccountPending from '$lib/components/layout/Overlay/AccountPending.svelte';
+	import UpdateInfoToast from '$lib/components/layout/UpdateInfoToast.svelte';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
 
-  const i18n = getContext('i18n');
+	let { children }: Props = $props();
 
-  let loaded = false;
-  let DB = null;
-  let localDBChats = [];
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let version;
+	let loaded = $state(false);
+	let DB = $state<null | IDBPDatabase>(null);
+	let localDBChats = $state([]);
+
+	let version = $state();
 
   onMount(async () => {
     if ($user === undefined) {
@@ -187,9 +193,9 @@
         showChangelog.set($settings?.version !== $config.version);
       }
 
-      if (page.url.searchParams.get('temporary-chat') === 'true') {
-        temporaryChatEnabled.set(true);
-      }
+			if (page.url.searchParams.get('temporary-chat') === 'true') {
+				temporaryChatEnabled.set(true);
+			}
 
       // Check for version updates
       if ($user.role === 'admin') {
@@ -262,14 +268,14 @@
                   )}
                 </div>
 
-                <div class=" mt-6 mx-auto relative group w-fit">
-                  <button
-                    class="relative z-20 flex px-5 py-2 rounded-full bg-white border border-gray-100 dark:border-none hover:bg-gray-100 transition font-medium text-sm"
-                    on:click={async () => {
-                      let blob = new Blob([JSON.stringify(localDBChats)], {
-                        type: 'application/json'
-                      });
-                      saveAs(blob, `chat-export-${Date.now()}.json`);
+								<div class=" mt-6 mx-auto relative group w-fit">
+									<button
+										class="relative z-20 flex px-5 py-2 rounded-full bg-white border border-gray-100 dark:border-none hover:bg-gray-100 transition font-medium text-sm"
+										onclick={async () => {
+											const blob = new Blob([JSON.stringify(localDBChats)], {
+												type: 'application/json'
+											});
+											saveAs(blob, `chat-export-${Date.now()}.json`);
 
                       const tx = DB.transaction('chats', 'readwrite');
                       await Promise.all([tx.store.clear(), tx.done]);
@@ -281,23 +287,23 @@
                     Download & Delete
                   </button>
 
-                  <button
-                    class="text-xs text-center w-full mt-2 text-gray-400 underline"
-                    on:click={async () => {
-                      localDBChats = [];
-                    }}
-                  >{$i18n.t('Close')}</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      {/if}
+									<button
+										class="text-xs text-center w-full mt-2 text-gray-400 underline"
+										onclick={async () => {
+											localDBChats = [];
+										}}>{$i18n.t('Close')}</button
+									>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{/if}
 
-      <Sidebar />
-      <slot />
-    {/if}
-  </div>
+			<Sidebar />
+			{@render children?.()}
+		{/if}
+	</div>
 </div>
 
 <style>

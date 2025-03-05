@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { models, settings, user, config } from '$lib/stores';
-  import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { preventDefault } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
+	import { models, settings, user, config } from '$lib/stores';
+	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
 
   const dispatch = createEventDispatcher();
   import { getModels } from '$lib/apis';
@@ -14,10 +16,11 @@
   import Model from './Evaluations/Model.svelte';
   import ArenaModelModal from './Evaluations/ArenaModelModal.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let evaluationConfig = null;
-  let showAddModel = false;
+	let evaluationConfig = $state(null);
+	let showAddModel = $state(false);
 
   const submitHandler = async () => {
     evaluationConfig = await updateConfig(localStorage.token, evaluationConfig).catch((err) => {
@@ -94,11 +97,11 @@
 />
 
 <form
-  class="flex flex-col h-full justify-between text-sm"
-  on:submit|preventDefault={() => {
-    submitHandler();
-    dispatch('save');
-  }}
+	class="flex flex-col h-full justify-between text-sm"
+	onsubmit={preventDefault(() => {
+		submitHandler();
+		dispatch('save');
+	})}
 >
   <div class="overflow-y-scroll scrollbar-hidden h-full">
     {#if evaluationConfig !== null}
@@ -124,20 +127,20 @@
                 {$i18n.t('Manage')}
               </div>
 
-              <div>
-                <Tooltip content={$i18n.t('Add Arena Model')}>
-                  <button
-                    class="p-1"
-                    type="button"
-                    on:click={() => {
-                      showAddModel = true;
-                    }}
-                  >
-                    <Plus />
-                  </button>
-                </Tooltip>
-              </div>
-            </div>
+							<div>
+								<Tooltip content={$i18n.t('Add Arena Model')}>
+									<button
+										class="p-1"
+										onclick={() => {
+											showAddModel = true;
+										}}
+										type="button"
+									>
+										<Plus />
+									</button>
+								</Tooltip>
+							</div>
+						</div>
 
             <hr class=" border-gray-100 dark:border-gray-850 my-2" />
 

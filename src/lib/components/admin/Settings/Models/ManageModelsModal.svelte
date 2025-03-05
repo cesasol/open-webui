@@ -1,9 +1,10 @@
-<script>
-  import { toast } from 'svelte-sonner';
+<script lang="ts">
+	import { toast } from 'svelte-sonner';
 
-  import { createEventDispatcher, getContext, onMount } from 'svelte';
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
+	import { createEventDispatcher, getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
 
   import { user } from '$lib/stores';
 
@@ -13,10 +14,14 @@
   import Spinner from '$lib/components/common/Spinner.svelte';
   import ManageMultipleOllama from './Manage/ManageMultipleOllama.svelte';
 
-  export let show = false;
+	interface Props {
+		show?: boolean;
+	}
 
-  let selected = null;
-  let ollamaConfig = null;
+	let { show = $bindable(false) }: Props = $props();
+
+	let selected = $state(null);
+	let ollamaConfig = $state(null);
 
   onMount(async () => {
     if ($user.role === 'admin') {
@@ -36,51 +41,52 @@
   });
 </script>
 
-<Modal
-  size="sm"
-  bind:show
->
-  <div>
-    <div class=" flex justify-between dark:text-gray-100 px-5 pt-4">
-      <div class=" text-lg font-medium self-center font-primary">
-        {$i18n.t('Manage Models')}
-      </div>
-      <button
-        class="self-center"
-        on:click={() => {
-          show = false;
-        }}
-      >
-        <svg
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-      </button>
-    </div>
+<Modal size="sm" bind:show>
+	<div>
+		<div class=" flex justify-between dark:text-gray-100 px-5 pt-4">
+			<div class=" text-lg font-medium self-center font-primary">
+				{$i18n.t('Manage Models')}
+			</div>
+			<button
+				class="self-center"
+				onclick={() => {
+					show = false;
+				}}
+			>
+				<svg
+					class="w-5 h-5"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+					/>
+				</svg>
+			</button>
+		</div>
 
-    <div class="flex flex-col md:flex-row w-full px-3 pb-4 md:space-x-4 dark:text-gray-200">
-      <div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
-        {#if selected === ''}
-          <div class=" py-5 text-gray-400 text-xs">
-            <div>
-              {$i18n.t('No inference engine with management support found')}
-            </div>
-          </div>
-        {:else if selected !== null}
-          <div class=" flex w-full flex-col">
-            <div class="flex gap-1 scrollbar-none overflow-x-auto w-fit text-center text-sm font-medium rounded-full bg-transparent dark:text-gray-200">
-              <button
-                class="min-w-fit rounded-full p-1.5 {selected === 'ollama'
-                  ? ''
-                  : 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
-                on:click={() => {
-                  selected = 'ollama';
-                }}
-              >{$i18n.t('Ollama')}</button>
+		<div class="flex flex-col md:flex-row w-full px-3 pb-4 md:space-x-4 dark:text-gray-200">
+			<div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
+				{#if selected === ''}
+					<div class=" py-5 text-gray-400 text-xs">
+						<div>
+							{$i18n.t('No inference engine with management support found')}
+						</div>
+					</div>
+				{:else if selected !== null}
+					<div class=" flex w-full flex-col">
+						<div
+							class="flex gap-1 scrollbar-none overflow-x-auto w-fit text-center text-sm font-medium rounded-full bg-transparent dark:text-gray-200"
+						>
+							<button
+								class="min-w-fit rounded-full p-1.5 {selected === 'ollama'
+									? ''
+									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
+								onclick={() => {
+									selected = 'ollama';
+								}}>{$i18n.t('Ollama')}</button
+							>
 
               <!-- <button
 								class="min-w-fit rounded-full p-1.5 {selected === 'llamacpp'

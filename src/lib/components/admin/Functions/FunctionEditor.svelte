@@ -1,8 +1,11 @@
-<script>
-  import { getContext, onMount, tick } from 'svelte';
-  import { goto } from '$app/navigation';
+<script lang="ts">
+	import { run, preventDefault } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
+	import { getContext, onMount, tick } from 'svelte';
+	import { goto } from '$app/navigation';
+
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import CodeEditor from '$lib/components/common/CodeEditor.svelte';
   import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
@@ -10,37 +13,39 @@
   import Tooltip from '$lib/components/common/Tooltip.svelte';
   import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
 
-  let formElement = null;
-  let loading = false;
-  let showConfirm = false;
+	let formElement = $state(null);
+	let loading = false;
+	let showConfirm = $state(false);
 
-  export let onSave = () => {};
+	interface Props {
+		onSave?: any;
+		edit?: boolean;
+		clone?: boolean;
+		id?: string;
+		name?: string;
+		meta?: any;
+		content?: string;
+	}
 
-  export let edit = false;
-  export let clone = false;
+	let {
+		onSave = () => {},
+		edit = false,
+		clone = false,
+		id = $bindable(''),
+		name = $bindable(''),
+		meta = $bindable({
+			description: ''
+		}),
+		content = $bindable('')
+	}: Props = $props();
+	let _content = $state('');
 
-  export let id = '';
-  export let name = '';
-  export let meta = {
-    description: ''
-  };
-  export let content = '';
-  let _content = '';
+	const updateContent = () => {
+		_content = content;
+	};
 
-  $: if (content) {
-    updateContent();
-  }
-
-  const updateContent = () => {
-    _content = content;
-  };
-
-  $: if (name && !edit && !clone) {
-    id = name.replace(/\s+/g, '_').toLowerCase();
-  }
-
-  let codeEditor;
-  let boilerplate = `"""
+	let codeEditor = $state();
+	const boilerplate = `"""
 title: Example Filter
 author: open-webui
 author_url: https://github.com/open-webui
@@ -279,119 +284,119 @@ class Pipe:
       if (res) {
         console.log('Code formatted successfully');
 
-        saveHandler();
-      }
-    }
-  };
+				saveHandler();
+			}
+		}
+	};
+	run(() => {
+		if (content) {
+			updateContent();
+		}
+	});
+	run(() => {
+		if (name && !edit && !clone) {
+			id = name.replace(/\s+/g, '_').toLowerCase();
+		}
+	});
 </script>
 
 <div class=" flex flex-col justify-between w-full overflow-y-auto h-full">
-  <div class="mx-auto w-full md:px-0 h-full">
-    <form
-      bind:this={formElement}
-      class=" flex flex-col max-h-[100dvh] h-full"
-      on:submit|preventDefault={() => {
-        if (edit) {
-          submitHandler();
-        } else {
-          showConfirm = true;
-        }
-      }}
-    >
-      <div class="flex flex-col flex-1 overflow-auto h-0 rounded-lg">
-        <div class="w-full mb-2 flex flex-col gap-0.5">
-          <div class="flex w-full items-center">
-            <div class=" shrink-0 mr-2">
-              <Tooltip content={$i18n.t('Back')}>
-                <button
-                  class="w-full text-left text-sm py-1.5 px-1 rounded-lg dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-gray-850"
-                  type="button"
-                  on:click={() => {
-                    goto('/admin/functions');
-                  }}
-                >
-                  <ChevronLeft strokeWidth="2.5" />
-                </button>
-              </Tooltip>
-            </div>
+	<div class="mx-auto w-full md:px-0 h-full">
+		<form
+			bind:this={formElement}
+			class=" flex flex-col max-h-[100dvh] h-full"
+			onsubmit={preventDefault(() => {
+				if (edit) {
+					submitHandler();
+				} else {
+					showConfirm = true;
+				}
+			})}
+		>
+			<div class="flex flex-col flex-1 overflow-auto h-0 rounded-lg">
+				<div class="w-full mb-2 flex flex-col gap-0.5">
+					<div class="flex w-full items-center">
+						<div class=" shrink-0 mr-2">
+							<Tooltip content={$i18n.t('Back')}>
+								<button
+									class="w-full text-left text-sm py-1.5 px-1 rounded-lg dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-gray-850"
+									onclick={() => {
+										goto('/admin/functions');
+									}}
+									type="button"
+								>
+									<ChevronLeft strokeWidth="2.5" />
+								</button>
+							</Tooltip>
+						</div>
 
-            <div class="flex-1">
-              <Tooltip
-                content={$i18n.t('e.g. My Filter')}
-                placement="top-start"
-              >
-                <input
-                  class="w-full text-2xl font-medium bg-transparent outline-hidden font-primary"
-                  placeholder={$i18n.t('Function Name')}
-                  required
-                  type="text"
-                  bind:value={name}
-                />
-              </Tooltip>
-            </div>
+						<div class="flex-1">
+							<Tooltip content={$i18n.t('e.g. My Filter')} placement="top-start">
+								<input
+									class="w-full text-2xl font-medium bg-transparent outline-hidden font-primary"
+									placeholder={$i18n.t('Function Name')}
+									required
+									type="text"
+									bind:value={name}
+								/>
+							</Tooltip>
+						</div>
 
-            <div>
-              <Badge
-                content={$i18n.t('Function')}
-                type="muted"
-              />
-            </div>
-          </div>
+						<div>
+							<Badge content={$i18n.t('Function')} type="muted" />
+						</div>
+					</div>
 
-          <div class=" flex gap-2 px-1 items-center">
-            {#if edit}
-              <div class="text-sm text-gray-500 shrink-0">
-                {id}
-              </div>
-            {:else}
-              <Tooltip
-                className="w-full"
-                content={$i18n.t('e.g. my_filter')}
-                placement="top-start"
-              >
-                <input
-                  class="w-full text-sm disabled:text-gray-500 bg-transparent outline-hidden"
-                  disabled={edit}
-                  placeholder={$i18n.t('Function ID')}
-                  required
-                  type="text"
-                  bind:value={id}
-                />
-              </Tooltip>
-            {/if}
+					<div class=" flex gap-2 px-1 items-center">
+						{#if edit}
+							<div class="text-sm text-gray-500 shrink-0">
+								{id}
+							</div>
+						{:else}
+							<Tooltip className="w-full" content={$i18n.t('e.g. my_filter')} placement="top-start">
+								<input
+									class="w-full text-sm disabled:text-gray-500 bg-transparent outline-hidden"
+									disabled={edit}
+									placeholder={$i18n.t('Function ID')}
+									required
+									type="text"
+									bind:value={id}
+								/>
+							</Tooltip>
+						{/if}
 
-            <Tooltip
-              className="w-full self-center items-center flex"
-              content={$i18n.t('e.g. A filter to remove profanity from text')}
-              placement="top-start"
-            >
-              <input
-                class="w-full text-sm bg-transparent outline-hidden"
-                placeholder={$i18n.t('Function Description')}
-                required
-                type="text"
-                bind:value={meta.description}
-              />
-            </Tooltip>
-          </div>
-        </div>
+						<Tooltip
+							className="w-full self-center items-center flex"
+							content={$i18n.t('e.g. A filter to remove profanity from text')}
+							placement="top-start"
+						>
+							<input
+								class="w-full text-sm bg-transparent outline-hidden"
+								placeholder={$i18n.t('Function Description')}
+								required
+								type="text"
+								bind:value={meta.description}
+							/>
+						</Tooltip>
+					</div>
+				</div>
 
-        <div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
-          <CodeEditor
-            bind:this={codeEditor}
-            {boilerplate}
-            lang="python"
-            onChange={(e) => {
-              _content = e;
-            }}
-            onSave={async () => {
-              if (formElement) {
-                formElement.requestSubmit();
-              }
-            }}
-            value={content}
-          />
-        </div>
+				<div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
+					<CodeEditor
+						bind:this={codeEditor}
+						{boilerplate}
+						lang="python"
+						onChange={(e) => {
+							_content = e;
+						}}
+						onSave={async () => {
+							if (formElement) {
+								formElement.requestSubmit();
+							}
+						}}
+						value={content}
+					/>
+				</div>
 
         <div class="pb-3 flex justify-between">
           <div class="flex-1 pr-3">

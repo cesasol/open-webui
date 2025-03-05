@@ -1,18 +1,19 @@
 <script>
-  import { goto } from '$app/navigation';
-  import { page } from '$app/state';
-  import { getToolById, getTools, updateToolById } from '$lib/apis/tools';
-  import Spinner from '$lib/components/common/Spinner.svelte';
-  import ToolkitEditor from '$lib/components/workspace/Tools/ToolkitEditor.svelte';
-  import { WEBUI_VERSION } from '$lib/constants';
-  import { tools } from '$lib/stores';
-  import { compareVersion, extractFrontmatter } from '$lib/utils';
-  import { onMount, getContext } from 'svelte';
-  import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import { getToolById, getTools, updateToolById } from '$lib/apis/tools';
+	import Spinner from '$lib/components/common/Spinner.svelte';
+	import ToolkitEditor from '$lib/components/workspace/Tools/ToolkitEditor.svelte';
+	import { WEBUI_VERSION } from '$lib/constants';
+	import { tools } from '$lib/stores';
+	import { compareVersion, extractFrontmatter } from '$lib/utils';
+	import { onMount, getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let tool = null;
+	let tool = $state(null);
 
   const saveHandler = async (data) => {
     console.log(data);
@@ -51,9 +52,9 @@
     }
   };
 
-  onMount(async () => {
-    console.log('mounted');
-    const id = page.url.searchParams.get('id');
+	onMount(async () => {
+		console.log('mounted');
+		const id = page.url.searchParams.get('id');
 
     if (id) {
       tool = await getToolById(localStorage.token, id).catch((error) => {
@@ -68,17 +69,17 @@
 </script>
 
 {#if tool}
-  <ToolkitEditor
-    id={tool.id}
-    name={tool.name}
-    accessControl={tool.access_control}
-    content={tool.content}
-    edit={true}
-    meta={tool.meta}
-    onSave={(value) => {
-      saveHandler(value);
-    }}
-  />
+	<ToolkitEditor
+		id={tool.id}
+		name={tool.name}
+		accessControl={tool.access_control}
+		content={tool.content}
+		edit={true}
+		meta={tool.meta}
+		onSave={(value) => {
+			saveHandler(value);
+		}}
+	/>
 {:else}
   <div class="flex items-center justify-center h-full">
     <div class=" pb-16">

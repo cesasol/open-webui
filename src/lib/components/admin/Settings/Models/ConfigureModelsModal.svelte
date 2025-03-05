@@ -1,9 +1,12 @@
-<script>
-  import { toast } from 'svelte-sonner';
+<script lang="ts">
+	import { run, preventDefault } from 'svelte/legacy';
 
-  import { createEventDispatcher, getContext, onMount } from 'svelte';
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
+	import { toast } from 'svelte-sonner';
+
+	import { createEventDispatcher, getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
 
   import { models } from '$lib/stores';
   import { deleteAllModels } from '$lib/apis/models';
@@ -19,28 +22,24 @@
   import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
   import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 
-  export let show = false;
-  export let initHandler = () => {};
+	interface Props {
+		show?: boolean;
+		initHandler?: any;
+	}
 
-  let config = null;
+	let { show = $bindable(false), initHandler = () => {} }: Props = $props();
 
-  let selectedModelId = '';
-  let defaultModelIds = [];
-  let modelIds = [];
+	let config = $state(null);
 
-  let sortKey = '';
-  let sortOrder = '';
+	let selectedModelId = $state('');
+	let defaultModelIds = $state([]);
+	let modelIds = $state([]);
 
-  let loading = false;
-  let showResetModal = false;
+	let sortKey = $state('');
+	let sortOrder = $state('');
 
-  $: if (show) {
-    init();
-  }
-
-  $: if (selectedModelId) {
-    onModelSelect();
-  }
+	let loading = $state(false);
+	let showResetModal = $state(false);
 
   const onModelSelect = () => {
     if (selectedModelId === '') {
@@ -99,66 +98,74 @@
     loading = false;
   };
 
-  onMount(async () => {
-    init();
-  });
+	onMount(async () => {
+		init();
+	});
+	run(() => {
+		if (show) {
+			init();
+		}
+	});
+	run(() => {
+		if (selectedModelId) {
+			onModelSelect();
+		}
+	});
 </script>
 
 <ConfirmDialog
-  message={$i18n.t('This will delete all models including custom models and cannot be undone.')}
-  onConfirm={async () => {
-    const res = deleteAllModels(localStorage.token);
-    if (res) {
-      toast.success($i18n.t('All models deleted successfully'));
-      initHandler();
-    }
-  }}
-  title={$i18n.t('Reset All Models')}
-  bind:show={showResetModal}
+	message={$i18n.t('This will delete all models including custom models and cannot be undone.')}
+	onConfirm={async () => {
+		const res = deleteAllModels(localStorage.token);
+		if (res) {
+			toast.success($i18n.t('All models deleted successfully'));
+			initHandler();
+		}
+	}}
+	title={$i18n.t('Reset All Models')}
+	bind:show={showResetModal}
 />
 
-<Modal
-  size="sm"
-  bind:show
->
-  <div>
-    <div class=" flex justify-between dark:text-gray-100 px-5 pt-4 pb-2">
-      <div class=" text-lg font-medium self-center font-primary">
-        {$i18n.t('Settings')}
-      </div>
-      <button
-        class="self-center"
-        on:click={() => {
-          show = false;
-        }}
-      >
-        <svg
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-      </button>
-    </div>
+<Modal size="sm" bind:show>
+	<div>
+		<div class=" flex justify-between dark:text-gray-100 px-5 pt-4 pb-2">
+			<div class=" text-lg font-medium self-center font-primary">
+				{$i18n.t('Settings')}
+			</div>
+			<button
+				class="self-center"
+				onclick={() => {
+					show = false;
+				}}
+			>
+				<svg
+					class="w-5 h-5"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+					/>
+				</svg>
+			</button>
+		</div>
 
-    <div class="flex flex-col md:flex-row w-full px-5 pb-4 md:space-x-4 dark:text-gray-200">
-      <div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
-        {#if config}
-          <form
-            class="flex flex-col w-full"
-            on:submit|preventDefault={() => {
-              submitHandler();
-            }}
-          >
-            <div>
-              <div class="flex flex-col w-full">
-                <button
-                  class="mb-1 flex gap-2"
-                  type="button"
-                  on:click={() => {
-                    sortKey = 'model';
+		<div class="flex flex-col md:flex-row w-full px-5 pb-4 md:space-x-4 dark:text-gray-200">
+			<div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
+				{#if config}
+					<form
+						class="flex flex-col w-full"
+						onsubmit={preventDefault(() => {
+							submitHandler();
+						})}
+					>
+						<div>
+							<div class="flex flex-col w-full">
+								<button
+									class="mb-1 flex gap-2"
+									onclick={() => {
+										sortKey = 'model';
 
                     if (sortOrder === 'asc') {
                       sortOrder = 'desc';
@@ -166,18 +173,19 @@
                       sortOrder = 'asc';
                     }
 
-                    modelIds = modelIds
-                      .filter((id) => id !== '')
-                      .sort((a, b) => {
-                        const nameA = $models.find((model) => model.id === a)?.name || a;
-                        const nameB = $models.find((model) => model.id === b)?.name || b;
-                        return sortOrder === 'desc'
-                          ? nameA.localeCompare(nameB)
-                          : nameB.localeCompare(nameA);
-                      });
-                  }}
-                >
-                  <div class="text-xs text-gray-500">{$i18n.t('Reorder Models')}</div>
+										modelIds = modelIds
+											.filter((id) => id !== '')
+											.sort((a, b) => {
+												const nameA = $models.find((model) => model.id === a)?.name || a;
+												const nameB = $models.find((model) => model.id === b)?.name || b;
+												return sortOrder === 'desc'
+													? nameA.localeCompare(nameB)
+													: nameB.localeCompare(nameA);
+											});
+									}}
+									type="button"
+								>
+									<div class="text-xs text-gray-500">{$i18n.t('Reorder Models')}</div>
 
                   {#if sortKey === 'model'}
                     <span class="font-normal self-center">
@@ -206,87 +214,83 @@
                   <div class="text-xs text-gray-500">{$i18n.t('Default Models')}</div>
                 </div>
 
-                <div class="flex items-center -mr-1">
-                  <select
-                    class="w-full py-1 text-sm rounded-lg bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
-                    class:text-gray-500={!selectedModelId}
-                    bind:value={selectedModelId}
-                  >
-                    <option value="">{$i18n.t('Select a model')}</option>
-                    {#each $models as model}
-                      <option
-                        class="bg-gray-50 dark:bg-gray-700"
-                        value={model.id}
-                      >{model.name}</option>
-                    {/each}
-                  </select>
-                </div>
+								<div class="flex items-center -mr-1">
+									<select
+										class="w-full py-1 text-sm rounded-lg bg-transparent placeholder:text-gray-300 dark:placeholder:text-gray-700 outline-hidden"
+										class:text-gray-500={!selectedModelId}
+										bind:value={selectedModelId}
+									>
+										<option value="">{$i18n.t('Select a model')}</option>
+										{#each $models as model}
+											<option class="bg-gray-50 dark:bg-gray-700" value={model.id}
+												>{model.name}</option
+											>
+										{/each}
+									</select>
+								</div>
 
                 <!-- <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" /> -->
 
-                {#if defaultModelIds.length > 0}
-                  <div class="flex flex-col">
-                    {#each defaultModelIds as modelId, modelIdx}
-                      <div class=" flex gap-2 w-full justify-between items-center">
-                        <div class=" text-sm flex-1 py-1 rounded-lg">
-                          {$models.find((model) => model.id === modelId)?.name}
-                        </div>
-                        <div class="shrink-0">
-                          <button
-                            type="button"
-                            on:click={() => {
-                              defaultModelIds = defaultModelIds.filter(
-                                (_, idx) => idx !== modelIdx
-                              );
-                            }}
-                          >
-                            <Minus
-                              className="size-3.5"
-                              strokeWidth="2"
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    {/each}
-                  </div>
-                {:else}
-                  <div class="text-gray-500 text-xs text-center py-2">
-                    {$i18n.t('No models selected')}
-                  </div>
-                {/if}
-              </div>
-            </div>
+								{#if defaultModelIds.length > 0}
+									<div class="flex flex-col">
+										{#each defaultModelIds as modelId, modelIdx}
+											<div class=" flex gap-2 w-full justify-between items-center">
+												<div class=" text-sm flex-1 py-1 rounded-lg">
+													{$models.find((model) => model.id === modelId)?.name}
+												</div>
+												<div class="shrink-0">
+													<button
+														onclick={() => {
+															defaultModelIds = defaultModelIds.filter(
+																(_, idx) => idx !== modelIdx
+															);
+														}}
+														type="button"
+													>
+														<Minus className="size-3.5" strokeWidth="2" />
+													</button>
+												</div>
+											</div>
+										{/each}
+									</div>
+								{:else}
+									<div class="text-gray-500 text-xs text-center py-2">
+										{$i18n.t('No models selected')}
+									</div>
+								{/if}
+							</div>
+						</div>
 
-            <div class="flex justify-between pt-3 text-sm font-medium gap-1.5">
-              <Tooltip content={$i18n.t('This will delete all models including custom models')}>
-                <button
-                  class="px-3.5 py-1.5 text-sm font-medium dark:bg-black dark:hover:bg-gray-950 dark:text-white bg-white text-black hover:bg-gray-100 transition rounded-full flex flex-row space-x-1 items-center"
-                  type="button"
-                  on:click={() => {
-                    showResetModal = true;
-                  }}
-                >
-                  <!-- {$i18n.t('Delete All Models')} -->
-                  {$i18n.t('Reset All Models')}
-                </button>
-              </Tooltip>
+						<div class="flex justify-between pt-3 text-sm font-medium gap-1.5">
+							<Tooltip content={$i18n.t('This will delete all models including custom models')}>
+								<button
+									class="px-3.5 py-1.5 text-sm font-medium dark:bg-black dark:hover:bg-gray-950 dark:text-white bg-white text-black hover:bg-gray-100 transition rounded-full flex flex-row space-x-1 items-center"
+									onclick={() => {
+										showResetModal = true;
+									}}
+									type="button"
+								>
+									<!-- {$i18n.t('Delete All Models')} -->
+									{$i18n.t('Reset All Models')}
+								</button>
+							</Tooltip>
 
-              <button
-                class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full flex flex-row space-x-1 items-center"
-                class:cursor-not-allowed={loading}
-                disabled={loading}
-                type="submit"
-              >
-                {$i18n.t('Save')}
+							<button
+								class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full flex flex-row space-x-1 items-center"
+								class:cursor-not-allowed={loading}
+								disabled={loading}
+								type="submit"
+							>
+								{$i18n.t('Save')}
 
-                {#if loading}
-                  <div class="ml-2 self-center">
-                    <svg
-                      class=" w-4 h-4"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                    ><style>
+								{#if loading}
+									<div class="ml-2 self-center">
+										<svg
+											class=" w-4 h-4"
+											fill="currentColor"
+											viewBox="0 0 24 24"
+											xmlns="http://www.w3.org/2000/svg"
+											><style>
 												.spinner_ajPY {
 													transform-origin: center;
 													animation: spinner_AtaB 0.75s infinite linear;
@@ -296,24 +300,25 @@
 														transform: rotate(360deg);
 													}
 												}
-                      </style><path
-                        d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-                        opacity=".25"
-                      /><path
-                        class="spinner_ajPY"
-                        d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
-                      /></svg>
-                  </div>
-                {/if}
-              </button>
-            </div>
-          </form>
-        {:else}
-          <div>
-            <Spinner />
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
+											</style><path
+												d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+												opacity=".25"
+											/><path
+												class="spinner_ajPY"
+												d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
+											/></svg
+										>
+									</div>
+								{/if}
+							</button>
+						</div>
+					</form>
+				{:else}
+					<div>
+						<Spinner />
+					</div>
+				{/if}
+			</div>
+		</div>
+	</div>
 </Modal>

@@ -6,23 +6,28 @@
 
   import { models, settings, theme, user } from '$lib/stores';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import AdvancedParams from './Advanced/AdvancedParams.svelte';
 
-  export let saveSettings: Function;
-  export let getModels: Function;
+	interface Props {
+		saveSettings: Function;
+		getModels: Function;
+	}
 
-  // General
-  let themes = ['dark', 'light', 'rose-pine dark', 'rose-pine-dawn light', 'oled-dark'];
-  let selectedTheme = 'system';
+	let { saveSettings, getModels }: Props = $props();
 
-  let languages: Awaited<ReturnType<typeof getLanguages>> = [];
-  let lang = $i18n.language;
-  let notificationEnabled = false;
-  let system = '';
+	// General
+	const themes = ['dark', 'light', 'rose-pine dark', 'rose-pine-dawn light', 'oled-dark'];
+	let selectedTheme = $state('system');
 
-  let showAdvanced = false;
+	let languages: Awaited<ReturnType<typeof getLanguages>> = $state([]);
+	let lang = $state($i18n.language);
+	let notificationEnabled = $state(false);
+	let system = $state('');
+
+	let showAdvanced = $state(false);
 
   const toggleNotification = async () => {
     const permission = await Notification.requestPermission();
@@ -39,35 +44,35 @@
     }
   };
 
-  // Advanced
-  let requestFormat = '';
-  let keepAlive: string | null = null;
+	// Advanced
+	let requestFormat = $state('');
+	let keepAlive: string | null = $state(null);
 
-  let params = {
-    // Advanced
-    stream_response: null,
-    function_calling: null,
-    seed: null,
-    temperature: null,
-    reasoning_effort: null,
-    frequency_penalty: null,
-    presence_penalty: null,
-    repeat_penalty: null,
-    repeat_last_n: null,
-    mirostat: null,
-    mirostat_eta: null,
-    mirostat_tau: null,
-    top_k: null,
-    top_p: null,
-    min_p: null,
-    stop: null,
-    tfs_z: null,
-    num_ctx: null,
-    num_batch: null,
-    num_keep: null,
-    max_tokens: null,
-    num_gpu: null
-  };
+	let params = $state({
+		// Advanced
+		stream_response: null,
+		function_calling: null,
+		seed: null,
+		temperature: null,
+		reasoning_effort: null,
+		frequency_penalty: null,
+		presence_penalty: null,
+		repeat_penalty: null,
+		repeat_last_n: null,
+		mirostat: null,
+		mirostat_eta: null,
+		mirostat_tau: null,
+		top_k: null,
+		top_p: null,
+		min_p: null,
+		stop: null,
+		tfs_z: null,
+		num_ctx: null,
+		num_batch: null,
+		num_keep: null,
+		max_tokens: null,
+		num_gpu: null
+	});
 
   const toggleRequestFormat = async () => {
     if (requestFormat === '') {
@@ -170,100 +175,100 @@
     <div class="">
       <div class=" mb-1 text-sm font-medium">{$i18n.t('WebUI Settings')}</div>
 
-      <div class="flex w-full justify-between">
-        <div class=" self-center text-xs font-medium">{$i18n.t('Theme')}</div>
-        <div class="flex items-center relative">
-          <select
-            class=" dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent outline-hidden text-right"
-            placeholder="Select a theme"
-            bind:value={selectedTheme}
-            on:change={() => themeChangeHandler(selectedTheme)}
-          >
-            <option value="system">⚙️ {$i18n.t('System')}</option>
-            <option value="dark">🌑 {$i18n.t('Dark')}</option>
-            <option value="oled-dark">🌃 {$i18n.t('OLED Dark')}</option>
-            <option value="light">☀️ {$i18n.t('Light')}</option>
-            <option value="her">🌷 Her</option>
-            <!-- <option value="rose-pine dark">🪻 {$i18n.t('Rosé Pine')}</option>
+			<div class="flex w-full justify-between">
+				<div class=" self-center text-xs font-medium">{$i18n.t('Theme')}</div>
+				<div class="flex items-center relative">
+					<select
+						class=" dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent outline-hidden text-right"
+						onchange={() => themeChangeHandler(selectedTheme)}
+						placeholder="Select a theme"
+						bind:value={selectedTheme}
+					>
+						<option value="system">⚙️ {$i18n.t('System')}</option>
+						<option value="dark">🌑 {$i18n.t('Dark')}</option>
+						<option value="oled-dark">🌃 {$i18n.t('OLED Dark')}</option>
+						<option value="light">☀️ {$i18n.t('Light')}</option>
+						<option value="her">🌷 Her</option>
+						<!-- <option value="rose-pine dark">🪻 {$i18n.t('Rosé Pine')}</option>
 						<option value="rose-pine-dawn light">🌷 {$i18n.t('Rosé Pine Dawn')}</option> -->
           </select>
         </div>
       </div>
 
-      <div class=" flex w-full justify-between">
-        <div class=" self-center text-xs font-medium">{$i18n.t('Language')}</div>
-        <div class="flex items-center relative">
-          <select
-            class=" dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent outline-hidden text-right"
-            placeholder="Select a language"
-            bind:value={lang}
-            on:change={(e) => {
-              $i18n.changeLanguage(lang);
-            }}
-          >
-            {#each languages as language}
-              <option value={language['code']}>{language['title']}</option>
-            {/each}
-          </select>
-        </div>
-      </div>
-      {#if $i18n.language === 'en-US'}
-        <div class="mb-2 text-xs text-gray-400 dark:text-gray-500">
-          Couldn't find your language?
-          <a
-            class=" text-gray-300 font-medium underline"
-            href="https://github.com/open-webui/open-webui/blob/main/docs/CONTRIBUTING.md#-translations-and-internationalization"
-            target="_blank"
-          >
-            Help us translate Open WebUI!
-          </a>
-        </div>
-      {/if}
+			<div class=" flex w-full justify-between">
+				<div class=" self-center text-xs font-medium">{$i18n.t('Language')}</div>
+				<div class="flex items-center relative">
+					<select
+						class=" dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent outline-hidden text-right"
+						onchange={(e) => {
+							$i18n.changeLanguage(lang);
+						}}
+						placeholder="Select a language"
+						bind:value={lang}
+					>
+						{#each languages as language}
+							<option value={language['code']}>{language['title']}</option>
+						{/each}
+					</select>
+				</div>
+			</div>
+			{#if $i18n.language === 'en-US'}
+				<div class="mb-2 text-xs text-gray-400 dark:text-gray-500">
+					Couldn't find your language?
+					<a
+						class=" text-gray-300 font-medium underline"
+						href="https://github.com/open-webui/open-webui/blob/main/docs/CONTRIBUTING.md#-translations-and-internationalization"
+						target="_blank"
+					>
+						Help us translate Open WebUI!
+					</a>
+				</div>
+			{/if}
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs font-medium">{$i18n.t('Notifications')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleNotification();
-            }}
-          >
-            {#if notificationEnabled === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
-    </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleNotification();
+						}}
+						type="button"
+					>
+						{#if notificationEnabled === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
+		</div>
 
     {#if $user.role === 'admin' || $user?.permissions.chat?.controls}
       <hr class="border-gray-100 dark:border-gray-850 my-3" />
 
-      <div>
-        <div class=" my-2.5 text-sm font-medium">{$i18n.t('System Prompt')}</div>
-        <textarea
-          class="w-full rounded-lg p-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-hidden resize-none"
-          rows="4"
-          bind:value={system}
-        />
-      </div>
+			<div>
+				<div class=" my-2.5 text-sm font-medium">{$i18n.t('System Prompt')}</div>
+				<textarea
+					class="w-full rounded-lg p-4 text-sm bg-white dark:text-gray-300 dark:bg-gray-850 outline-hidden resize-none"
+					rows="4"
+					bind:value={system}
+				></textarea>
+			</div>
 
-      <div class="mt-2 space-y-3 pr-1.5">
-        <div class="flex justify-between items-center text-sm">
-          <div class="  font-medium">{$i18n.t('Advanced Parameters')}</div>
-          <button
-            class=" text-xs font-medium text-gray-500"
-            type="button"
-            on:click={() => {
-              showAdvanced = !showAdvanced;
-            }}
-          >{showAdvanced ? $i18n.t('Hide') : $i18n.t('Show')}</button>
-        </div>
+			<div class="mt-2 space-y-3 pr-1.5">
+				<div class="flex justify-between items-center text-sm">
+					<div class="  font-medium">{$i18n.t('Advanced Parameters')}</div>
+					<button
+						class=" text-xs font-medium text-gray-500"
+						onclick={() => {
+							showAdvanced = !showAdvanced;
+						}}
+						type="button">{showAdvanced ? $i18n.t('Hide') : $i18n.t('Show')}</button
+					>
+				</div>
 
         {#if showAdvanced}
           <AdvancedParams
@@ -276,47 +281,47 @@
             <div class="flex w-full justify-between">
               <div class=" self-center text-xs font-medium">{$i18n.t('Keep Alive')}</div>
 
-              <button
-                class="p-1 px-3 text-xs flex rounded-sm transition"
-                type="button"
-                on:click={() => {
-                  keepAlive = keepAlive === null ? '5m' : null;
-                }}
-              >
-                {#if keepAlive === null}
-                  <span class="ml-2 self-center"> {$i18n.t('Default')} </span>
-                {:else}
-                  <span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
-                {/if}
-              </button>
-            </div>
+							<button
+								class="p-1 px-3 text-xs flex rounded-sm transition"
+								onclick={() => {
+									keepAlive = keepAlive === null ? '5m' : null;
+								}}
+								type="button"
+							>
+								{#if keepAlive === null}
+									<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
+								{:else}
+									<span class="ml-2 self-center"> {$i18n.t('Custom')} </span>
+								{/if}
+							</button>
+						</div>
 
-            {#if keepAlive !== null}
-              <div class="flex mt-1 space-x-2">
-                <input
-                  class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                  placeholder={$i18n.t("e.g. '30s','10m'. Valid time units are 's', 'm', 'h'.")}
-                  type="text"
-                  bind:value={keepAlive}
-                />
-              </div>
-            {/if}
-          </div>
+						{#if keepAlive !== null}
+							<div class="flex mt-1 space-x-2">
+								<input
+									class="w-full rounded-lg py-2 px-4 text-sm dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									placeholder={$i18n.t("e.g. '30s','10m'. Valid time units are 's', 'm', 'h'.")}
+									type="text"
+									bind:value={keepAlive}
+								/>
+							</div>
+						{/if}
+					</div>
 
           <div>
             <div class=" py-1 flex w-full justify-between">
               <div class=" self-center text-sm font-medium">{$i18n.t('Request Mode')}</div>
 
-              <button
-                class="p-1 px-3 text-xs flex rounded-sm transition"
-                on:click={() => {
-                  toggleRequestFormat();
-                }}
-              >
-                {#if requestFormat === ''}
-                  <span class="ml-2 self-center"> {$i18n.t('Default')} </span>
-                {:else if requestFormat === 'json'}
-                  <!-- <svg
+							<button
+								class="p-1 px-3 text-xs flex rounded-sm transition"
+								onclick={() => {
+									toggleRequestFormat();
+								}}
+							>
+								{#if requestFormat === ''}
+									<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
+								{:else if requestFormat === 'json'}
+									<!-- <svg
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 20 20"
                             fill="currentColor"
@@ -336,50 +341,50 @@
     {/if}
   </div>
 
-  <div class="flex justify-end pt-3 text-sm font-medium">
-    <button
-      class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-      on:click={() => {
-        saveSettings({
-          system: system !== '' ? system : undefined,
-          params: {
-            stream_response: params.stream_response !== null ? params.stream_response : undefined,
-            function_calling:
-              params.function_calling !== null ? params.function_calling : undefined,
-            seed: (params.seed !== null ? params.seed : undefined) ?? undefined,
-            stop: params.stop ? params.stop.split(',').filter((e) => e) : undefined,
-            temperature: params.temperature !== null ? params.temperature : undefined,
-            reasoning_effort:
-              params.reasoning_effort !== null ? params.reasoning_effort : undefined,
-            frequency_penalty:
-              params.frequency_penalty !== null ? params.frequency_penalty : undefined,
-            presence_penalty:
-              params.frequency_penalty !== null ? params.frequency_penalty : undefined,
-            repeat_penalty:
-              params.frequency_penalty !== null ? params.frequency_penalty : undefined,
-            repeat_last_n: params.repeat_last_n !== null ? params.repeat_last_n : undefined,
-            mirostat: params.mirostat !== null ? params.mirostat : undefined,
-            mirostat_eta: params.mirostat_eta !== null ? params.mirostat_eta : undefined,
-            mirostat_tau: params.mirostat_tau !== null ? params.mirostat_tau : undefined,
-            top_k: params.top_k !== null ? params.top_k : undefined,
-            top_p: params.top_p !== null ? params.top_p : undefined,
-            min_p: params.min_p !== null ? params.min_p : undefined,
-            tfs_z: params.tfs_z !== null ? params.tfs_z : undefined,
-            num_ctx: params.num_ctx !== null ? params.num_ctx : undefined,
-            num_batch: params.num_batch !== null ? params.num_batch : undefined,
-            num_keep: params.num_keep !== null ? params.num_keep : undefined,
-            max_tokens: params.max_tokens !== null ? params.max_tokens : undefined,
-            use_mmap: params.use_mmap !== null ? params.use_mmap : undefined,
-            use_mlock: params.use_mlock !== null ? params.use_mlock : undefined,
-            num_thread: params.num_thread !== null ? params.num_thread : undefined,
-            num_gpu: params.num_gpu !== null ? params.num_gpu : undefined
-          },
-          keepAlive: keepAlive ? (isNaN(keepAlive) ? keepAlive : parseInt(keepAlive)) : undefined
-        });
-        dispatch('save');
-      }}
-    >
-      {$i18n.t('Save')}
-    </button>
-  </div>
+	<div class="flex justify-end pt-3 text-sm font-medium">
+		<button
+			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+			onclick={() => {
+				saveSettings({
+					system: system !== '' ? system : undefined,
+					params: {
+						stream_response: params.stream_response !== null ? params.stream_response : undefined,
+						function_calling:
+							params.function_calling !== null ? params.function_calling : undefined,
+						seed: (params.seed !== null ? params.seed : undefined) ?? undefined,
+						stop: params.stop ? params.stop.split(',').filter((e) => e) : undefined,
+						temperature: params.temperature !== null ? params.temperature : undefined,
+						reasoning_effort:
+							params.reasoning_effort !== null ? params.reasoning_effort : undefined,
+						frequency_penalty:
+							params.frequency_penalty !== null ? params.frequency_penalty : undefined,
+						presence_penalty:
+							params.frequency_penalty !== null ? params.frequency_penalty : undefined,
+						repeat_penalty:
+							params.frequency_penalty !== null ? params.frequency_penalty : undefined,
+						repeat_last_n: params.repeat_last_n !== null ? params.repeat_last_n : undefined,
+						mirostat: params.mirostat !== null ? params.mirostat : undefined,
+						mirostat_eta: params.mirostat_eta !== null ? params.mirostat_eta : undefined,
+						mirostat_tau: params.mirostat_tau !== null ? params.mirostat_tau : undefined,
+						top_k: params.top_k !== null ? params.top_k : undefined,
+						top_p: params.top_p !== null ? params.top_p : undefined,
+						min_p: params.min_p !== null ? params.min_p : undefined,
+						tfs_z: params.tfs_z !== null ? params.tfs_z : undefined,
+						num_ctx: params.num_ctx !== null ? params.num_ctx : undefined,
+						num_batch: params.num_batch !== null ? params.num_batch : undefined,
+						num_keep: params.num_keep !== null ? params.num_keep : undefined,
+						max_tokens: params.max_tokens !== null ? params.max_tokens : undefined,
+						use_mmap: params.use_mmap !== null ? params.use_mmap : undefined,
+						use_mlock: params.use_mlock !== null ? params.use_mlock : undefined,
+						num_thread: params.num_thread !== null ? params.num_thread : undefined,
+						num_gpu: params.num_gpu !== null ? params.num_gpu : undefined
+					},
+					keepAlive: keepAlive ? (isNaN(keepAlive) ? keepAlive : parseInt(keepAlive)) : undefined
+				});
+				dispatch('save');
+			}}
+		>
+			{$i18n.t('Save')}
+		</button>
+	</div>
 </div>

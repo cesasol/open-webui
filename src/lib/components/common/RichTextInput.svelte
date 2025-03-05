@@ -1,11 +1,15 @@
 <script lang="ts">
-  import { marked } from 'marked';
-  import TurndownService from 'turndown';
-  const turndownService = new TurndownService({
-    codeBlockStyle: 'fenced',
-    headingStyle: 'atx'
-  });
-  turndownService.escape = (string) => string;
+	import { run } from 'svelte/legacy';
+
+	import { marked } from 'marked';
+	import TurndownService from 'turndown';
+	const turndownService = $state(
+		new TurndownService({
+			codeBlockStyle: 'fenced',
+			headingStyle: 'atx'
+		})
+	);
+	turndownService.escape = (string) => string;
 
   import { onMount, onDestroy } from 'svelte';
   import { createEventDispatcher } from 'svelte';
@@ -30,22 +34,36 @@
   // create a lowlight instance with all languages loaded
   const lowlight = createLowlight(all);
 
-  export let className = 'input-prose';
-  export let placeholder = 'Type here...';
-  export let value = '';
-  export let id = '';
+	interface Props {
+		className?: string;
+		placeholder?: string;
+		value?: string;
+		id?: string;
+		raw?: boolean;
+		preserveBreaks?: boolean;
+		generateAutoCompletion?: Function;
+		autocomplete?: boolean;
+		messageInput?: boolean;
+		shiftEnter?: boolean;
+		largeTextAsFile?: boolean;
+	}
 
-  export let raw = false;
+	let {
+		className = 'input-prose',
+		placeholder = 'Type here...',
+		value = $bindable(''),
+		id = '',
+		raw = false,
+		preserveBreaks = false,
+		generateAutoCompletion = async () => null,
+		autocomplete = false,
+		messageInput = false,
+		shiftEnter = false,
+		largeTextAsFile = false
+	}: Props = $props();
 
-  export let preserveBreaks = false;
-  export let generateAutoCompletion: Function = async () => null;
-  export let autocomplete = false;
-  export let messageInput = false;
-  export let shiftEnter = false;
-  export let largeTextAsFile = false;
-
-  let element;
-  let editor;
+	let element = $state();
+	let editor = $state();
 
   const options = {
     throwOnError: false
@@ -245,23 +263,22 @@
                 }
               }
 
-              if (event.key === 'Enter') {
-                // Check if the current selection is inside a structured block (like codeBlock or list)
-                const { state } = view;
-                const { $head } = state.selection;
+							if (event.key === 'Enter') {
+								// Check if the current selection is inside a structured block (like codeBlock or list)
+								const { state } = view;
 
-                // Recursive function to check ancestors for specific node types
-                function isInside(nodeTypes: string[]): boolean {
-                  let currentNode = $head;
-                  while (currentNode) {
-                    if (nodeTypes.includes(currentNode.parent.type.name)) {
-                      return true;
-                    }
-                    if (!currentNode.depth) break; // Stop if we reach the top
-                    currentNode = state.doc.resolve(currentNode.before()); // Move to the parent node
-                  }
-                  return false;
-                }
+								// Recursive function to check ancestors for specific node types
+								function isInside(nodeTypes: string[]): boolean {
+									let currentNode = state.selection.$head;
+									while (currentNode) {
+										if (nodeTypes.includes(currentNode.parent.type.name)) {
+											return true;
+										}
+										if (!currentNode.depth) break; // Stop if we reach the top
+										currentNode = state.doc.resolve(currentNode.before()); // Move to the parent node
+									}
+									return false;
+								}
 
                 const isInCodeBlock = isInside(['codeBlock']);
                 const isInList = isInside(['listItem', 'bulletList', 'orderedList']);
@@ -345,38 +362,37 @@
     }
   });
 
-  // Update the editor content if the external `value` changes
-  $: if (
-    editor &&
-    (raw
-      ? value !== editor.getHTML()
-      : value !==
-        turndownService
-          .turndown(
-            (preserveBreaks
-              ? editor.getHTML().replace(/<p><\/p>/g, '<br/>')
-              : editor.getHTML()
-            ).replace(/ {2,}/g, (m) => m.replace(/ /g, '\u00a0'))
-          )
-          .replace(/\u00a0/g, ' '))
-  ) {
-    if (raw) {
-      editor.commands.setContent(value);
-    } else {
-      preserveBreaks
-        ? editor.commands.setContent(value)
-        : editor.commands.setContent(
-          marked.parse(value.replaceAll(`\n<br/>`, `<br/>`), {
-            breaks: false
-          })
-        ); // Update editor content
-    }
+	// Update the editor content if the external `value` changes
+	run(() => {
+		if (
+			editor &&
+			(raw
+				? value !== editor.getHTML()
+				: value !==
+					turndownService
+						.turndown(
+							(preserveBreaks
+								? editor.getHTML().replace(/<p><\/p>/g, '<br/>')
+								: editor.getHTML()
+							).replace(/ {2,}/g, (m) => m.replace(/ /g, '\u00a0'))
+						)
+						.replace(/\u00a0/g, ' '))
+		) {
+			if (raw) {
+				editor.commands.setContent(value);
+			} else {
+				preserveBreaks
+					? editor.commands.setContent(value)
+					: editor.commands.setContent(
+							marked.parse(value.replaceAll(`\n<br/>`, `<br/>`), {
+								breaks: false
+							})
+						); // Update editor content
+			}
 
-    selectTemplate();
-  }
+			selectTemplate();
+		}
+	});
 </script>
 
-<div
-  bind:this={element}
-  class="relative w-full min-w-full h-full min-h-fit {className}"
-/>
+<div bind:this={element} class="relative w-full min-w-full h-full min-h-fit {className}"></div>

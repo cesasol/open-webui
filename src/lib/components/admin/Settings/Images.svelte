@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
+	import { preventDefault } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
 
   import { createEventDispatcher, onMount, getContext } from 'svelte';
   import { config as backendConfig, user } from '$lib/stores';
@@ -18,84 +20,85 @@
   import Tooltip from '$lib/components/common/Tooltip.svelte';
   const dispatch = createEventDispatcher();
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let loading = false;
+	let loading = $state(false);
 
-  let config = null;
-  let imageGenerationConfig = null;
+	let config = $state(null);
+	let imageGenerationConfig = $state(null);
 
-  let models = null;
+	let models = $state(null);
 
-  let samplers = [
-    'DPM++ 2M',
-    'DPM++ SDE',
-    'DPM++ 2M SDE',
-    'DPM++ 2M SDE Heun',
-    'DPM++ 2S a',
-    'DPM++ 3M SDE',
-    'Euler a',
-    'Euler',
-    'LMS',
-    'Heun',
-    'DPM2',
-    'DPM2 a',
-    'DPM fast',
-    'DPM adaptive',
-    'Restart',
-    'DDIM',
-    'DDIM CFG++',
-    'PLMS',
-    'UniPC'
-  ];
+	const samplers = [
+		'DPM++ 2M',
+		'DPM++ SDE',
+		'DPM++ 2M SDE',
+		'DPM++ 2M SDE Heun',
+		'DPM++ 2S a',
+		'DPM++ 3M SDE',
+		'Euler a',
+		'Euler',
+		'LMS',
+		'Heun',
+		'DPM2',
+		'DPM2 a',
+		'DPM fast',
+		'DPM adaptive',
+		'Restart',
+		'DDIM',
+		'DDIM CFG++',
+		'PLMS',
+		'UniPC'
+	];
 
-  let schedulers = [
-    'Automatic',
-    'Uniform',
-    'Karras',
-    'Exponential',
-    'Polyexponential',
-    'SGM Uniform',
-    'KL Optimal',
-    'Align Your Steps',
-    'Simple',
-    'Normal',
-    'DDIM',
-    'Beta'
-  ];
+	const schedulers = [
+		'Automatic',
+		'Uniform',
+		'Karras',
+		'Exponential',
+		'Polyexponential',
+		'SGM Uniform',
+		'KL Optimal',
+		'Align Your Steps',
+		'Simple',
+		'Normal',
+		'DDIM',
+		'Beta'
+	];
 
-  let requiredWorkflowNodes = [
-    {
-      type: 'prompt',
-      key: 'text',
-      node_ids: ''
-    },
-    {
-      type: 'model',
-      key: 'ckpt_name',
-      node_ids: ''
-    },
-    {
-      type: 'width',
-      key: 'width',
-      node_ids: ''
-    },
-    {
-      type: 'height',
-      key: 'height',
-      node_ids: ''
-    },
-    {
-      type: 'steps',
-      key: 'steps',
-      node_ids: ''
-    },
-    {
-      type: 'seed',
-      key: 'seed',
-      node_ids: ''
-    }
-  ];
+	let requiredWorkflowNodes = $state([
+		{
+			type: 'prompt',
+			key: 'text',
+			node_ids: ''
+		},
+		{
+			type: 'model',
+			key: 'ckpt_name',
+			node_ids: ''
+		},
+		{
+			type: 'width',
+			key: 'width',
+			node_ids: ''
+		},
+		{
+			type: 'height',
+			key: 'height',
+			node_ids: ''
+		},
+		{
+			type: 'steps',
+			key: 'steps',
+			node_ids: ''
+		},
+		{
+			type: 'seed',
+			key: 'seed',
+			node_ids: ''
+		}
+	]);
 
   const getModels = async () => {
     models = await getImageGenerationModels(localStorage.token).catch((error) => {
@@ -223,10 +226,10 @@
 </script>
 
 <form
-  class="flex flex-col h-full justify-between space-y-3 text-sm"
-  on:submit|preventDefault={async () => {
-    saveHandler();
-  }}
+	class="flex flex-col h-full justify-between space-y-3 text-sm"
+	onsubmit={preventDefault(async () => {
+		saveHandler();
+	})}
 >
   <div class=" space-y-3 overflow-y-scroll scrollbar-hidden pr-2">
     {#if config && imageGenerationConfig}
@@ -283,68 +286,68 @@
           </div>
         {/if}
 
-        <div class=" py-1 flex w-full justify-between">
-          <div class=" self-center text-xs font-medium">{$i18n.t('Image Generation Engine')}</div>
-          <div class="flex items-center relative">
-            <select
-              class=" dark:bg-gray-900 w-fit pr-8 cursor-pointer rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
-              placeholder={$i18n.t('Select Engine')}
-              bind:value={config.engine}
-              on:change={async () => {
-                updateConfigHandler();
-              }}
-            >
-              <option value="openai">{$i18n.t('Default (Open AI)')}</option>
-              <option value="comfyui">{$i18n.t('ComfyUI')}</option>
-              <option value="automatic1111">{$i18n.t('Automatic1111')}</option>
-              <option value="gemini">{$i18n.t('Gemini')}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      <hr class=" border-gray-100 dark:border-gray-850" />
+				<div class=" py-1 flex w-full justify-between">
+					<div class=" self-center text-xs font-medium">{$i18n.t('Image Generation Engine')}</div>
+					<div class="flex items-center relative">
+						<select
+							class=" dark:bg-gray-900 w-fit pr-8 cursor-pointer rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
+							onchange={async () => {
+								updateConfigHandler();
+							}}
+							placeholder={$i18n.t('Select Engine')}
+							bind:value={config.engine}
+						>
+							<option value="openai">{$i18n.t('Default (Open AI)')}</option>
+							<option value="comfyui">{$i18n.t('ComfyUI')}</option>
+							<option value="automatic1111">{$i18n.t('Automatic1111')}</option>
+							<option value="gemini">{$i18n.t('Gemini')}</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<hr class=" border-gray-100 dark:border-gray-850" />
 
-      <div class="flex flex-col gap-2">
-        {#if (config?.engine ?? 'automatic1111') === 'automatic1111'}
-          <div>
-            <div class=" mb-2 text-sm font-medium">{$i18n.t('AUTOMATIC1111 Base URL')}</div>
-            <div class="flex w-full">
-              <div class="flex-1 mr-2">
-                <input
-                  class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                  placeholder={$i18n.t('Enter URL (e.g. http://127.0.0.1:7860/)')}
-                  bind:value={config.automatic1111.AUTOMATIC1111_BASE_URL}
-                />
-              </div>
-              <button
-                class="px-2.5 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
-                type="button"
-                on:click={async () => {
-                  await updateConfigHandler();
-                  const res = await verifyConfigUrl(localStorage.token).catch((error) => {
-                    toast.error(`${error}`);
-                    return null;
-                  });
+			<div class="flex flex-col gap-2">
+				{#if (config?.engine ?? 'automatic1111') === 'automatic1111'}
+					<div>
+						<div class=" mb-2 text-sm font-medium">{$i18n.t('AUTOMATIC1111 Base URL')}</div>
+						<div class="flex w-full">
+							<div class="flex-1 mr-2">
+								<input
+									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									placeholder={$i18n.t('Enter URL (e.g. http://127.0.0.1:7860/)')}
+									bind:value={config.automatic1111.AUTOMATIC1111_BASE_URL}
+								/>
+							</div>
+							<button
+								class="px-2.5 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
+								onclick={async () => {
+									await updateConfigHandler();
+									const res = await verifyConfigUrl(localStorage.token).catch((error) => {
+										toast.error(`${error}`);
+										return null;
+									});
 
-                  if (res) {
-                    toast.success($i18n.t('Server connection verified'));
-                  }
-                }}
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    clip-rule="evenodd"
-                    d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z"
-                    fill-rule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
+									if (res) {
+										toast.success($i18n.t('Server connection verified'));
+									}
+								}}
+								type="button"
+							>
+								<svg
+									class="w-4 h-4"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										clip-rule="evenodd"
+										d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z"
+										fill-rule="evenodd"
+									/>
+								</svg>
+							</button>
+						</div>
 
             <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
               {$i18n.t('Include `--api` flag when running stable-diffusion-webui')}
@@ -358,15 +361,15 @@
             </div>
           </div>
 
-          <div>
-            <div class=" mb-2 text-sm font-medium">
-              {$i18n.t('AUTOMATIC1111 Api Auth String')}
-            </div>
-            <SensitiveInput
-              placeholder={$i18n.t('Enter api auth string (e.g. username:password)')}
-              required={false}
-              bind:value={config.automatic1111.AUTOMATIC1111_API_AUTH}
-            />
+					<div>
+						<div class=" mb-2 text-sm font-medium">
+							{$i18n.t('AUTOMATIC1111 Api Auth String')}
+						</div>
+						<SensitiveInput
+							placeholder={$i18n.t('Enter api auth string (e.g. username:password)')}
+							required={false}
+							bind:value={config.automatic1111.AUTOMATIC1111_API_AUTH}
+						/>
 
             <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
               {$i18n.t('Include `--api-auth` flag when running stable-diffusion-webui')}
@@ -382,172 +385,163 @@
             </div>
           </div>
 
-          <!-- -Sampler -->
-          <div>
-            <div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Sampler')}</div>
-            <div class="flex w-full">
-              <div class="flex-1 mr-2">
-                <Tooltip
-                  content={$i18n.t('Enter Sampler (e.g. Euler a)')}
-                  placement="top-start"
-                >
-                  <input
-                    class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                    list="sampler-list"
-                    placeholder={$i18n.t('Enter Sampler (e.g. Euler a)')}
-                    bind:value={config.automatic1111.AUTOMATIC1111_SAMPLER}
-                  />
+					<!-- -Sampler -->
+					<div>
+						<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Sampler')}</div>
+						<div class="flex w-full">
+							<div class="flex-1 mr-2">
+								<Tooltip content={$i18n.t('Enter Sampler (e.g. Euler a)')} placement="top-start">
+									<input
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										list="sampler-list"
+										placeholder={$i18n.t('Enter Sampler (e.g. Euler a)')}
+										bind:value={config.automatic1111.AUTOMATIC1111_SAMPLER}
+									/>
 
-                  <datalist id="sampler-list">
-                    {#each samplers ?? [] as sampler}
-                      <option value={sampler}>{sampler}</option>
-                    {/each}
-                  </datalist>
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-          <!-- -Scheduler -->
-          <div>
-            <div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Scheduler')}</div>
-            <div class="flex w-full">
-              <div class="flex-1 mr-2">
-                <Tooltip
-                  content={$i18n.t('Enter Scheduler (e.g. Karras)')}
-                  placement="top-start"
-                >
-                  <input
-                    class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                    list="scheduler-list"
-                    placeholder={$i18n.t('Enter Scheduler (e.g. Karras)')}
-                    bind:value={config.automatic1111.AUTOMATIC1111_SCHEDULER}
-                  />
+									<datalist id="sampler-list">
+										{#each samplers ?? [] as sampler}
+											<option value={sampler}>{sampler}</option>
+										{/each}
+									</datalist>
+								</Tooltip>
+							</div>
+						</div>
+					</div>
+					<!-- -Scheduler -->
+					<div>
+						<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Scheduler')}</div>
+						<div class="flex w-full">
+							<div class="flex-1 mr-2">
+								<Tooltip content={$i18n.t('Enter Scheduler (e.g. Karras)')} placement="top-start">
+									<input
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										list="scheduler-list"
+										placeholder={$i18n.t('Enter Scheduler (e.g. Karras)')}
+										bind:value={config.automatic1111.AUTOMATIC1111_SCHEDULER}
+									/>
 
-                  <datalist id="scheduler-list">
-                    {#each schedulers ?? [] as scheduler}
-                      <option value={scheduler}>{scheduler}</option>
-                    {/each}
-                  </datalist>
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-          <!-- -CFG scale -->
-          <div>
-            <div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set CFG Scale')}</div>
-            <div class="flex w-full">
-              <div class="flex-1 mr-2">
-                <Tooltip
-                  content={$i18n.t('Enter CFG Scale (e.g. 7.0)')}
-                  placement="top-start"
-                >
-                  <input
-                    class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                    placeholder={$i18n.t('Enter CFG Scale (e.g. 7.0)')}
-                    bind:value={config.automatic1111.AUTOMATIC1111_CFG_SCALE}
-                  />
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-        {:else if config?.engine === 'comfyui'}
-          <div class="">
-            <div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI Base URL')}</div>
-            <div class="flex w-full">
-              <div class="flex-1 mr-2">
-                <input
-                  class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                  placeholder={$i18n.t('Enter URL (e.g. http://127.0.0.1:7860/)')}
-                  bind:value={config.comfyui.COMFYUI_BASE_URL}
-                />
-              </div>
-              <button
-                class="px-2.5 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
-                type="button"
-                on:click={async () => {
-                  await updateConfigHandler();
-                  const res = await verifyConfigUrl(localStorage.token).catch((error) => {
-                    toast.error(`${error}`);
-                    return null;
-                  });
+									<datalist id="scheduler-list">
+										{#each schedulers ?? [] as scheduler}
+											<option value={scheduler}>{scheduler}</option>
+										{/each}
+									</datalist>
+								</Tooltip>
+							</div>
+						</div>
+					</div>
+					<!-- -CFG scale -->
+					<div>
+						<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set CFG Scale')}</div>
+						<div class="flex w-full">
+							<div class="flex-1 mr-2">
+								<Tooltip content={$i18n.t('Enter CFG Scale (e.g. 7.0)')} placement="top-start">
+									<input
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										placeholder={$i18n.t('Enter CFG Scale (e.g. 7.0)')}
+										bind:value={config.automatic1111.AUTOMATIC1111_CFG_SCALE}
+									/>
+								</Tooltip>
+							</div>
+						</div>
+					</div>
+				{:else if config?.engine === 'comfyui'}
+					<div class="">
+						<div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI Base URL')}</div>
+						<div class="flex w-full">
+							<div class="flex-1 mr-2">
+								<input
+									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									placeholder={$i18n.t('Enter URL (e.g. http://127.0.0.1:7860/)')}
+									bind:value={config.comfyui.COMFYUI_BASE_URL}
+								/>
+							</div>
+							<button
+								class="px-2.5 bg-gray-50 hover:bg-gray-100 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
+								onclick={async () => {
+									await updateConfigHandler();
+									const res = await verifyConfigUrl(localStorage.token).catch((error) => {
+										toast.error(`${error}`);
+										return null;
+									});
 
-                  if (res) {
-                    toast.success($i18n.t('Server connection verified'));
-                  }
-                }}
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    clip-rule="evenodd"
-                    d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z"
-                    fill-rule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
+									if (res) {
+										toast.success($i18n.t('Server connection verified'));
+									}
+								}}
+								type="button"
+							>
+								<svg
+									class="w-4 h-4"
+									fill="currentColor"
+									viewBox="0 0 20 20"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										clip-rule="evenodd"
+										d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z"
+										fill-rule="evenodd"
+									/>
+								</svg>
+							</button>
+						</div>
+					</div>
 
-          <div class="">
-            <div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI API Key')}</div>
-            <div class="flex w-full">
-              <div class="flex-1 mr-2">
-                <SensitiveInput
-                  placeholder={$i18n.t('sk-1234')}
-                  required={false}
-                  bind:value={config.comfyui.COMFYUI_API_KEY}
-                />
-              </div>
-            </div>
-          </div>
+					<div class="">
+						<div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI API Key')}</div>
+						<div class="flex w-full">
+							<div class="flex-1 mr-2">
+								<SensitiveInput
+									placeholder={$i18n.t('sk-1234')}
+									required={false}
+									bind:value={config.comfyui.COMFYUI_API_KEY}
+								/>
+							</div>
+						</div>
+					</div>
 
           <div class="">
             <div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI Workflow')}</div>
 
-            {#if config.comfyui.COMFYUI_WORKFLOW}
-              <textarea
-                class="w-full rounded-lg mb-1 py-2 px-4 text-xs bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden disabled:text-gray-600 resize-none"
-                required
-                rows="10"
-                bind:value={config.comfyui.COMFYUI_WORKFLOW}
-              />
-            {/if}
+						{#if config.comfyui.COMFYUI_WORKFLOW}
+							<textarea
+								class="w-full rounded-lg mb-1 py-2 px-4 text-xs bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden disabled:text-gray-600 resize-none"
+								required
+								rows="10"
+								bind:value={config.comfyui.COMFYUI_WORKFLOW}
+							></textarea>
+						{/if}
 
-            <div class="flex w-full">
-              <div class="flex-1">
-                <input
-                  id="upload-comfyui-workflow-input"
-                  accept=".json"
-                  hidden
-                  type="file"
-                  on:change={(e) => {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
+						<div class="flex w-full">
+							<div class="flex-1">
+								<input
+									id="upload-comfyui-workflow-input"
+									accept=".json"
+									hidden
+									onchange={(e) => {
+										const file = e.target.files[0];
+										const reader = new FileReader();
 
                     reader.onload = (e) => {
                       config.comfyui.COMFYUI_WORKFLOW = e.target.result;
                       e.target.value = null;
                     };
 
-                    reader.readAsText(file);
-                  }}
-                />
+										reader.readAsText(file);
+									}}
+									type="file"
+								/>
 
-                <button
-                  class="w-full text-sm font-medium py-2 bg-transparent hover:bg-gray-100 border border-dashed dark:border-gray-850 dark:hover:bg-gray-850 text-center rounded-xl"
-                  type="button"
-                  on:click={() => {
-                    document.getElementById('upload-comfyui-workflow-input')?.click();
-                  }}
-                >
-                  {$i18n.t('Click here to upload a workflow.json file.')}
-                </button>
-              </div>
-            </div>
+								<button
+									class="w-full text-sm font-medium py-2 bg-transparent hover:bg-gray-100 border border-dashed dark:border-gray-850 dark:hover:bg-gray-850 text-center rounded-xl"
+									onclick={() => {
+										document.getElementById('upload-comfyui-workflow-input')?.click();
+									}}
+									type="button"
+								>
+									{$i18n.t('Click here to upload a workflow.json file.')}
+								</button>
+							</div>
+						</div>
 
             <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
               {$i18n.t('Make sure to export a workflow.json file as API format from ComfyUI.')}
@@ -558,24 +552,26 @@
             <div class="">
               <div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI Workflow Nodes')}</div>
 
-              <div class="text-xs flex flex-col gap-1.5">
-                {#each requiredWorkflowNodes as node}
-                  <div class="flex w-full items-center border dark:border-gray-850 rounded-lg">
-                    <div class="shrink-0">
-                      <div class=" capitalize line-clamp-1 font-medium px-3 py-1 w-20 text-center rounded-l-lg bg-green-500/10 text-green-700 dark:text-green-200">
-                        {node.type}{node.type === 'prompt' ? '*' : ''}
-                      </div>
-                    </div>
-                    <div class="">
-                      <Tooltip content="Input Key (e.g. text, unet_name, steps)">
-                        <input
-                          class="py-1 px-3 w-24 text-xs text-center bg-transparent outline-hidden border-r dark:border-gray-850"
-                          placeholder="Key"
-                          required
-                          bind:value={node.key}
-                        />
-                      </Tooltip>
-                    </div>
+							<div class="text-xs flex flex-col gap-1.5">
+								{#each requiredWorkflowNodes as node}
+									<div class="flex w-full items-center border dark:border-gray-850 rounded-lg">
+										<div class="shrink-0">
+											<div
+												class=" capitalize line-clamp-1 font-medium px-3 py-1 w-20 text-center rounded-l-lg bg-green-500/10 text-green-700 dark:text-green-200"
+											>
+												{node.type}{node.type === 'prompt' ? '*' : ''}
+											</div>
+										</div>
+										<div class="">
+											<Tooltip content="Input Key (e.g. text, unet_name, steps)">
+												<input
+													class="py-1 px-3 w-24 text-xs text-center bg-transparent outline-hidden border-r dark:border-gray-850"
+													placeholder="Key"
+													required
+													bind:value={node.key}
+												/>
+											</Tooltip>
+										</div>
 
                     <div class="w-full">
                       <Tooltip
@@ -602,13 +598,13 @@
           <div>
             <div class=" mb-1.5 text-sm font-medium">{$i18n.t('OpenAI API Config')}</div>
 
-            <div class="flex gap-2 mb-1">
-              <input
-                class="flex-1 w-full text-sm bg-transparent outline-hidden"
-                placeholder={$i18n.t('API Base URL')}
-                required
-                bind:value={config.openai.OPENAI_API_BASE_URL}
-              />
+						<div class="flex gap-2 mb-1">
+							<input
+								class="flex-1 w-full text-sm bg-transparent outline-hidden"
+								placeholder={$i18n.t('API Base URL')}
+								required
+								bind:value={config.openai.OPENAI_API_BASE_URL}
+							/>
 
               <SensitiveInput
                 placeholder={$i18n.t('API Key')}
@@ -620,13 +616,13 @@
           <div>
             <div class=" mb-1.5 text-sm font-medium">{$i18n.t('Gemini API Config')}</div>
 
-            <div class="flex gap-2 mb-1">
-              <input
-                class="flex-1 w-full text-sm bg-transparent outline-none"
-                placeholder={$i18n.t('API Base URL')}
-                required
-                bind:value={config.gemini.GEMINI_API_BASE_URL}
-              />
+						<div class="flex gap-2 mb-1">
+							<input
+								class="flex-1 w-full text-sm bg-transparent outline-none"
+								placeholder={$i18n.t('API Base URL')}
+								required
+								bind:value={config.gemini.GEMINI_API_BASE_URL}
+							/>
 
               <SensitiveInput
                 placeholder={$i18n.t('API Key')}
@@ -640,23 +636,20 @@
       {#if config?.enabled}
         <hr class=" border-gray-100 dark:border-gray-850" />
 
-        <div>
-          <div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Default Model')}</div>
-          <div class="flex w-full">
-            <div class="flex-1 mr-2">
-              <div class="flex w-full">
-                <div class="flex-1">
-                  <Tooltip
-                    content={$i18n.t('Enter Model ID')}
-                    placement="top-start"
-                  >
-                    <input
-                      class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                      list="model-list"
-                      placeholder="Select a model"
-                      required
-                      bind:value={imageGenerationConfig.MODEL}
-                    />
+				<div>
+					<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Default Model')}</div>
+					<div class="flex w-full">
+						<div class="flex-1 mr-2">
+							<div class="flex w-full">
+								<div class="flex-1">
+									<Tooltip content={$i18n.t('Enter Model ID')} placement="top-start">
+										<input
+											class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+											list="model-list"
+											placeholder="Select a model"
+											required
+											bind:value={imageGenerationConfig.MODEL}
+										/>
 
                     <datalist id="model-list">
                       {#each models ?? [] as model}
@@ -670,64 +663,58 @@
           </div>
         </div>
 
-        <div>
-          <div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Image Size')}</div>
-          <div class="flex w-full">
-            <div class="flex-1 mr-2">
-              <Tooltip
-                content={$i18n.t('Enter Image Size (e.g. 512x512)')}
-                placement="top-start"
-              >
-                <input
-                  class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                  placeholder={$i18n.t('Enter Image Size (e.g. 512x512)')}
-                  required
-                  bind:value={imageGenerationConfig.IMAGE_SIZE}
-                />
-              </Tooltip>
-            </div>
-          </div>
-        </div>
+				<div>
+					<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Image Size')}</div>
+					<div class="flex w-full">
+						<div class="flex-1 mr-2">
+							<Tooltip content={$i18n.t('Enter Image Size (e.g. 512x512)')} placement="top-start">
+								<input
+									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									placeholder={$i18n.t('Enter Image Size (e.g. 512x512)')}
+									required
+									bind:value={imageGenerationConfig.IMAGE_SIZE}
+								/>
+							</Tooltip>
+						</div>
+					</div>
+				</div>
 
-        <div>
-          <div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Steps')}</div>
-          <div class="flex w-full">
-            <div class="flex-1 mr-2">
-              <Tooltip
-                content={$i18n.t('Enter Number of Steps (e.g. 50)')}
-                placement="top-start"
-              >
-                <input
-                  class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                  placeholder={$i18n.t('Enter Number of Steps (e.g. 50)')}
-                  required
-                  bind:value={imageGenerationConfig.IMAGE_STEPS}
-                />
-              </Tooltip>
-            </div>
-          </div>
-        </div>
-      {/if}
-    {/if}
-  </div>
+				<div>
+					<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Steps')}</div>
+					<div class="flex w-full">
+						<div class="flex-1 mr-2">
+							<Tooltip content={$i18n.t('Enter Number of Steps (e.g. 50)')} placement="top-start">
+								<input
+									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									placeholder={$i18n.t('Enter Number of Steps (e.g. 50)')}
+									required
+									bind:value={imageGenerationConfig.IMAGE_STEPS}
+								/>
+							</Tooltip>
+						</div>
+					</div>
+				</div>
+			{/if}
+		{/if}
+	</div>
 
-  <div class="flex justify-end pt-3 text-sm font-medium">
-    <button
-      class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full flex flex-row space-x-1 items-center"
-      class:cursor-not-allowed={loading}
-      disabled={loading}
-      type="submit"
-    >
-      {$i18n.t('Save')}
+	<div class="flex justify-end pt-3 text-sm font-medium">
+		<button
+			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full flex flex-row space-x-1 items-center"
+			class:cursor-not-allowed={loading}
+			disabled={loading}
+			type="submit"
+		>
+			{$i18n.t('Save')}
 
-      {#if loading}
-        <div class="ml-2 self-center">
-          <svg
-            class=" w-4 h-4"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          ><style>
+			{#if loading}
+				<div class="ml-2 self-center">
+					<svg
+						class=" w-4 h-4"
+						fill="currentColor"
+						viewBox="0 0 24 24"
+						xmlns="http://www.w3.org/2000/svg"
+						><style>
 							.spinner_ajPY {
 								transform-origin: center;
 								animation: spinner_AtaB 0.75s infinite linear;
@@ -737,15 +724,16 @@
 									transform: rotate(360deg);
 								}
 							}
-            </style><path
-              d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-              opacity=".25"
-            /><path
-              class="spinner_ajPY"
-              d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
-            /></svg>
-        </div>
-      {/if}
-    </button>
-  </div>
+						</style><path
+							d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+							opacity=".25"
+						/><path
+							class="spinner_ajPY"
+							d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
+						/></svg
+					>
+				</div>
+			{/if}
+		</button>
+	</div>
 </form>

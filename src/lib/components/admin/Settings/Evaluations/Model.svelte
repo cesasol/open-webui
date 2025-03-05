@@ -1,36 +1,37 @@
 <script lang="ts">
-  import { getContext, createEventDispatcher } from 'svelte';
-  const dispatch = createEventDispatcher();
-  const i18n = getContext('i18n');
+	import { getContext, createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  import Cog6 from '$lib/components/icons/Cog6.svelte';
-  import ArenaModelModal from './ArenaModelModal.svelte';
-  export let model;
+	import Cog6 from '$lib/components/icons/Cog6.svelte';
+	import ArenaModelModal from './ArenaModelModal.svelte';
+	let { model } = $props();
 
-  let showModel = false;
+	let showModel = $state(false);
 </script>
 
 <ArenaModelModal
-  edit={true}
-  {model}
-  bind:show={showModel}
-  on:submit={async (e) => {
-    dispatch('edit', e.detail);
-  }}
-  on:delete={async () => {
-    dispatch('delete');
-  }}
+	edit={true}
+	{model}
+	bind:show={showModel}
+	on:submit={async (e) => {
+		dispatch('edit', e.detail);
+	}}
+	on:delete={async () => {
+		dispatch('delete');
+	}}
 />
 
 <div class="py-0.5">
-  <div class="flex justify-between items-center mb-1">
-    <div class="flex flex-col flex-1">
-      <div class="flex gap-2.5 items-center">
-        <img
-          class="size-8 rounded-full object-cover shrink-0"
-          alt={model.name}
-          src={model.meta.profile_image_url}
-        />
+	<div class="flex justify-between items-center mb-1">
+		<div class="flex flex-col flex-1">
+			<div class="flex gap-2.5 items-center">
+				<img
+					class="size-8 rounded-full object-cover shrink-0"
+					alt={model.name}
+					src={model.meta.profile_image_url}
+				/>
 
         <div class="w-full flex flex-col">
           <div class="flex items-center gap-1">
@@ -48,16 +49,16 @@
       </div>
     </div>
 
-    <div class="flex items-center">
-      <button
-        class="self-center w-fit text-sm p-1.5 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-        type="button"
-        on:click={() => {
-          showModel = true;
-        }}
-      >
-        <Cog6 />
-      </button>
-    </div>
-  </div>
+		<div class="flex items-center">
+			<button
+				class="self-center w-fit text-sm p-1.5 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+				onclick={() => {
+					showModel = true;
+				}}
+				type="button"
+			>
+				<Cog6 />
+			</button>
+		</div>
+	</div>
 </div>

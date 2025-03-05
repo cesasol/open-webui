@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+	import { run } from 'svelte/legacy';
+
+	import { goto } from '$app/navigation';
 
   import { socket, user } from '$lib/stores';
 
@@ -11,22 +13,21 @@
   import { onDestroy, onMount, tick } from 'svelte';
   import { toast } from 'svelte-sonner';
 
-  export let threadId = null;
-  export let channel = null;
+	interface Props {
+		threadId?: any;
+		channel?: any;
+		onClose?: any;
+	}
 
-  export let onClose = () => {};
+	let { threadId = null, channel = null, onClose = () => {} }: Props = $props();
 
-  let messages = null;
-  let top = false;
+	let messages = $state(null);
+	let top = $state(false);
 
-  let typingUsers = [];
-  let typingUsersTimeout = {};
+	let typingUsers = $state([]);
+	let typingUsersTimeout = {};
 
-  let messagesContainerElement = null;
-
-  $: if (threadId) {
-    initHandler();
-  }
+	let messagesContainerElement = $state(null);
 
   const scrollToBottom = () => {
     messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
@@ -150,9 +151,14 @@
     $socket?.on('channel-events', channelEventHandler);
   });
 
-  onDestroy(() => {
-    $socket?.off('channel-events', channelEventHandler);
-  });
+	onDestroy(() => {
+		$socket?.off('channel-events', channelEventHandler);
+	});
+	run(() => {
+		if (threadId) {
+			initHandler();
+		}
+	});
 </script>
 
 {#if channel}
@@ -160,53 +166,45 @@
     <div class="flex items-center justify-between px-3.5 pt-3">
       <div class=" font-medium text-lg">Thread</div>
 
-      <div>
-        <button
-          class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 p-2"
-          on:click={() => {
-            onClose();
-          }}
-        >
-          <XMark />
-        </button>
-      </div>
-    </div>
+			<div>
+				<button
+					class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 p-2"
+					onclick={() => {
+						onClose();
+					}}
+				>
+					<XMark />
+				</button>
+			</div>
+		</div>
 
-    <div
-      bind:this={messagesContainerElement}
-      class=" max-h-full w-full overflow-y-auto pt-3"
-    >
-      <Messages
-        id={threadId}
-        {channel}
-        {messages}
-        onLoad={async () => {
-          const newMessages = await getChannelThreadMessages(
-            localStorage.token,
-            channel.id,
-            threadId,
-            messages.length
-          );
+		<div bind:this={messagesContainerElement} class=" max-h-full w-full overflow-y-auto pt-3">
+			<Messages
+				id={threadId}
+				{channel}
+				{messages}
+				onLoad={async () => {
+					const newMessages = await getChannelThreadMessages(
+						localStorage.token,
+						channel.id,
+						threadId,
+						messages.length
+					);
 
           messages = [...messages, ...newMessages];
 
-          if (newMessages.length < 50) {
-            top = true;
-            return;
-          }
-        }}
-        thread={true}
-        {top}
-      />
+					if (newMessages.length < 50) {
+						top = true;
+						return;
+					}
+				}}
+				thread={true}
+				{top}
+			/>
 
-      <div class=" pb-[1rem]">
-        <MessageInput
-          id={threadId}
-          {onChange}
-          onSubmit={submitHandler}
-          {typingUsers}
-        />
-      </div>
-    </div>
-  </div>
+			<div class=" pb-[1rem]">
+				<MessageInput id={threadId} {onChange} onSubmit={submitHandler} {typingUsers} />
+			</div>
+		</div>
+	</div>
 {/if}

@@ -1,14 +1,20 @@
 <script lang="ts">
-  export let id;
-  export let token;
-  export let onClick: Function = () => {};
+	import { run } from 'svelte/legacy';
 
-  let attributes: Record<string, string | undefined> = {};
+	interface Props {
+		id: any;
+		token: any;
+		onClick?: Function;
+	}
 
-  function extractAttributes(input: string): Record<string, string> {
-    const regex = /(\w+)="([^"]*)"/g;
-    let match;
-    let attrs: Record<string, string> = {};
+	let { id, token, onClick = () => {} }: Props = $props();
+
+	let attributes: Record<string, string | undefined> = $state({});
+
+	function extractAttributes(input: string): Record<string, string> {
+		const regex = /(\w+)="([^"]*)"/g;
+		let match;
+		const attrs: Record<string, string> = {};
 
     // Loop through all matches and populate the attributes object
     while ((match = regex.exec(input)) !== null) {
@@ -33,18 +39,20 @@
     return title;
   }
 
-  $: attributes = extractAttributes(token.text);
+	run(() => {
+		attributes = extractAttributes(token.text);
+	});
 </script>
 
 {#if attributes.title !== 'N/A'}
-  <button
-    class="text-xs font-medium w-fit translate-y-[2px] px-2 py-0.5 dark:bg-white/5 dark:text-white/60 dark:hover:text-white bg-gray-50 text-black/60 hover:text-black transition rounded-lg"
-    on:click={() => {
-      onClick(id, attributes.data);
-    }}
-  >
-    <span class="line-clamp-1">
-      {attributes.title ? formattedTitle(attributes.title) : ''}
-    </span>
-  </button>
+	<button
+		class="text-xs font-medium w-fit translate-y-[2px] px-2 py-0.5 dark:bg-white/5 dark:text-white/60 dark:hover:text-white bg-gray-50 text-black/60 hover:text-black transition rounded-lg"
+		onclick={() => {
+			onClick(id, attributes.data);
+		}}
+	>
+		<span class="line-clamp-1">
+			{attributes.title ? formattedTitle(attributes.title) : ''}
+		</span>
+	</button>
 {/if}

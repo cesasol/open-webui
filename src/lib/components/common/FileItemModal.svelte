@@ -1,9 +1,12 @@
 <script lang="ts">
-  import { getContext, onMount } from 'svelte';
-  import { formatFileSize, getLineCount } from '$lib/utils';
-  import { WEBUI_API_BASE_URL } from '$lib/constants';
+	import { preventDefault } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
+	import { getContext, onMount } from 'svelte';
+	import { formatFileSize, getLineCount } from '$lib/utils';
+	import { WEBUI_API_BASE_URL } from '$lib/constants';
+
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import Modal from './Modal.svelte';
   import XMark from '../icons/XMark.svelte';
@@ -11,14 +14,19 @@
   import Switch from './Switch.svelte';
   import Tooltip from './Tooltip.svelte';
 
-  export let item;
-  export let show = false;
-  export let edit = false;
+	interface Props {
+		item: any;
+		show?: boolean;
+		edit?: boolean;
+	}
 
-  let enableFullContent = false;
-  $: isPDF =
-    item?.meta?.content_type === 'application/pdf' ||
-    (item?.name && item?.name.toLowerCase().endsWith('.pdf'));
+	let { item = $bindable(), show = $bindable(false), edit = false }: Props = $props();
+
+	let enableFullContent = $state(false);
+	let isPDF = $derived(
+		item?.meta?.content_type === 'application/pdf' ||
+			(item?.name && item?.name.toLowerCase().endsWith('.pdf'))
+	);
 
   onMount(() => {
     console.log(item);
@@ -28,42 +36,39 @@
   });
 </script>
 
-<Modal
-  size="lg"
-  bind:show
->
-  <div class="font-primary px-6 py-5 w-full flex flex-col justify-center dark:text-gray-400">
-    <div class=" pb-2">
-      <div class="flex items-start justify-between">
-        <div>
-          <div class=" font-medium text-lg dark:text-gray-100">
-            <a
-              class="hover:underline line-clamp-1"
-              href="#"
-              on:click|preventDefault={() => {
-                if (!isPDF && item.url) {
-                  window.open(
-                    item.type === 'file' ? `${item.url}/content` : `${item.url}`,
-                    '_blank'
-                  );
-                }
-              }}
-            >
-              {item?.name ?? 'File'}
-            </a>
-          </div>
-        </div>
+<Modal size="lg" bind:show>
+	<div class="font-primary px-6 py-5 w-full flex flex-col justify-center dark:text-gray-400">
+		<div class=" pb-2">
+			<div class="flex items-start justify-between">
+				<div>
+					<div class=" font-medium text-lg dark:text-gray-100">
+						<a
+							class="hover:underline line-clamp-1"
+							href="#"
+							onclick={preventDefault(() => {
+								if (!isPDF && item.url) {
+									window.open(
+										item.type === 'file' ? `${item.url}/content` : `${item.url}`,
+										'_blank'
+									);
+								}
+							})}
+						>
+							{item?.name ?? 'File'}
+						</a>
+					</div>
+				</div>
 
-        <div>
-          <button
-            on:click={() => {
-              show = false;
-            }}
-          >
-            <XMark />
-          </button>
-        </div>
-      </div>
+				<div>
+					<button
+						onclick={() => {
+							show = false;
+						}}
+					>
+						<XMark />
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class="flex flex-col items-center md:flex-row gap-1 justify-between w-full">
@@ -113,18 +118,18 @@
       </div>
     </div>
 
-    <div class="max-h-[75vh] overflow-auto">
-      {#if isPDF}
-        <iframe
-          class="w-full h-[70vh] border-0 rounded-lg mt-4"
-          src={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
-          title={item?.name}
-        />
-      {:else}
-        <div class="max-h-96 overflow-scroll scrollbar-hidden text-xs whitespace-pre-wrap">
-          {item?.file?.data?.content ?? 'No content'}
-        </div>
-      {/if}
-    </div>
-  </div>
+		<div class="max-h-[75vh] overflow-auto">
+			{#if isPDF}
+				<iframe
+					class="w-full h-[70vh] border-0 rounded-lg mt-4"
+					src={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
+					title={item?.name}
+				></iframe>
+			{:else}
+				<div class="max-h-96 overflow-scroll scrollbar-hidden text-xs whitespace-pre-wrap">
+					{item?.file?.data?.content ?? 'No content'}
+				</div>
+			{/if}
+		</div>
+	</div>
 </Modal>

@@ -1,27 +1,42 @@
 <script lang="ts">
-  import { onMount, getContext, createEventDispatcher } from 'svelte';
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
+	import { run } from 'svelte/legacy';
+
+	import { onMount, getContext, createEventDispatcher } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
 
   import { fade } from 'svelte/transition';
   import { flyAndScale } from '$lib/utils/transitions';
 
-  export let title = '';
-  export let message = '';
+	interface Props {
+		title?: string;
+		message?: string;
+		cancelLabel?: any;
+		confirmLabel?: any;
+		onConfirm?: any;
+		input?: boolean;
+		inputPlaceholder?: string;
+		inputValue?: string;
+		show?: boolean;
+		children?: import('svelte').Snippet;
+	}
 
-  export let cancelLabel = $i18n.t('Cancel');
-  export let confirmLabel = $i18n.t('Confirm');
+	let {
+		title = '',
+		message = '',
+		cancelLabel = $i18n.t('Cancel'),
+		confirmLabel = $i18n.t('Confirm'),
+		onConfirm = () => {},
+		input = false,
+		inputPlaceholder = '',
+		inputValue = $bindable(''),
+		show = $bindable(false),
+		children
+	}: Props = $props();
 
-  export let onConfirm = () => {};
-
-  export let input = false;
-  export let inputPlaceholder = '';
-  export let inputValue = '';
-
-  export let show = false;
-
-  let modalElement = null;
-  let mounted = false;
+	let modalElement = $state(null);
+	let mounted = $state(false);
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -45,92 +60,94 @@
     mounted = true;
   });
 
-  $: if (mounted) {
-    if (show && modalElement) {
-      document.body.appendChild(modalElement);
+	run(() => {
+		if (mounted) {
+			if (show && modalElement) {
+				document.body.appendChild(modalElement);
 
-      window.addEventListener('keydown', handleKeyDown);
-      document.body.style.overflow = 'hidden';
-    } else if (modalElement) {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.removeChild(modalElement);
+				window.addEventListener('keydown', handleKeyDown);
+				document.body.style.overflow = 'hidden';
+			} else if (modalElement) {
+				window.removeEventListener('keydown', handleKeyDown);
+				document.body.removeChild(modalElement);
 
-      document.body.style.overflow = 'unset';
-    }
-  }
+				document.body.style.overflow = 'unset';
+			}
+		}
+	});
 </script>
 
 {#if show}
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div
-    bind:this={modalElement}
-    class=" fixed top-0 right-0 left-0 bottom-0 bg-black/60 w-full h-screen max-h-[100dvh] flex justify-center z-99999999 overflow-hidden overscroll-contain"
-    on:mousedown={() => {
-      show = false;
-    }}
-    in:fade={{ duration: 10 }}
-  >
-    <div
-      class=" m-auto rounded-2xl max-w-full w-[32rem] mx-2 bg-gray-50 dark:bg-gray-950 max-h-[100dvh] shadow-3xl"
-      on:mousedown={(e) => {
-        e.stopPropagation();
-      }}
-      in:flyAndScale
-    >
-      <div class="px-[1.75rem] py-6 flex flex-col">
-        <div class=" text-lg font-semibold dark:text-gray-200 mb-2.5">
-          {#if title !== ''}
-            {title}
-          {:else}
-            {$i18n.t('Confirm your action')}
-          {/if}
-        </div>
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		bind:this={modalElement}
+		class=" fixed top-0 right-0 left-0 bottom-0 bg-black/60 w-full h-screen max-h-[100dvh] flex justify-center z-99999999 overflow-hidden overscroll-contain"
+		onmousedown={() => {
+			show = false;
+		}}
+		in:fade={{ duration: 10 }}
+	>
+		<div
+			class=" m-auto rounded-2xl max-w-full w-[32rem] mx-2 bg-gray-50 dark:bg-gray-950 max-h-[100dvh] shadow-3xl"
+			onmousedown={(e) => {
+				e.stopPropagation();
+			}}
+			in:flyAndScale
+		>
+			<div class="px-[1.75rem] py-6 flex flex-col">
+				<div class=" text-lg font-semibold dark:text-gray-200 mb-2.5">
+					{#if title !== ''}
+						{title}
+					{:else}
+						{$i18n.t('Confirm your action')}
+					{/if}
+				</div>
 
-        <slot>
-          <div class=" text-sm text-gray-500 flex-1">
-            {#if message !== ''}
-              {message}
-            {:else}
-              {$i18n.t('This action cannot be undone. Do you wish to continue?')}
-            {/if}
+				{#if children}{@render children()}{:else}
+					<div class=" text-sm text-gray-500 flex-1">
+						{#if message !== ''}
+							{message}
+						{:else}
+							{$i18n.t('This action cannot be undone. Do you wish to continue?')}
+						{/if}
 
-            {#if input}
-              <textarea
-                class="w-full mt-2 rounded-lg px-4 py-2 text-sm dark:text-gray-300 dark:bg-gray-900 outline-hidden resize-none"
-                placeholder={inputPlaceholder ? inputPlaceholder : $i18n.t('Enter your message')}
-                required
-                rows="3"
-                bind:value={inputValue}
-              />
-            {/if}
-          </div>
-        </slot>
+						{#if input}
+							<textarea
+								class="w-full mt-2 rounded-lg px-4 py-2 text-sm dark:text-gray-300 dark:bg-gray-900 outline-hidden resize-none"
+								placeholder={inputPlaceholder ? inputPlaceholder : $i18n.t('Enter your message')}
+								required
+								rows="3"
+								bind:value={inputValue}
+							></textarea>
+						{/if}
+					</div>
+				{/if}
 
-        <div class="mt-6 flex justify-between gap-1.5">
-          <button
-            class="bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-white font-medium w-full py-2.5 rounded-lg transition"
-            type="button"
-            on:click={() => {
-              show = false;
-              dispatch('cancel');
-            }}
-          >
-            {cancelLabel}
-          </button>
-          <button
-            class="bg-gray-900 hover:bg-gray-850 text-gray-100 dark:bg-gray-100 dark:hover:bg-white dark:text-gray-800 font-medium w-full py-2.5 rounded-lg transition"
-            type="button"
-            on:click={() => {
-              confirmHandler();
-            }}
-          >
-            {confirmLabel}
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+				<div class="mt-6 flex justify-between gap-1.5">
+					<button
+						class="bg-gray-100 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-white font-medium w-full py-2.5 rounded-lg transition"
+						onclick={() => {
+							show = false;
+							dispatch('cancel');
+						}}
+						type="button"
+					>
+						{cancelLabel}
+					</button>
+					<button
+						class="bg-gray-900 hover:bg-gray-850 text-gray-100 dark:bg-gray-100 dark:hover:bg-white dark:text-gray-800 font-medium w-full py-2.5 rounded-lg transition"
+						onclick={() => {
+							confirmHandler();
+						}}
+						type="button"
+					>
+						{confirmLabel}
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 {/if}
 
 <style>

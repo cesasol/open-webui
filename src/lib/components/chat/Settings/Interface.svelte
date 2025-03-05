@@ -1,58 +1,65 @@
 <script lang="ts">
-  import { getBackendConfig } from '$lib/apis';
-  import { setDefaultPromptSuggestions } from '$lib/apis/configs';
-  import { config, models, settings, user } from '$lib/stores';
-  import { createEventDispatcher, onMount, getContext } from 'svelte';
-  import { toast } from 'svelte-sonner';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import { updateUserInfo } from '$lib/apis/users';
-  import { getUserPosition } from '$lib/utils';
-  const dispatch = createEventDispatcher();
+	import { preventDefault } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
+	import { getBackendConfig } from '$lib/apis';
+	import { setDefaultPromptSuggestions } from '$lib/apis/configs';
+	import { config, models, settings, user } from '$lib/stores';
+	import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import { updateUserInfo } from '$lib/apis/users';
+	import { getUserPosition } from '$lib/utils';
+	const dispatch = createEventDispatcher();
 
-  export let saveSettings: Function;
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let backgroundImageUrl = null;
-  let inputFiles = null;
-  let filesInputElement;
+	interface Props {
+		saveSettings: Function;
+	}
 
-  // Addons
-  let titleAutoGenerate = true;
-  let autoTags = true;
+	let { saveSettings }: Props = $props();
 
-  let responseAutoCopy = false;
-  let widescreenMode = false;
-  let splitLargeChunks = false;
-  let scrollOnBranchChange = true;
-  let userLocation = false;
+	let backgroundImageUrl = $state(null);
+	let inputFiles = $state(null);
+	let filesInputElement = $state();
 
-  // Interface
-  let defaultModelId = '';
-  let showUsername = false;
-  let richTextInput = true;
-  let largeTextAsFile = false;
-  let notificationSound = true;
+	// Addons
+	let titleAutoGenerate = $state(true);
+	let autoTags = $state(true);
 
-  let landingPageMode = '';
-  let chatBubble = true;
-  let chatDirection: 'LTR' | 'RTL' = 'LTR';
+	let responseAutoCopy = $state(false);
+	let widescreenMode = $state(false);
+	let splitLargeChunks = false;
+	let scrollOnBranchChange = $state(true);
+	let userLocation = $state(false);
 
-  let imageCompression = false;
-  let imageCompressionSize = {
-    width: '',
-    height: ''
-  };
+	// Interface
+	let defaultModelId = '';
+	let showUsername = $state(false);
+	let richTextInput = $state(true);
+	let largeTextAsFile = $state(false);
+	let notificationSound = $state(true);
 
-  // Admin - Show Update Available Toast
-  let showUpdateToast = true;
-  let showChangelog = true;
+	let landingPageMode = $state('');
+	let chatBubble = $state(true);
+	let chatDirection: 'LTR' | 'RTL' = $state('LTR');
 
-  let showEmojiInCall = false;
-  let voiceInterruption = false;
-  let hapticFeedback = false;
+	let imageCompression = $state(false);
+	let imageCompressionSize = $state({
+		width: '',
+		height: ''
+	});
 
-  let webSearch = null;
+	// Admin - Show Update Available Toast
+	let showUpdateToast = $state(true);
+	let showChangelog = $state(true);
+
+	let showEmojiInCall = $state(false);
+	let voiceInterruption = $state(false);
+	let hapticFeedback = $state(false);
+
+	let webSearch = $state(null);
 
   const toggleSplitLargeChunks = async () => {
     splitLargeChunks = !splitLargeChunks;
@@ -247,39 +254,39 @@
 </script>
 
 <form
-  class="flex flex-col h-full justify-between space-y-3 text-sm"
-  on:submit|preventDefault={() => {
-    updateInterfaceHandler();
-    dispatch('save');
-  }}
+	class="flex flex-col h-full justify-between space-y-3 text-sm"
+	onsubmit={preventDefault(() => {
+		updateInterfaceHandler();
+		dispatch('save');
+	})}
 >
-  <input
-    bind:this={filesInputElement}
-    accept="image/*"
-    hidden
-    type="file"
-    bind:files={inputFiles}
-    on:change={() => {
-      let reader = new FileReader();
-      reader.onload = (event) => {
-        let originalImageUrl = `${event.target.result}`;
+	<input
+		bind:this={filesInputElement}
+		accept="image/*"
+		hidden
+		onchange={() => {
+			const reader = new FileReader();
+			reader.onload = (event) => {
+				const originalImageUrl = `${event.target.result}`;
 
         backgroundImageUrl = originalImageUrl;
         saveSettings({ backgroundImageUrl });
       };
 
-      if (
-        inputFiles &&
-        inputFiles.length > 0 &&
-        ['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(inputFiles[0]['type'])
-      ) {
-        reader.readAsDataURL(inputFiles[0]);
-      } else {
-        console.log(`Unsupported File Type '${inputFiles[0]['type']}'.`);
-        inputFiles = null;
-      }
-    }}
-  />
+			if (
+				inputFiles &&
+				inputFiles.length > 0 &&
+				['image/gif', 'image/webp', 'image/jpeg', 'image/png'].includes(inputFiles[0]['type'])
+			) {
+				reader.readAsDataURL(inputFiles[0]);
+			} else {
+				console.log(`Unsupported File Type '${inputFiles[0]['type']}'.`);
+				inputFiles = null;
+			}
+		}}
+		type="file"
+		bind:files={inputFiles}
+	/>
 
   <div class=" space-y-3 overflow-y-scroll max-h-[28rem] lg:max-h-full">
     <div>
@@ -289,41 +296,41 @@
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Landing Page Mode')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleLandingPageMode();
-            }}
-          >
-            {#if landingPageMode === ''}
-              <span class="ml-2 self-center">{$i18n.t('Default')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Chat')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleLandingPageMode();
+						}}
+						type="button"
+					>
+						{#if landingPageMode === ''}
+							<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Chat')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Chat Bubble UI')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleChatBubble();
-            }}
-          >
-            {#if chatBubble === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleChatBubble();
+						}}
+						type="button"
+					>
+						{#if chatBubble === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       {#if !$settings.chatBubble}
         <div>
@@ -332,60 +339,60 @@
               {$i18n.t('Display the username instead of You in the Chat')}
             </div>
 
-            <button
-              class="p-1 px-3 text-xs flex rounded-sm transition"
-              type="button"
-              on:click={() => {
-                toggleShowUsername();
-              }}
-            >
-              {#if showUsername === true}
-                <span class="ml-2 self-center">{$i18n.t('On')}</span>
-              {:else}
-                <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-              {/if}
-            </button>
-          </div>
-        </div>
-      {/if}
+						<button
+							class="p-1 px-3 text-xs flex rounded-sm transition"
+							onclick={() => {
+								toggleShowUsername();
+							}}
+							type="button"
+						>
+							{#if showUsername === true}
+								<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							{:else}
+								<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							{/if}
+						</button>
+					</div>
+				</div>
+			{/if}
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Widescreen Mode')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleWidescreenMode();
-            }}
-          >
-            {#if widescreenMode === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleWidescreenMode();
+						}}
+						type="button"
+					>
+						{#if widescreenMode === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Chat direction')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={toggleChangeChatDirection}
-          >
-            {#if chatDirection === 'LTR'}
-              <span class="ml-2 self-center">{$i18n.t('LTR')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('RTL')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={toggleChangeChatDirection}
+						type="button"
+					>
+						{#if chatDirection === 'LTR'}
+							<span class="ml-2 self-center">{$i18n.t('LTR')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('RTL')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
@@ -393,21 +400,21 @@
             {$i18n.t('Notification Sound')}
           </div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleNotificationSound();
-            }}
-          >
-            {#if notificationSound === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleNotificationSound();
+						}}
+						type="button"
+					>
+						{#if notificationSound === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       {#if $user.role === 'admin'}
         <div>
@@ -416,21 +423,21 @@
               {$i18n.t('Toast notifications for new updates')}
             </div>
 
-            <button
-              class="p-1 px-3 text-xs flex rounded-sm transition"
-              type="button"
-              on:click={() => {
-                toggleShowUpdateToast();
-              }}
-            >
-              {#if showUpdateToast === true}
-                <span class="ml-2 self-center">{$i18n.t('On')}</span>
-              {:else}
-                <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-              {/if}
-            </button>
-          </div>
-        </div>
+						<button
+							class="p-1 px-3 text-xs flex rounded-sm transition"
+							onclick={() => {
+								toggleShowUpdateToast();
+							}}
+							type="button"
+						>
+							{#if showUpdateToast === true}
+								<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							{:else}
+								<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							{/if}
+						</button>
+					</div>
+				</div>
 
         <div>
           <div class=" py-0.5 flex w-full justify-between">
@@ -438,22 +445,22 @@
               {$i18n.t(`Show "What's New" modal on login`)}
             </div>
 
-            <button
-              class="p-1 px-3 text-xs flex rounded-sm transition"
-              type="button"
-              on:click={() => {
-                toggleShowChangelog();
-              }}
-            >
-              {#if showChangelog === true}
-                <span class="ml-2 self-center">{$i18n.t('On')}</span>
-              {:else}
-                <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-              {/if}
-            </button>
-          </div>
-        </div>
-      {/if}
+						<button
+							class="p-1 px-3 text-xs flex rounded-sm transition"
+							onclick={() => {
+								toggleShowChangelog();
+							}}
+							type="button"
+						>
+							{#if showChangelog === true}
+								<span class="ml-2 self-center">{$i18n.t('On')}</span>
+							{:else}
+								<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+							{/if}
+						</button>
+					</div>
+				</div>
+			{/if}
 
       <div class=" my-1.5 text-sm font-medium">{$i18n.t('Chat')}</div>
 
@@ -461,41 +468,41 @@
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Title Auto-Generation')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleTitleAutoGenerate();
-            }}
-          >
-            {#if titleAutoGenerate === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleTitleAutoGenerate();
+						}}
+						type="button"
+					>
+						{#if titleAutoGenerate === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Chat Tags Auto-Generation')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleAutoTags();
-            }}
-          >
-            {#if autoTags === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleAutoTags();
+						}}
+						type="button"
+					>
+						{#if autoTags === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
@@ -503,21 +510,21 @@
             {$i18n.t('Auto-Copy Response to Clipboard')}
           </div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleResponseAutoCopy();
-            }}
-          >
-            {#if responseAutoCopy === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleResponseAutoCopy();
+						}}
+						type="button"
+					>
+						{#if responseAutoCopy === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
@@ -525,21 +532,21 @@
             {$i18n.t('Rich Text Input for Chat')}
           </div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleRichTextInput();
-            }}
-          >
-            {#if richTextInput === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleRichTextInput();
+						}}
+						type="button"
+					>
+						{#if richTextInput === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
@@ -547,21 +554,21 @@
             {$i18n.t('Paste Large Text as File')}
           </div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleLargeTextAsFile();
-            }}
-          >
-            {#if largeTextAsFile === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleLargeTextAsFile();
+						}}
+						type="button"
+					>
+						{#if largeTextAsFile === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
@@ -569,66 +576,66 @@
             {$i18n.t('Chat Background Image')}
           </div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              if (backgroundImageUrl !== null) {
-                backgroundImageUrl = null;
-                saveSettings({ backgroundImageUrl });
-              } else {
-                filesInputElement.click();
-              }
-            }}
-          >
-            {#if backgroundImageUrl !== null}
-              <span class="ml-2 self-center">{$i18n.t('Reset')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Upload')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							if (backgroundImageUrl !== null) {
+								backgroundImageUrl = null;
+								saveSettings({ backgroundImageUrl });
+							} else {
+								filesInputElement.click();
+							}
+						}}
+						type="button"
+					>
+						{#if backgroundImageUrl !== null}
+							<span class="ml-2 self-center">{$i18n.t('Reset')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Upload')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Allow User Location')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleUserLocation();
-            }}
-          >
-            {#if userLocation === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleUserLocation();
+						}}
+						type="button"
+					>
+						{#if userLocation === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Haptic Feedback')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleHapticFeedback();
-            }}
-          >
-            {#if hapticFeedback === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleHapticFeedback();
+						}}
+						type="button"
+					>
+						{#if hapticFeedback === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <!-- <div>
 				<div class=" py-0.5 flex w-full justify-between">
@@ -658,41 +665,41 @@
             {$i18n.t('Scroll to bottom when switching between branches')}
           </div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              togglesScrollOnBranchChange();
-            }}
-          >
-            {#if scrollOnBranchChange === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							togglesScrollOnBranchChange();
+						}}
+						type="button"
+					>
+						{#if scrollOnBranchChange === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Web Search in Chat')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleWebSearch();
-            }}
-          >
-            {#if webSearch === 'always'}
-              <span class="ml-2 self-center">{$i18n.t('Always')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Default')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleWebSearch();
+						}}
+						type="button"
+					>
+						{#if webSearch === 'always'}
+							<span class="ml-2 self-center">{$i18n.t('Always')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Default')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div class=" my-1.5 text-sm font-medium">{$i18n.t('Voice')}</div>
 
@@ -700,41 +707,41 @@
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Allow Voice Interruption in Call')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleVoiceInterruption();
-            }}
-          >
-            {#if voiceInterruption === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleVoiceInterruption();
+						}}
+						type="button"
+					>
+						{#if voiceInterruption === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div>
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Display Emoji in Call')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleEmojiInCall();
-            }}
-          >
-            {#if showEmojiInCall === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleEmojiInCall();
+						}}
+						type="button"
+					>
+						{#if showEmojiInCall === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       <div class=" my-1.5 text-sm font-medium">{$i18n.t('File')}</div>
 
@@ -742,48 +749,48 @@
         <div class=" py-0.5 flex w-full justify-between">
           <div class=" self-center text-xs">{$i18n.t('Image Compression')}</div>
 
-          <button
-            class="p-1 px-3 text-xs flex rounded-sm transition"
-            type="button"
-            on:click={() => {
-              toggleImageCompression();
-            }}
-          >
-            {#if imageCompression === true}
-              <span class="ml-2 self-center">{$i18n.t('On')}</span>
-            {:else}
-              <span class="ml-2 self-center">{$i18n.t('Off')}</span>
-            {/if}
-          </button>
-        </div>
-      </div>
+					<button
+						class="p-1 px-3 text-xs flex rounded-sm transition"
+						onclick={() => {
+							toggleImageCompression();
+						}}
+						type="button"
+					>
+						{#if imageCompression === true}
+							<span class="ml-2 self-center">{$i18n.t('On')}</span>
+						{:else}
+							<span class="ml-2 self-center">{$i18n.t('Off')}</span>
+						{/if}
+					</button>
+				</div>
+			</div>
 
       {#if imageCompression}
         <div>
           <div class=" py-0.5 flex w-full justify-between text-xs">
             <div class=" self-center text-xs">{$i18n.t('Image Max Compression Size')}</div>
 
-            <div>
-              <input
-                class="w-20 bg-transparent outline-hidden text-center"
-                min="0"
-                placeholder="Width"
-                type="number"
-                bind:value={imageCompressionSize.width}
-              />x
-              <input
-                class="w-20 bg-transparent outline-hidden text-center"
-                min="0"
-                placeholder="Height"
-                type="number"
-                bind:value={imageCompressionSize.height}
-              />
-            </div>
-          </div>
-        </div>
-      {/if}
-    </div>
-  </div>
+						<div>
+							<input
+								class="w-20 bg-transparent outline-hidden text-center"
+								min="0"
+								placeholder="Width"
+								type="number"
+								bind:value={imageCompressionSize.width}
+							/>x
+							<input
+								class="w-20 bg-transparent outline-hidden text-center"
+								min="0"
+								placeholder="Height"
+								type="number"
+								bind:value={imageCompressionSize.height}
+							/>
+						</div>
+					</div>
+				</div>
+			{/if}
+		</div>
+	</div>
 
   <div class="flex justify-end text-sm font-medium">
     <button

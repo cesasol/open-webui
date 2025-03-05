@@ -1,35 +1,39 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+	import { run } from 'svelte/legacy';
 
-  const dispatch = createEventDispatcher();
-  import RecursiveFolder from './RecursiveFolder.svelte';
-  export let folders = {};
+	import { createEventDispatcher } from 'svelte';
 
-  let folderList = [];
-  // Get the list of folders that have no parent, sorted by name alphabetically
-  $: folderList = Object.keys(folders)
-    .filter((key) => folders[key].parent_id === null)
-    .sort((a, b) =>
-      folders[a].name.localeCompare(folders[b].name, undefined, {
-        numeric: true,
-        sensitivity: 'base'
-      })
-    );
+	const dispatch = createEventDispatcher();
+	import RecursiveFolder from './RecursiveFolder.svelte';
+	let { folders = {} } = $props();
+
+	let folderList = $state([]);
+	// Get the list of folders that have no parent, sorted by name alphabetically
+	run(() => {
+		folderList = Object.keys(folders)
+			.filter((key) => folders[key].parent_id === null)
+			.sort((a, b) =>
+				folders[a].name.localeCompare(folders[b].name, undefined, {
+					numeric: true,
+					sensitivity: 'base'
+				})
+			);
+	});
 </script>
 
 {#each folderList as folderId (folderId)}
-  <RecursiveFolder
-    className=""
-    {folderId}
-    {folders}
-    on:import={(e) => {
-      dispatch('import', e.detail);
-    }}
-    on:update={(e) => {
-      dispatch('update', e.detail);
-    }}
-    on:change={(e) => {
-      dispatch('change', e.detail);
-    }}
-  />
+	<RecursiveFolder
+		className=""
+		{folderId}
+		{folders}
+		on:import={(e) => {
+			dispatch('import', e.detail);
+		}}
+		on:update={(e) => {
+			dispatch('update', e.detail);
+		}}
+		on:change={(e) => {
+			dispatch('change', e.detail);
+		}}
+	/>
 {/each}

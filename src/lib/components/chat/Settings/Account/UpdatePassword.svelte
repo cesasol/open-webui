@@ -1,14 +1,17 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import { toast } from 'svelte-sonner';
-  import { updateUserPassword } from '$lib/apis/auths';
+	import { preventDefault } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
+	import { getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { updateUserPassword } from '$lib/apis/auths';
 
-  let show = false;
-  let currentPassword = '';
-  let newPassword = '';
-  let newPasswordConfirm = '';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+
+	let show = $state(false);
+	let currentPassword = $state('');
+	let newPassword = $state('');
+	let newPasswordConfirm = $state('');
 
   const updatePasswordHandler = async () => {
     if (newPassword === newPasswordConfirm) {
@@ -37,69 +40,69 @@
 </script>
 
 <form
-  class="flex flex-col text-sm"
-  on:submit|preventDefault={() => {
-    updatePasswordHandler();
-  }}
+	class="flex flex-col text-sm"
+	onsubmit={preventDefault(() => {
+		updatePasswordHandler();
+	})}
 >
-  <div class="flex justify-between items-center text-sm">
-    <div class="  font-medium">{$i18n.t('Change Password')}</div>
-    <button
-      class=" text-xs font-medium text-gray-500"
-      type="button"
-      on:click={() => {
-        show = !show;
-      }}
-    >{show ? $i18n.t('Hide') : $i18n.t('Show')}</button>
-  </div>
+	<div class="flex justify-between items-center text-sm">
+		<div class="  font-medium">{$i18n.t('Change Password')}</div>
+		<button
+			class=" text-xs font-medium text-gray-500"
+			onclick={() => {
+				show = !show;
+			}}
+			type="button">{show ? $i18n.t('Hide') : $i18n.t('Show')}</button
+		>
+	</div>
 
   {#if show}
     <div class=" py-2.5 space-y-1.5">
       <div class="flex flex-col w-full">
         <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Current Password')}</div>
 
-        <div class="flex-1">
-          <input
-            class="w-full bg-transparent dark:text-gray-300 outline-hidden placeholder:opacity-30"
-            autocomplete="current-password"
-            placeholder={$i18n.t('Enter your current password')}
-            required
-            type="password"
-            bind:value={currentPassword}
-          />
-        </div>
-      </div>
+				<div class="flex-1">
+					<input
+						class="w-full bg-transparent dark:text-gray-300 outline-hidden placeholder:opacity-30"
+						autocomplete="current-password"
+						placeholder={$i18n.t('Enter your current password')}
+						required
+						type="password"
+						bind:value={currentPassword}
+					/>
+				</div>
+			</div>
 
       <div class="flex flex-col w-full">
         <div class=" mb-1 text-xs text-gray-500">{$i18n.t('New Password')}</div>
 
-        <div class="flex-1">
-          <input
-            class="w-full bg-transparent text-sm dark:text-gray-300 outline-hidden placeholder:opacity-30"
-            autocomplete="new-password"
-            placeholder={$i18n.t('Enter your new password')}
-            required
-            type="password"
-            bind:value={newPassword}
-          />
-        </div>
-      </div>
+				<div class="flex-1">
+					<input
+						class="w-full bg-transparent text-sm dark:text-gray-300 outline-hidden placeholder:opacity-30"
+						autocomplete="new-password"
+						placeholder={$i18n.t('Enter your new password')}
+						required
+						type="password"
+						bind:value={newPassword}
+					/>
+				</div>
+			</div>
 
       <div class="flex flex-col w-full">
         <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Confirm Password')}</div>
 
-        <div class="flex-1">
-          <input
-            class="w-full bg-transparent text-sm dark:text-gray-300 outline-hidden placeholder:opacity-30"
-            autocomplete="off"
-            placeholder={$i18n.t('Confirm your new password')}
-            required
-            type="password"
-            bind:value={newPasswordConfirm}
-          />
-        </div>
-      </div>
-    </div>
+				<div class="flex-1">
+					<input
+						class="w-full bg-transparent text-sm dark:text-gray-300 outline-hidden placeholder:opacity-30"
+						autocomplete="off"
+						placeholder={$i18n.t('Confirm your new password')}
+						required
+						type="password"
+						bind:value={newPasswordConfirm}
+					/>
+				</div>
+			</div>
+		</div>
 
     <div class="mt-3 flex justify-end">
       <button class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full">

@@ -1,6 +1,8 @@
 <script lang="ts">
-  import { getRAGConfig, updateRAGConfig } from '$lib/apis/retrieval';
-  import Switch from '$lib/components/common/Switch.svelte';
+	import { preventDefault } from 'svelte/legacy';
+
+	import { getRAGConfig, updateRAGConfig } from '$lib/apis/retrieval';
+	import Switch from '$lib/components/common/Switch.svelte';
 
   import { models } from '$lib/stores';
   import { onMount, getContext } from 'svelte';
@@ -8,33 +10,39 @@
   import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
   import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  export let saveHandler: Function;
+	interface Props {
+		saveHandler: Function;
+	}
 
-  let webConfig = null;
-  let webSearchEngines = [
-    'searxng',
-    'google_pse',
-    'brave',
-    'kagi',
-    'mojeek',
-    'bocha',
-    'serpstack',
-    'serper',
-    'serply',
-    'searchapi',
-    'serpapi',
-    'duckduckgo',
-    'tavily',
-    'jina',
-    'bing',
-    'exa'
-  ];
+	let { saveHandler }: Props = $props();
 
-  let youtubeLanguage = 'en';
-  let youtubeTranslation = null;
-  let youtubeProxyUrl = '';
+	let webConfig = $state(null);
+	const webSearchEngines = [
+		'searxng',
+		'google_pse',
+		'brave',
+		'kagi',
+		'mojeek',
+		'bocha',
+		'serpstack',
+		'serper',
+		'serply',
+		'searchapi',
+		'serpapi',
+		'duckduckgo',
+		'tavily',
+		'jina',
+		'bing',
+		'exa',
+		'perplexity'
+	];
+
+	let youtubeLanguage = $state('en');
+	let youtubeTranslation = null;
+	let youtubeProxyUrl = $state('');
 
   const submitHandler = async () => {
     // Convert domain filter string to array before sending
@@ -77,11 +85,11 @@
 </script>
 
 <form
-  class="flex flex-col h-full justify-between space-y-3 text-sm"
-  on:submit|preventDefault={async () => {
-    await submitHandler();
-    saveHandler();
-  }}
+	class="flex flex-col h-full justify-between space-y-3 text-sm"
+	onsubmit={preventDefault(async () => {
+		await submitHandler();
+		saveHandler();
+	})}
 >
   <div class=" space-y-3 overflow-y-scroll scrollbar-hidden h-full">
     {#if webConfig}
@@ -100,28 +108,24 @@
             </div>
           </div>
 
-          <div class="  mb-2.5 flex w-full justify-between">
-            <div class=" self-center text-xs font-medium">
-              {$i18n.t('Web Search Engine')}
-            </div>
-            <div class="flex items-center relative">
-              <select
-                class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
-                placeholder={$i18n.t('Select a engine')}
-                required
-                bind:value={webConfig.search.engine}
-              >
-                <option
-                  disabled
-                  selected
-                  value=""
-                >{$i18n.t('Select a engine')}</option>
-                {#each webSearchEngines as engine}
-                  <option value={engine}>{engine}</option>
-                {/each}
-              </select>
-            </div>
-          </div>
+					<div class="  mb-2.5 flex w-full justify-between">
+						<div class=" self-center text-xs font-medium">
+							{$i18n.t('Web Search Engine')}
+						</div>
+						<div class="flex items-center relative">
+							<select
+								class="dark:bg-gray-900 w-fit pr-8 rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
+								placeholder={$i18n.t('Select a engine')}
+								required
+								bind:value={webConfig.search.engine}
+							>
+								<option disabled selected value="">{$i18n.t('Select a engine')}</option>
+								{#each webSearchEngines as engine}
+									<option value={engine}>{engine}</option>
+								{/each}
+							</select>
+						</div>
+					</div>
 
           {#if webConfig.search.engine !== ''}
             {#if webConfig.search.engine === 'searxng'}
@@ -131,25 +135,25 @@
                     {$i18n.t('Searxng Query URL')}
                   </div>
 
-                  <div class="flex w-full">
-                    <div class="flex-1">
-                      <input
-                        class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                        autocomplete="off"
-                        placeholder={$i18n.t('Enter Searxng Query URL')}
-                        type="text"
-                        bind:value={webConfig.search.searxng_query_url}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {:else if webConfig.search.engine === 'google_pse'}
-              <div class="mb-2.5 flex w-full flex-col">
-                <div>
-                  <div class=" self-center text-xs font-medium mb-1">
-                    {$i18n.t('Google PSE API Key')}
-                  </div>
+									<div class="flex w-full">
+										<div class="flex-1">
+											<input
+												class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+												autocomplete="off"
+												placeholder={$i18n.t('Enter Searxng Query URL')}
+												type="text"
+												bind:value={webConfig.search.searxng_query_url}
+											/>
+										</div>
+									</div>
+								</div>
+							</div>
+						{:else if webConfig.search.engine === 'google_pse'}
+							<div class="mb-2.5 flex w-full flex-col">
+								<div>
+									<div class=" self-center text-xs font-medium mb-1">
+										{$i18n.t('Google PSE API Key')}
+									</div>
 
                   <SensitiveInput
                     placeholder={$i18n.t('Enter Google PSE API Key')}
@@ -161,25 +165,25 @@
                     {$i18n.t('Google PSE Engine Id')}
                   </div>
 
-                  <div class="flex w-full">
-                    <div class="flex-1">
-                      <input
-                        class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                        autocomplete="off"
-                        placeholder={$i18n.t('Enter Google PSE Engine Id')}
-                        type="text"
-                        bind:value={webConfig.search.google_pse_engine_id}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {:else if webConfig.search.engine === 'brave'}
-              <div class="mb-2.5 flex w-full flex-col">
-                <div>
-                  <div class=" self-center text-xs font-medium mb-1">
-                    {$i18n.t('Brave Search API Key')}
-                  </div>
+									<div class="flex w-full">
+										<div class="flex-1">
+											<input
+												class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+												autocomplete="off"
+												placeholder={$i18n.t('Enter Google PSE Engine Id')}
+												type="text"
+												bind:value={webConfig.search.google_pse_engine_id}
+											/>
+										</div>
+									</div>
+								</div>
+							</div>
+						{:else if webConfig.search.engine === 'brave'}
+							<div class="mb-2.5 flex w-full flex-col">
+								<div>
+									<div class=" self-center text-xs font-medium mb-1">
+										{$i18n.t('Brave Search API Key')}
+									</div>
 
                   <SensitiveInput
                     placeholder={$i18n.t('Enter Brave Search API Key')}
@@ -283,25 +287,25 @@
                     {$i18n.t('SearchApi Engine')}
                   </div>
 
-                  <div class="flex w-full">
-                    <div class="flex-1">
-                      <input
-                        class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                        autocomplete="off"
-                        placeholder={$i18n.t('Enter SearchApi Engine')}
-                        type="text"
-                        bind:value={webConfig.search.searchapi_engine}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {:else if webConfig.search.engine === 'serpapi'}
-              <div class="mb-2.5 flex w-full flex-col">
-                <div>
-                  <div class=" self-center text-xs font-medium mb-1">
-                    {$i18n.t('SerpApi API Key')}
-                  </div>
+									<div class="flex w-full">
+										<div class="flex-1">
+											<input
+												class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+												autocomplete="off"
+												placeholder={$i18n.t('Enter SearchApi Engine')}
+												type="text"
+												bind:value={webConfig.search.searchapi_engine}
+											/>
+										</div>
+									</div>
+								</div>
+							</div>
+						{:else if webConfig.search.engine === 'serpapi'}
+							<div class="mb-2.5 flex w-full flex-col">
+								<div>
+									<div class=" self-center text-xs font-medium mb-1">
+										{$i18n.t('SerpApi API Key')}
+									</div>
 
                   <SensitiveInput
                     placeholder={$i18n.t('Enter SerpApi API Key')}
@@ -313,25 +317,25 @@
                     {$i18n.t('SerpApi Engine')}
                   </div>
 
-                  <div class="flex w-full">
-                    <div class="flex-1">
-                      <input
-                        class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                        autocomplete="off"
-                        placeholder={$i18n.t('Enter SerpApi Engine')}
-                        type="text"
-                        bind:value={webConfig.search.serpapi_engine}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            {:else if webConfig.search.engine === 'tavily'}
-              <div class="mb-2.5 flex w-full flex-col">
-                <div>
-                  <div class=" self-center text-xs font-medium mb-1">
-                    {$i18n.t('Tavily API Key')}
-                  </div>
+									<div class="flex w-full">
+										<div class="flex-1">
+											<input
+												class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+												autocomplete="off"
+												placeholder={$i18n.t('Enter SerpApi Engine')}
+												type="text"
+												bind:value={webConfig.search.serpapi_engine}
+											/>
+										</div>
+									</div>
+								</div>
+							</div>
+						{:else if webConfig.search.engine === 'tavily'}
+							<div class="mb-2.5 flex w-full flex-col">
+								<div>
+									<div class=" self-center text-xs font-medium mb-1">
+										{$i18n.t('Tavily API Key')}
+									</div>
 
                   <SensitiveInput
                     placeholder={$i18n.t('Enter Tavily API Key')}
@@ -359,31 +363,42 @@
                     {$i18n.t('Exa API Key')}
                   </div>
 
-                  <SensitiveInput
-                    placeholder={$i18n.t('Enter Exa API Key')}
-                    bind:value={webConfig.search.exa_api_key}
-                  />
-                </div>
-              </div>
-            {:else if webConfig.search.engine === 'bing'}
-              <div class="mb-2.5 flex w-full flex-col">
-                <div>
-                  <div class=" self-center text-xs font-medium mb-1">
-                    {$i18n.t('Bing Search V7 Endpoint')}
-                  </div>
+									<SensitiveInput
+										placeholder={$i18n.t('Enter Exa API Key')}
+										bind:value={webConfig.search.exa_api_key}
+									/>
+								</div>
+							</div>
+						{:else if webConfig.search.engine === 'perplexity'}
+							<div>
+								<div class=" self-center text-xs font-medium mb-1">
+									{$i18n.t('Perplexity API Key')}
+								</div>
 
-                  <div class="flex w-full">
-                    <div class="flex-1">
-                      <input
-                        class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                        autocomplete="off"
-                        placeholder={$i18n.t('Enter Bing Search V7 Endpoint')}
-                        type="text"
-                        bind:value={webConfig.search.bing_search_v7_endpoint}
-                      />
-                    </div>
-                  </div>
-                </div>
+								<SensitiveInput
+									placeholder={$i18n.t('Enter Perplexity API Key')}
+									bind:value={webConfig.search.perplexity_api_key}
+								/>
+							</div>
+						{:else if webConfig.search.engine === 'bing'}
+							<div class="mb-2.5 flex w-full flex-col">
+								<div>
+									<div class=" self-center text-xs font-medium mb-1">
+										{$i18n.t('Bing Search V7 Endpoint')}
+									</div>
+
+									<div class="flex w-full">
+										<div class="flex-1">
+											<input
+												class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+												autocomplete="off"
+												placeholder={$i18n.t('Enter Bing Search V7 Endpoint')}
+												type="text"
+												bind:value={webConfig.search.bing_search_v7_endpoint}
+											/>
+										</div>
+									</div>
+								</div>
 
                 <div class="mt-2">
                   <div class=" self-center text-xs font-medium mb-1">
@@ -407,28 +422,28 @@
                     {$i18n.t('Search Result Count')}
                   </div>
 
-                  <input
-                    class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                    placeholder={$i18n.t('Search Result Count')}
-                    required
-                    bind:value={webConfig.search.result_count}
-                  />
-                </div>
+									<input
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										placeholder={$i18n.t('Search Result Count')}
+										required
+										bind:value={webConfig.search.result_count}
+									/>
+								</div>
 
                 <div class="w-full">
                   <div class=" self-center text-xs font-medium mb-1">
                     {$i18n.t('Concurrent Requests')}
                   </div>
 
-                  <input
-                    class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                    placeholder={$i18n.t('Concurrent Requests')}
-                    required
-                    bind:value={webConfig.search.concurrent_requests}
-                  />
-                </div>
-              </div>
-            </div>
+									<input
+										class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+										placeholder={$i18n.t('Concurrent Requests')}
+										required
+										bind:value={webConfig.search.concurrent_requests}
+									/>
+								</div>
+							</div>
+						</div>
 
             <div class="mb-2.5 flex w-full flex-col">
               <div class="  text-xs font-medium mb-1">
@@ -495,45 +510,45 @@
             </div>
           </div>
 
-          <div class="  mb-2.5 flex w-full justify-between">
-            <div class=" self-center text-xs font-medium">
-              {$i18n.t('Youtube Language')}
-            </div>
-            <div class="flex items-center relative">
-              <input
-                class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                autocomplete="off"
-                placeholder={$i18n.t('Enter language codes')}
-                type="text"
-                bind:value={youtubeLanguage}
-              />
-            </div>
-          </div>
+					<div class="  mb-2.5 flex w-full justify-between">
+						<div class=" self-center text-xs font-medium">
+							{$i18n.t('Youtube Language')}
+						</div>
+						<div class="flex items-center relative">
+							<input
+								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+								autocomplete="off"
+								placeholder={$i18n.t('Enter language codes')}
+								type="text"
+								bind:value={youtubeLanguage}
+							/>
+						</div>
+					</div>
 
-          <div class="  mb-2.5 flex flex-col w-full justify-between">
-            <div class=" mb-1 text-xs font-medium">
-              {$i18n.t('Youtube Proxy URL')}
-            </div>
-            <div class="flex items-center relative">
-              <input
-                class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
-                autocomplete="off"
-                placeholder={$i18n.t('Enter proxy URL (e.g. https://user:password@host:port)')}
-                type="text"
-                bind:value={youtubeProxyUrl}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    {/if}
-  </div>
-  <div class="flex justify-end pt-3 text-sm font-medium">
-    <button
-      class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-      type="submit"
-    >
-      {$i18n.t('Save')}
-    </button>
-  </div>
+					<div class="  mb-2.5 flex flex-col w-full justify-between">
+						<div class=" mb-1 text-xs font-medium">
+							{$i18n.t('Youtube Proxy URL')}
+						</div>
+						<div class="flex items-center relative">
+							<input
+								class="flex-1 w-full rounded-lg text-sm bg-transparent outline-hidden"
+								autocomplete="off"
+								placeholder={$i18n.t('Enter proxy URL (e.g. https://user:password@host:port)')}
+								type="text"
+								bind:value={youtubeProxyUrl}
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/if}
+	</div>
+	<div class="flex justify-end pt-3 text-sm font-medium">
+		<button
+			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+			type="submit"
+		>
+			{$i18n.t('Save')}
+		</button>
+	</div>
 </form>

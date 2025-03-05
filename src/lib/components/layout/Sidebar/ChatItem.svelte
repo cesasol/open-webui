@@ -1,8 +1,11 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { goto, invalidate, invalidateAll } from '$app/navigation';
-  import { onMount, getContext, createEventDispatcher, tick, onDestroy } from 'svelte';
-  const i18n = getContext('i18n');
+	import { run } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
+	import { goto, invalidate, invalidateAll } from '$app/navigation';
+	import { onMount, getContext, createEventDispatcher, tick, onDestroy } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   const dispatch = createEventDispatcher();
 
@@ -39,21 +42,20 @@
   import XMark from '$lib/components/icons/XMark.svelte';
   import Document from '$lib/components/icons/Document.svelte';
 
-  export let className = '';
+	interface Props {
+		className?: string;
+		id: any;
+		title: any;
+		selected?: boolean;
+		shiftKey?: boolean;
+	}
 
-  export let id;
-  export let title;
-
-  export let selected = false;
-  export let shiftKey = false;
+	let { className = '', id, title, selected = false, shiftKey = false }: Props = $props();
 
   let chat = null;
 
-  let mouseOver = false;
-  let draggable = false;
-  $: if (mouseOver) {
-    loadChat();
-  }
+	let mouseOver = $state(false);
+	let draggable = $state(false);
 
   const loadChat = async () => {
     if (!chat) {
@@ -63,10 +65,10 @@
     }
   };
 
-  let showShareChatModal = false;
-  let confirmEdit = false;
+	let showShareChatModal = $state(false);
+	let confirmEdit = $state(false);
 
-  let chatTitle = title;
+	let chatTitle = $state(title);
 
   const editChatTitle = async (id, title) => {
     if (title === '') {
@@ -135,11 +137,11 @@
     node.focus();
   };
 
-  let itemElement;
+	let itemElement = $state();
 
-  let dragged = false;
-  let x = 0;
-  let y = 0;
+	let dragged = $state(false);
+	let x = $state(0);
+	let y = $state(0);
 
   const dragImage = new Image();
   dragImage.src =
@@ -197,20 +199,22 @@
     }
   });
 
-  let showDeleteConfirm = false;
+	let showDeleteConfirm = $state(false);
+	run(() => {
+		if (mouseOver) {
+			loadChat();
+		}
+	});
 </script>
 
-<ShareChatModal
-  chatId={id}
-  bind:show={showShareChatModal}
-/>
+<ShareChatModal chatId={id} bind:show={showShareChatModal} />
 
 <DeleteConfirmDialog
-  title={$i18n.t('Delete chat?')}
-  bind:show={showDeleteConfirm}
-  on:confirm={() => {
-    deleteChatHandler(id);
-  }}
+	title={$i18n.t('Delete chat?')}
+	bind:show={showDeleteConfirm}
+	on:confirm={() => {
+		deleteChatHandler(id);
+	}}
 >
   <div class=" text-sm text-gray-500 flex-1 line-clamp-3">
     {$i18n.t('This will delete')} <span class="  font-semibold">{title}</span>.
@@ -236,223 +240,213 @@
   </DragGhost>
 {/if}
 
-<div
-  bind:this={itemElement}
-  class=" w-full {className} relative group"
-  {draggable}
->
-  {#if confirmEdit}
-    <div
-      class=" w-full flex justify-between rounded-lg px-[11px] py-[6px] {id === $chatId ||
-        confirmEdit
-        ? 'bg-gray-200 dark:bg-gray-900'
-        : selected
-        ? 'bg-gray-100 dark:bg-gray-950'
-        : 'group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis"
-    >
-      <input
-        id="chat-title-input-{id}"
-        class=" bg-transparent w-full outline-hidden mr-10"
-        bind:value={chatTitle}
-        use:focusEdit
-      />
-    </div>
-  {:else}
-    <a
-      class=" w-full flex justify-between rounded-lg px-[11px] py-[6px] {id === $chatId ||
-        confirmEdit
-        ? 'bg-gray-200 dark:bg-gray-900'
-        : selected
-        ? 'bg-gray-100 dark:bg-gray-950'
-        : ' group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis"
-      draggable="false"
-      href="/c/{id}"
-      on:click={() => {
-        dispatch('select');
+<div bind:this={itemElement} class=" w-full {className} relative group" {draggable}>
+	{#if confirmEdit}
+		<div
+			class=" w-full flex justify-between rounded-lg px-[11px] py-[6px] {id === $chatId ||
+			confirmEdit
+				? 'bg-gray-200 dark:bg-gray-900'
+				: selected
+					? 'bg-gray-100 dark:bg-gray-950'
+					: 'group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis"
+		>
+			<input
+				id="chat-title-input-{id}"
+				class=" bg-transparent w-full outline-hidden mr-10"
+				bind:value={chatTitle}
+				use:focusEdit
+			/>
+		</div>
+	{:else}
+		<a
+			class=" w-full flex justify-between rounded-lg px-[11px] py-[6px] {id === $chatId ||
+			confirmEdit
+				? 'bg-gray-200 dark:bg-gray-900'
+				: selected
+					? 'bg-gray-100 dark:bg-gray-950'
+					: ' group-hover:bg-gray-100 dark:group-hover:bg-gray-950'}  whitespace-nowrap text-ellipsis"
+			draggable="false"
+			href="/c/{id}"
+			onclick={() => {
+				dispatch('select');
 
-        if ($mobile) {
-          showSidebar.set(false);
-        }
-      }}
-      on:dblclick={() => {
-        chatTitle = title;
-        confirmEdit = true;
-      }}
-      on:mouseenter={(e) => {
-        mouseOver = true;
-      }}
-      on:mouseleave={(e) => {
-        mouseOver = false;
-      }}
-      on:focus={(e) => {}}
-    >
-      <div class=" flex self-center flex-1 w-full">
-        <div
-          class="text-left self-center overflow-hidden w-full h-[20px]"
-          dir="auto"
-        >
-          {title}
-        </div>
-      </div>
-    </a>
-  {/if}
+				if ($mobile) {
+					showSidebar.set(false);
+				}
+			}}
+			ondblclick={() => {
+				chatTitle = title;
+				confirmEdit = true;
+			}}
+			onfocus={(e) => {}}
+			onmouseenter={(e) => {
+				mouseOver = true;
+			}}
+			onmouseleave={(e) => {
+				mouseOver = false;
+			}}
+		>
+			<div class=" flex self-center flex-1 w-full">
+				<div class="text-left self-center overflow-hidden w-full h-[20px]" dir="auto">
+					{title}
+				</div>
+			</div>
+		</a>
+	{/if}
 
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div
-    class="
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		class="
       {id === $chatId || confirmEdit
-        ? 'from-gray-200 dark:from-gray-900'
-        : selected
-        ? 'from-gray-100 dark:from-gray-950'
-        : 'invisible group-hover:visible from-gray-100 dark:from-gray-950'}
+			? 'from-gray-200 dark:from-gray-900'
+			: selected
+				? 'from-gray-100 dark:from-gray-950'
+				: 'invisible group-hover:visible from-gray-100 dark:from-gray-950'}
       absolute {className === 'pr-2'
-        ? 'right-[8px]'
-        : 'right-0'}  top-[4px] py-1 pr-0.5 mr-1.5 pl-5 bg-linear-to-l from-80%
+			? 'right-[8px]'
+			: 'right-0'}  top-[4px] py-1 pr-0.5 mr-1.5 pl-5 bg-linear-to-l from-80%
 
         to-transparent"
-    on:mouseenter={(e) => {
-      mouseOver = true;
-    }}
-    on:mouseleave={(e) => {
-      mouseOver = false;
-    }}
-  >
-    {#if confirmEdit}
-      <div class="flex self-center items-center space-x-1.5 z-10 translate-y-[0.5px] -translate-x-[0.5px]">
-        <Tooltip content={$i18n.t('Confirm')}>
-          <button
-            class=" self-center dark:hover:text-white transition"
-            on:click={() => {
-              editChatTitle(id, chatTitle);
-              confirmEdit = false;
-              chatTitle = '';
-            }}
-          >
-            <Check
-              className=" size-3.5"
-              strokeWidth="2.5"
-            />
-          </button>
-        </Tooltip>
+		onmouseenter={(e) => {
+			mouseOver = true;
+		}}
+		onmouseleave={(e) => {
+			mouseOver = false;
+		}}
+	>
+		{#if confirmEdit}
+			<div
+				class="flex self-center items-center space-x-1.5 z-10 translate-y-[0.5px] -translate-x-[0.5px]"
+			>
+				<Tooltip content={$i18n.t('Confirm')}>
+					<button
+						class=" self-center dark:hover:text-white transition"
+						onclick={() => {
+							editChatTitle(id, chatTitle);
+							confirmEdit = false;
+							chatTitle = '';
+						}}
+					>
+						<Check className=" size-3.5" strokeWidth="2.5" />
+					</button>
+				</Tooltip>
 
-        <Tooltip content={$i18n.t('Cancel')}>
-          <button
-            class=" self-center dark:hover:text-white transition"
-            on:click={() => {
-              confirmEdit = false;
-              chatTitle = '';
-            }}
-          >
-            <XMark strokeWidth="2.5" />
-          </button>
-        </Tooltip>
-      </div>
-    {:else if shiftKey && mouseOver}
-      <div class=" flex items-center self-center space-x-1.5">
-        <Tooltip
-          className="flex items-center"
-          content={$i18n.t('Archive')}
-        >
-          <button
-            class=" self-center dark:hover:text-white transition"
-            type="button"
-            on:click={() => {
-              archiveChatHandler(id);
-            }}
-          >
-            <ArchiveBox
-              className="size-4  translate-y-[0.5px]"
-              strokeWidth="2"
-            />
-          </button>
-        </Tooltip>
+				<Tooltip content={$i18n.t('Cancel')}>
+					<button
+						class=" self-center dark:hover:text-white transition"
+						onclick={() => {
+							confirmEdit = false;
+							chatTitle = '';
+						}}
+					>
+						<XMark strokeWidth="2.5" />
+					</button>
+				</Tooltip>
+			</div>
+		{:else if shiftKey && mouseOver}
+			<div class=" flex items-center self-center space-x-1.5">
+				<Tooltip className="flex items-center" content={$i18n.t('Archive')}>
+					<button
+						class=" self-center dark:hover:text-white transition"
+						onclick={() => {
+							archiveChatHandler(id);
+						}}
+						type="button"
+					>
+						<ArchiveBox className="size-4  translate-y-[0.5px]" strokeWidth="2" />
+					</button>
+				</Tooltip>
 
-        <Tooltip content={$i18n.t('Delete')}>
-          <button
-            class=" self-center dark:hover:text-white transition"
-            type="button"
-            on:click={() => {
-              deleteChatHandler(id);
-            }}
-          >
-            <GarbageBin strokeWidth="2" />
-          </button>
-        </Tooltip>
-      </div>
-    {:else}
-      <div class="flex self-center space-x-1 z-10">
-        <ChatMenu
-          archiveChatHandler={() => {
-            archiveChatHandler(id);
-          }}
-          chatId={id}
-          cloneChatHandler={() => {
-            cloneChatHandler(id);
-          }}
-          deleteHandler={() => {
-            showDeleteConfirm = true;
-          }}
-          onClose={() => {
-            dispatch('unselect');
-          }}
-          renameHandler={async () => {
-            chatTitle = title;
-            confirmEdit = true;
+				<Tooltip content={$i18n.t('Delete')}>
+					<button
+						class=" self-center dark:hover:text-white transition"
+						onclick={() => {
+							deleteChatHandler(id);
+						}}
+						type="button"
+					>
+						<GarbageBin strokeWidth="2" />
+					</button>
+				</Tooltip>
+			</div>
+		{:else}
+			<div class="flex self-center space-x-1 z-10">
+				<ChatMenu
+					archiveChatHandler={() => {
+						archiveChatHandler(id);
+					}}
+					chatId={id}
+					cloneChatHandler={() => {
+						cloneChatHandler(id);
+					}}
+					deleteHandler={() => {
+						showDeleteConfirm = true;
+					}}
+					onClose={() => {
+						dispatch('unselect');
+					}}
+					renameHandler={async () => {
+						chatTitle = title;
+						confirmEdit = true;
 
-            await tick();
-            const input = document.getElementById(`chat-title-input-${id}`);
-            if (input) {
-              input.focus();
-            }
-          }}
-          shareHandler={() => {
-            showShareChatModal = true;
-          }}
-          on:change={async () => {
-            dispatch('change');
-          }}
-          on:tag={(e) => {
-            dispatch('tag', e.detail);
-          }}
-        >
-          <button
-            class=" self-center dark:hover:text-white transition"
-            aria-label="Chat Menu"
-            on:click={() => {
-              dispatch('select');
-            }}
-          >
-            <svg
-              class="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M2 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM6.5 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM12.5 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
-            </svg>
-          </button>
-        </ChatMenu>
+						await tick();
+						const input = document.getElementById(`chat-title-input-${id}`);
+						if (input) {
+							input.focus();
+						}
+					}}
+					shareHandler={() => {
+						showShareChatModal = true;
+					}}
+					on:change={async () => {
+						dispatch('change');
+					}}
+					on:tag={(e) => {
+						dispatch('tag', e.detail);
+					}}
+				>
+					<button
+						class=" self-center dark:hover:text-white transition"
+						aria-label="Chat Menu"
+						onclick={() => {
+							dispatch('select');
+						}}
+					>
+						<svg
+							class="w-4 h-4"
+							fill="currentColor"
+							viewBox="0 0 16 16"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M2 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM6.5 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM12.5 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"
+							/>
+						</svg>
+					</button>
+				</ChatMenu>
 
-        {#if id === $chatId}
-          <!-- Shortcut support using "delete-chat-button" id -->
-          <button
-            id="delete-chat-button"
-            class="hidden"
-            on:click={() => {
-              showDeleteConfirm = true;
-            }}
-          >
-            <svg
-              class="w-4 h-4"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path d="M2 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM6.5 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM12.5 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
-            </svg>
-          </button>
-        {/if}
-      </div>
-    {/if}
-  </div>
+				{#if id === $chatId}
+					<!-- Shortcut support using "delete-chat-button" id -->
+					<button
+						id="delete-chat-button"
+						class="hidden"
+						onclick={() => {
+							showDeleteConfirm = true;
+						}}
+					>
+						<svg
+							class="w-4 h-4"
+							fill="currentColor"
+							viewBox="0 0 16 16"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M2 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM6.5 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0ZM12.5 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z"
+							/>
+						</svg>
+					</button>
+				{/if}
+			</div>
+		{/if}
+	</div>
 </div>

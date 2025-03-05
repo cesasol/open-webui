@@ -1,30 +1,43 @@
-<script>
-  import { onDestroy, onMount, tick, getContext, createEventDispatcher } from 'svelte';
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
+<script lang="ts">
+	import { onDestroy, onMount, tick, getContext, createEventDispatcher } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
 
   import Markdown from './Markdown.svelte';
   import { chatId, mobile, showArtifacts, showControls, showOverview } from '$lib/stores';
   import FloatingButtons from '../ContentRenderer/FloatingButtons.svelte';
   import { createMessagesList } from '$lib/utils';
 
-  export let id;
-  export let content;
-  export let history;
-  export let model = null;
-  export let sources = null;
+	interface Props {
+		id: any;
+		content: any;
+		history: any;
+		model?: any;
+		sources?: any;
+		save?: boolean;
+		floatingButtons?: boolean;
+		onSourceClick?: any;
+		onTaskClick?: any;
+		onAddMessages?: any;
+	}
 
-  export let save = false;
-  export let floatingButtons = true;
+	let {
+		id,
+		content,
+		history,
+		model = null,
+		sources = null,
+		save = false,
+		floatingButtons = true,
+		onSourceClick = () => {},
+		onTaskClick = () => {},
+		onAddMessages = () => {}
+	}: Props = $props();
 
-  export let onSourceClick = () => {};
-  export let onTaskClick = () => {};
+	let contentContainerElement = $state();
 
-  export let onAddMessages = () => {};
-
-  let contentContainerElement;
-
-  let floatingButtonsElement;
+	let floatingButtonsElement = $state();
 
   const updateButtonPosition = (event) => {
     const buttonsContainerElement = document.getElementById(`floating-buttons-${id}`);
@@ -41,7 +54,7 @@
 
       if (!contentContainerElement?.contains(event.target)) return;
 
-      let selection = window.getSelection();
+			const selection = window.getSelection();
 
       if (selection.toString().trim().length > 0) {
         const range = selection.getRangeAt(0);
@@ -56,9 +69,9 @@
         if (buttonsContainerElement) {
           buttonsContainerElement.style.display = 'block';
 
-          // Calculate space available on the right
-          const spaceOnRight = parentRect.width - left;
-          let halfScreenWidth = $mobile ? window.innerWidth / 2 : window.innerWidth / 3;
+					// Calculate space available on the right
+					const spaceOnRight = parentRect.width - left;
+					const halfScreenWidth = $mobile ? window.innerWidth / 2 : window.innerWidth / 3;
 
           if (spaceOnRight < halfScreenWidth) {
             const right = parentRect.right - rect.right;
@@ -112,18 +125,18 @@
 </script>
 
 <div bind:this={contentContainerElement}>
-  <Markdown
-    {id}
-    {content}
-    {model}
-    {save}
-    sourceIds={(sources ?? []).reduce((acc, s) => {
-      let ids = [];
-      s.document.forEach((document, index) => {
-        if (model?.info?.meta?.capabilities?.citations == false) {
-          ids.push('N/A');
-          return ids;
-        }
+	<Markdown
+		{id}
+		{content}
+		{model}
+		{save}
+		sourceIds={(sources ?? []).reduce((acc, s) => {
+			const ids = [];
+			s.document.forEach((document, index) => {
+				if (model?.info?.meta?.capabilities?.citations == false) {
+					ids.push('N/A');
+					return ids;
+				}
 
         const metadata = s.metadata?.[index];
         const id = metadata?.source ?? 'N/A';
@@ -144,14 +157,14 @@
 
       acc = [...acc, ...ids];
 
-      // remove duplicates
-      return acc.filter((item, index) => acc.indexOf(item) === index);
-    }, [])}
-    on:update={(e) => {
-      dispatch('update', e.detail);
-    }}
-    on:code={(e) => {
-      const { lang, code } = e.detail;
+			// remove duplicates
+			return acc.filter((item, index) => acc.indexOf(item) === index);
+		}, [])}
+		on:update={(e) => {
+			dispatch('update', e.detail);
+		}}
+		on:code={(e) => {
+			const { lang, code } = e.detail;
 
       if (
         (['html', 'svg'].includes(lang) || (lang === 'xml' && code.includes('svg'))) &&
@@ -166,15 +179,15 @@
 </div>
 
 {#if floatingButtons && model}
-  <FloatingButtons
-    bind:this={floatingButtonsElement}
-    {id}
-    messages={createMessagesList(history, id)}
-    model={model?.id}
-    onAdd={({ modelId, parentId, messages }) => {
-      console.log(modelId, parentId, messages);
-      onAddMessages({ modelId, parentId, messages });
-      closeFloatingButtons();
-    }}
-  />
+	<FloatingButtons
+		bind:this={floatingButtonsElement}
+		{id}
+		messages={createMessagesList(history, id)}
+		model={model?.id}
+		onAdd={({ modelId, parentId, messages }) => {
+			console.log(modelId, parentId, messages);
+			onAddMessages({ modelId, parentId, messages });
+			closeFloatingButtons();
+		}}
+	/>
 {/if}

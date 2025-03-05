@@ -1,8 +1,13 @@
 <script lang="ts">
-  import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-  const dispatch = createEventDispatcher();
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
+	interface Props {
+		children?: import('svelte').Snippet;
+	}
 
-  let loaderElement: HTMLElement;
+	let { children }: Props = $props();
+	const dispatch = createEventDispatcher();
+
+	let loaderElement: HTMLElement = $state();
 
   let observer;
   let intervalId;
@@ -42,5 +47,5 @@
 </script>
 
 <div bind:this={loaderElement}>
-  <slot />
+	{@render children?.()}
 </div>

@@ -4,17 +4,18 @@
   import { prompts } from '$lib/stores';
   import { onMount, tick, getContext } from 'svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import { createNewPrompt, getPrompts } from '$lib/apis/prompts';
   import PromptEditor from '$lib/components/workspace/Prompts/PromptEditor.svelte';
 
-  let prompt = null;
-  const onSubmit = async (_prompt) => {
-    const prompt = await createNewPrompt(localStorage.token, _prompt).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	let prompt = $state(null);
+	const onSubmit = async (_prompt) => {
+		const prompt = await createNewPrompt(localStorage.token, _prompt).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
     if (prompt) {
       toast.success($i18n.t('Prompt created successfully'));
@@ -62,8 +63,5 @@
 </script>
 
 {#key prompt}
-  <PromptEditor
-    {onSubmit}
-    {prompt}
-  />
+	<PromptEditor {onSubmit} {prompt} />
 {/key}

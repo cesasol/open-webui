@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
+	import { run, preventDefault } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
 
   import { config, functions, models, settings, tools, user } from '$lib/stores';
   import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
@@ -23,17 +25,22 @@
 
   const dispatch = createEventDispatcher();
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  export let show = false;
+	interface Props {
+		show?: boolean;
+	}
 
-  let tab = 'tools';
-  let selectedId = '';
+	let { show = false }: Props = $props();
 
-  let loading = false;
+	let tab = $state('tools');
+	let selectedId = $state('');
 
-  let valvesSpec = null;
-  let valves = {};
+	let loading = $state(false);
+
+	let valvesSpec = $state(null);
+	let valves = $state({});
 
   let debounceTimer;
 
@@ -109,20 +116,8 @@
     }
   };
 
-  $: if (tab) {
-    selectedId = '';
-  }
-
-  $: if (selectedId) {
-    getUserValves();
-  }
-
-  $: if (show) {
-    init();
-  }
-
-  const init = async () => {
-    loading = true;
+	const init = async () => {
+		loading = true;
 
     if ($functions === null) {
       functions.set(await getFunctions(localStorage.token));
@@ -131,79 +126,78 @@
       tools.set(await getTools(localStorage.token));
     }
 
-    loading = false;
-  };
+		loading = false;
+	};
+	run(() => {
+		if (tab) {
+			selectedId = '';
+		}
+	});
+	run(() => {
+		if (selectedId) {
+			getUserValves();
+		}
+	});
+	run(() => {
+		if (show) {
+			init();
+		}
+	});
 </script>
 
 {#if show && !loading}
-  <form
-    class="flex flex-col h-full justify-between space-y-3 text-sm"
-    on:submit|preventDefault={() => {
-      submitHandler();
-      dispatch('save');
-    }}
-  >
-    <div class="flex flex-col">
-      <div class="space-y-1">
-        <div class="flex gap-2">
-          <div class="flex-1">
-            <select
-              class="  w-full rounded-sm text-xs py-2 px-1 bg-transparent outline-hidden"
-              placeholder="Select"
-              bind:value={tab}
-            >
-              <option
-                class="bg-gray-100 dark:bg-gray-800"
-                value="tools"
-              >{$i18n.t('Tools')}</option>
-              <option
-                class="bg-gray-100 dark:bg-gray-800"
-                value="functions"
-              >{$i18n.t('Functions')}</option>
-            </select>
-          </div>
+	<form
+		class="flex flex-col h-full justify-between space-y-3 text-sm"
+		onsubmit={preventDefault(() => {
+			submitHandler();
+			dispatch('save');
+		})}
+	>
+		<div class="flex flex-col">
+			<div class="space-y-1">
+				<div class="flex gap-2">
+					<div class="flex-1">
+						<select
+							class="  w-full rounded-sm text-xs py-2 px-1 bg-transparent outline-hidden"
+							placeholder="Select"
+							bind:value={tab}
+						>
+							<option class="bg-gray-100 dark:bg-gray-800" value="tools">{$i18n.t('Tools')}</option>
+							<option class="bg-gray-100 dark:bg-gray-800" value="functions"
+								>{$i18n.t('Functions')}</option
+							>
+						</select>
+					</div>
 
-          <div class="flex-1">
-            <select
-              class="w-full rounded-sm py-2 px-1 text-xs bg-transparent outline-hidden"
-              bind:value={selectedId}
-              on:change={async () => {
-                await tick();
-              }}
-            >
-              {#if tab === 'tools'}
-                <option
-                  class="bg-gray-100 dark:bg-gray-800"
-                  disabled
-                  selected
-                  value=""
-                >{$i18n.t('Select a tool')}</option>
+					<div class="flex-1">
+						<select
+							class="w-full rounded-sm py-2 px-1 text-xs bg-transparent outline-hidden"
+							onchange={async () => {
+								await tick();
+							}}
+							bind:value={selectedId}
+						>
+							{#if tab === 'tools'}
+								<option class="bg-gray-100 dark:bg-gray-800" disabled selected value=""
+									>{$i18n.t('Select a tool')}</option
+								>
 
-                {#each $tools as tool, toolIdx}
-                  <option
-                    class="bg-gray-100 dark:bg-gray-800"
-                    value={tool.id}
-                  >{tool.name}</option>
-                {/each}
-              {:else if tab === 'functions'}
-                <option
-                  class="bg-gray-100 dark:bg-gray-800"
-                  disabled
-                  selected
-                  value=""
-                >{$i18n.t('Select a function')}</option>
+								{#each $tools as tool, toolIdx}
+									<option class="bg-gray-100 dark:bg-gray-800" value={tool.id}>{tool.name}</option>
+								{/each}
+							{:else if tab === 'functions'}
+								<option class="bg-gray-100 dark:bg-gray-800" disabled selected value=""
+									>{$i18n.t('Select a function')}</option
+								>
 
-                {#each $functions as func, funcIdx}
-                  <option
-                    class="bg-gray-100 dark:bg-gray-800"
-                    value={func.id}
-                  >{func.name}</option>
-                {/each}
-              {/if}
-            </select>
-          </div>
-        </div>
-      </div>
+								{#each $functions as func, funcIdx}
+									<option class="bg-gray-100 dark:bg-gray-800" value={func.id}>{func.name}</option>
+								{/each}
+							{/if}
+						</select>
+					</div>
+				</div>
+			</div>
 
       {#if selectedId}
         <hr class="dark:border-gray-800 my-1 w-full" />

@@ -7,19 +7,25 @@
 
   const dispatch = createEventDispatcher();
 
-  export let banner: Banner = {
-    id: '',
-    type: 'info',
-    title: '',
-    content: '',
-    url: '',
-    dismissable: true,
-    timestamp: Math.floor(Date.now() / 1000)
-  };
+	interface Props {
+		banner?: Banner;
+		dismissed?: boolean;
+	}
 
-  export let dismissed = false;
+	let {
+		banner = {
+			id: '',
+			type: 'info',
+			title: '',
+			content: '',
+			url: '',
+			dismissable: true,
+			timestamp: Math.floor(Date.now() / 1000)
+		},
+		dismissed = $bindable(false)
+	}: Props = $props();
 
-  let mounted = false;
+	let mounted = $state(false);
 
   const classNames: Record<string, string> = {
     info: 'bg-blue-500/20 text-blue-700 dark:text-blue-200 ',
@@ -61,24 +67,26 @@
                 target="_blank"
               >Learn More</a>
 
-              <div class=" ml-1 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-white">
-                <!--  -->
-                <svg
-                  class="w-4 h-4"
-                  fill="currentColor"
-                  viewBox="0 0 16 16"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    clip-rule="evenodd"
-                    d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
-                    fill-rule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-          {/if}
-        </div>
+							<div
+								class=" ml-1 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-white"
+							>
+								<!--  -->
+								<svg
+									class="w-4 h-4"
+									fill="currentColor"
+									viewBox="0 0 16 16"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										clip-rule="evenodd"
+										d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
+										fill-rule="evenodd"
+									/>
+								</svg>
+							</div>
+						</div>
+					{/if}
+				</div>
 
         <div class="flex-1 text-xs text-gray-700 dark:text-white">
           {@html marked.parse(DOMPurify.sanitize(banner.content))}
@@ -93,33 +101,33 @@
             target="_blank"
           >Learn More</a>
 
-          <div class=" ml-1 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-white">
-            <!--  -->
-            <svg
-              class="size-4"
-              fill="currentColor"
-              viewBox="0 0 16 16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                clip-rule="evenodd"
-                d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
-                fill-rule="evenodd"
-              />
-            </svg>
-          </div>
-        </div>
-      {/if}
-      <div class="flex self-start">
-        {#if banner.dismissible}
-          <button
-            class="  -mt-1 -mb-2 -translate-y-[1px] ml-1.5 mr-1 text-gray-400 dark:hover:text-white"
-            on:click={() => {
-              dismiss(banner.id);
-            }}
-          >&times;</button>
-        {/if}
-      </div>
-    </div>
-  {/if}
+					<div class=" ml-1 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-white">
+						<!--  -->
+						<svg
+							class="size-4"
+							fill="currentColor"
+							viewBox="0 0 16 16"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								clip-rule="evenodd"
+								d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z"
+								fill-rule="evenodd"
+							/>
+						</svg>
+					</div>
+				</div>
+			{/if}
+			<div class="flex self-start">
+				{#if banner.dismissible}
+					<button
+						class="  -mt-1 -mb-2 -translate-y-[1px] ml-1.5 mr-1 text-gray-400 dark:hover:text-white"
+						onclick={() => {
+							dismiss(banner.id);
+						}}>&times;</button
+					>
+				{/if}
+			</div>
+		</div>
+	{/if}
 {/if}

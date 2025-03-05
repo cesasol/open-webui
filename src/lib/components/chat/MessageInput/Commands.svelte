@@ -1,6 +1,8 @@
-<script>
-  import { createEventDispatcher, onMount } from 'svelte';
-  import { toast } from 'svelte-sonner';
+<script lang="ts">
+	import { run } from 'svelte/legacy';
+
+	import { createEventDispatcher, onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
   const dispatch = createEventDispatcher();
 
@@ -15,11 +17,15 @@
   import Models from './Commands/Models.svelte';
   import Spinner from '$lib/components/common/Spinner.svelte';
 
-  export let prompt = '';
-  export let files = [];
+	interface Props {
+		prompt?: string;
+		files?: any;
+	}
 
-  let loading = false;
-  let commandElement = null;
+	let { prompt = $bindable(''), files = $bindable([]) }: Props = $props();
+
+	let loading = $state(false);
+	let commandElement = $state(null);
 
   export const selectUp = () => {
     commandElement?.selectUp();
@@ -29,63 +35,63 @@
     commandElement?.selectDown();
   };
 
-  let command = '';
-  $: command = prompt?.split('\n').pop()?.split(' ')?.pop() ?? '';
+	let command = $state('');
 
-  let show = false;
-  $: show = ['/', '#', '@'].includes(command?.charAt(0)) || '\\#' === command.slice(0, 2);
+	let show = $state(false);
 
-  $: if (show) {
-    init();
-  }
-
-  const init = async () => {
-    loading = true;
-    await Promise.all([
-      (async () => {
-        prompts.set(await getPrompts(localStorage.token));
-      })(),
-      (async () => {
-        knowledge.set(await getKnowledgeBases(localStorage.token));
-      })()
-    ]);
-    loading = false;
-  };
+	const init = async () => {
+		loading = true;
+		await Promise.all([
+			(async () => {
+				prompts.set(await getPrompts(localStorage.token));
+			})(),
+			(async () => {
+				knowledge.set(await getKnowledgeBases(localStorage.token));
+			})()
+		]);
+		loading = false;
+	};
+	run(() => {
+		command = prompt?.split('\n').pop()?.split(' ')?.pop() ?? '';
+	});
+	run(() => {
+		show = ['/', '#', '@'].includes(command?.charAt(0)) || '\\#' === command.slice(0, 2);
+	});
+	run(() => {
+		if (show) {
+			init();
+		}
+	});
 </script>
 
 {#if show}
-  {#if !loading}
-    {#if command?.charAt(0) === '/'}
-      <Prompts
-        bind:this={commandElement}
-        {command}
-        bind:prompt
-        bind:files
-      />
-    {:else if (command?.charAt(0) === '#' && command.startsWith('#') && !command.includes('# ')) || ('\\#' === command.slice(0, 2) && command.startsWith('#') && !command.includes('# '))}
-      <Knowledge
-        bind:this={commandElement}
-        command={command.includes('\\#') ? command.slice(2) : command}
-        bind:prompt
-        on:youtube={(e) => {
-          console.log(e);
-          dispatch('upload', {
-            type: 'youtube',
-            data: e.detail
-          });
-        }}
-        on:url={(e) => {
-          console.log(e);
-          dispatch('upload', {
-            type: 'web',
-            data: e.detail
-          });
-        }}
-        on:select={(e) => {
-          console.log(e);
-          if (files.find((f) => f.id === e.detail.id)) {
-            return;
-          }
+	{#if !loading}
+		{#if command?.charAt(0) === '/'}
+			<Prompts bind:this={commandElement} {command} bind:prompt bind:files />
+		{:else if (command?.charAt(0) === '#' && command.startsWith('#') && !command.includes('# ')) || ('\\#' === command.slice(0, 2) && command.startsWith('#') && !command.includes('# '))}
+			<Knowledge
+				bind:this={commandElement}
+				command={command.includes('\\#') ? command.slice(2) : command}
+				bind:prompt
+				on:youtube={(e) => {
+					console.log(e);
+					dispatch('upload', {
+						type: 'youtube',
+						data: e.detail
+					});
+				}}
+				on:url={(e) => {
+					console.log(e);
+					dispatch('upload', {
+						type: 'web',
+						data: e.detail
+					});
+				}}
+				on:select={(e) => {
+					console.log(e);
+					if (files.find((f) => f.id === e.detail.id)) {
+						return;
+					}
 
           files = [
             ...files,

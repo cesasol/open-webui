@@ -8,15 +8,16 @@
 
   import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let ollamaVersion = '';
+	let ollamaVersion = $state('');
 
-  let updateAvailable = null;
-  let version = {
-    current: '',
-    latest: ''
-  };
+	let updateAvailable = $state(null);
+	let version = $state({
+		current: '',
+		latest: ''
+	});
 
   const checkForVersionUpdates = async () => {
     updateAvailable = null;
@@ -70,26 +71,26 @@
             </a>
           </div>
 
-          <button
-            class=" underline flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-500"
-            on:click={() => {
-              showChangelog.set(true);
-            }}
-          >
-            <div>{$i18n.t("See what's new")}</div>
-          </button>
-        </div>
+					<button
+						class=" underline flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-500"
+						onclick={() => {
+							showChangelog.set(true);
+						}}
+					>
+						<div>{$i18n.t("See what's new")}</div>
+					</button>
+				</div>
 
-        <button
-          class=" text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-lg font-medium"
-          on:click={() => {
-            checkForVersionUpdates();
-          }}
-        >
-          {$i18n.t('Check for updates')}
-        </button>
-      </div>
-    </div>
+				<button
+					class=" text-xs px-3 py-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-lg font-medium"
+					onclick={() => {
+						checkForVersionUpdates();
+					}}
+				>
+					{$i18n.t('Check for updates')}
+				</button>
+			</div>
+		</div>
 
     {#if ollamaVersion}
       <hr class=" border-gray-100 dark:border-gray-850" />
@@ -150,12 +151,13 @@
       </a>
     </div>
 
-    <div>
-      <pre class="text-xs text-gray-400 dark:text-gray-500">Copyright (c) {new Date().getFullYear()} <a
+		<div>
+			<pre
+				class="text-xs text-gray-400 dark:text-gray-500">Copyright (c) {new Date().getFullYear()} <a
 					class="underline"
 					href="https://openwebui.com"
-					target="_blank"
->Open WebUI (Timothy Jaeryang Baek)</a>
+					target="_blank">Open WebUI (Timothy Jaeryang Baek)</a
+				>
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -183,7 +185,7 @@ CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </pre>
-    </div>
+		</div>
 
     <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
       {#if !$WEBUI_NAME.includes('Open WebUI')}

@@ -1,22 +1,29 @@
 <script lang="ts">
-  import { getBackendConfig } from '$lib/apis';
-  import { setDefaultPromptSuggestions } from '$lib/apis/configs';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import { config, models, settings, user } from '$lib/stores';
-  import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
-  import { toast } from 'svelte-sonner';
-  import ManageModal from './Personalization/ManageModal.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  const dispatch = createEventDispatcher();
+	import { preventDefault } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
+	import { getBackendConfig } from '$lib/apis';
+	import { setDefaultPromptSuggestions } from '$lib/apis/configs';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import { config, models, settings, user } from '$lib/stores';
+	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import ManageModal from './Personalization/ManageModal.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	const dispatch = createEventDispatcher();
 
-  export let saveSettings: Function;
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let showManageModal = false;
+	interface Props {
+		saveSettings: Function;
+	}
 
-  // Addons
-  let enableMemory = false;
+	let { saveSettings }: Props = $props();
+
+	let showManageModal = $state(false);
+
+	// Addons
+	let enableMemory = $state(false);
 
   onMount(async () => {
     enableMemory = $settings?.memory ?? false;
@@ -26,10 +33,10 @@
 <ManageModal bind:show={showManageModal} />
 
 <form
-  class="flex flex-col h-full justify-between space-y-3 text-sm"
-  on:submit|preventDefault={() => {
-    dispatch('save');
-  }}
+	class="flex flex-col h-full justify-between space-y-3 text-sm"
+	onsubmit={preventDefault(() => {
+		dispatch('save');
+	})}
 >
   <div class="py-1 overflow-y-scroll max-h-[28rem] lg:max-h-full">
     <div>
@@ -74,18 +81,18 @@
 			</div> -->
     </div>
 
-    <div class="mt-3 mb-1 ml-1">
-      <button
-        class=" px-3.5 py-1.5 font-medium hover:bg-black/5 dark:hover:bg-white/5 outline outline-1 outline-gray-300 dark:outline-gray-800 rounded-3xl"
-        type="button"
-        on:click={() => {
-          showManageModal = true;
-        }}
-      >
-        {$i18n.t('Manage')}
-      </button>
-    </div>
-  </div>
+		<div class="mt-3 mb-1 ml-1">
+			<button
+				class=" px-3.5 py-1.5 font-medium hover:bg-black/5 dark:hover:bg-white/5 outline outline-1 outline-gray-300 dark:outline-gray-800 rounded-3xl"
+				onclick={() => {
+					showManageModal = true;
+				}}
+				type="button"
+			>
+				{$i18n.t('Manage')}
+			</button>
+		</div>
+	</div>
 
   <div class="flex justify-end text-sm font-medium">
     <button

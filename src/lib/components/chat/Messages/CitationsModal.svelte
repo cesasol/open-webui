@@ -1,17 +1,29 @@
 <script lang="ts">
-  import { getContext, onMount, tick } from 'svelte';
-  import Modal from '$lib/components/common/Modal.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import { WEBUI_API_BASE_URL } from '$lib/constants';
+	import { run } from 'svelte/legacy';
 
-  const i18n = getContext('i18n');
+	import { getContext, onMount, tick } from 'svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-  export let show = false;
-  export let citation;
-  export let showPercentage = false;
-  export let showRelevance = true;
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let mergedDocuments = [];
+	interface Props {
+		show?: boolean;
+		citation: any;
+		showPercentage?: boolean;
+		showRelevance?: boolean;
+	}
+
+	let {
+		show = $bindable(false),
+		citation,
+		showPercentage = false,
+		showRelevance = true
+	}: Props = $props();
+
+	let mergedDocuments = $state([]);
 
   function calculatePercentage(distance: number) {
     if (distance < 0) return 0;
@@ -29,48 +41,49 @@
     return 'bg-red-200 dark:bg-red-800 text-red-800 dark:text-red-200';
   }
 
-  $: if (citation) {
-    mergedDocuments = citation.document?.map((c, i) => {
-      return {
-        source: citation.source,
-        document: c,
-        metadata: citation.metadata?.[i],
-        distance: citation.distances?.[i]
-      };
-    });
-    if (mergedDocuments.every((doc) => doc.distance !== undefined)) {
-      mergedDocuments = mergedDocuments.sort(
-        (a, b) => (b.distance ?? Infinity) - (a.distance ?? Infinity)
-      );
-    }
-  }
+	run(() => {
+		if (citation) {
+			mergedDocuments = citation.document?.map((c, i) => {
+				return {
+					source: citation.source,
+					document: c,
+					metadata: citation.metadata?.[i],
+					distance: citation.distances?.[i]
+				};
+			});
+			if (mergedDocuments.every((doc) => doc.distance !== undefined)) {
+				mergedDocuments = mergedDocuments.sort(
+					(a, b) => (b.distance ?? Infinity) - (a.distance ?? Infinity)
+				);
+			}
+		}
+	});
 </script>
 
-<Modal
-  size="lg"
-  bind:show
->
-  <div>
-    <div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-2">
-      <div class=" text-lg font-medium self-center capitalize">
-        {$i18n.t('Citation')}
-      </div>
-      <button
-        class="self-center"
-        on:click={() => {
-          show = false;
-        }}
-      >
-        <svg
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-      </button>
-    </div>
+<Modal size="lg" bind:show>
+	<div>
+		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-2">
+			<div class=" text-lg font-medium self-center capitalize">
+				{$i18n.t('Citation')}
+			</div>
+			<button
+				class="self-center"
+				onclick={() => {
+					show = false;
+				}}
+			>
+				<svg
+					class="w-5 h-5"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+					/>
+				</svg>
+			</button>
+		</div>
 
     <div class="flex flex-col md:flex-row w-full px-6 pb-5 md:space-x-4">
       <div class="flex flex-col w-full dark:text-gray-200 overflow-y-scroll max-h-[22rem] scrollbar-hidden">

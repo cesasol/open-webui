@@ -10,7 +10,8 @@
 
   import ModelEditor from '$lib/components/workspace/Models/ModelEditor.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   const onSubmit = async (modelInfo) => {
     if ($models.find((m) => m.id === modelInfo.id)) {
@@ -54,7 +55,7 @@
     }
   };
 
-  let model = null;
+	let model = $state(null);
 
   onMount(async () => {
     window.addEventListener('message', async (event) => {

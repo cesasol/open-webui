@@ -2,9 +2,10 @@
   import { getAdminDetails } from '$lib/apis/auths';
   import { onMount, tick, getContext } from 'svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let adminDetails = null;
+	let adminDetails = $state(null);
 
   onMount(async () => {
     adminDetails = await getAdminDetails(localStorage.token).catch((err) => {
@@ -36,25 +37,25 @@
           </div>
         {/if}
 
-        <div class=" mt-6 mx-auto relative group w-fit">
-          <button
-            class="relative z-20 flex px-5 py-2 rounded-full bg-white border border-gray-100 dark:border-none hover:bg-gray-100 text-gray-700 transition font-medium text-sm"
-            on:click={async () => {
-              location.href = '/';
-            }}
-          >
-            {$i18n.t('Check Again')}
-          </button>
+				<div class=" mt-6 mx-auto relative group w-fit">
+					<button
+						class="relative z-20 flex px-5 py-2 rounded-full bg-white border border-gray-100 dark:border-none hover:bg-gray-100 text-gray-700 transition font-medium text-sm"
+						onclick={async () => {
+							location.href = '/';
+						}}
+					>
+						{$i18n.t('Check Again')}
+					</button>
 
-          <button
-            class="text-xs text-center w-full mt-2 text-gray-400 underline"
-            on:click={async () => {
-              localStorage.removeItem('token');
-              location.href = '/auth';
-            }}
-          >{$i18n.t('Sign Out')}</button>
-        </div>
-      </div>
-    </div>
-  </div>
+					<button
+						class="text-xs text-center w-full mt-2 text-gray-400 underline"
+						onclick={async () => {
+							localStorage.removeItem('token');
+							location.href = '/auth';
+						}}>{$i18n.t('Sign Out')}</button
+					>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>

@@ -4,28 +4,29 @@
 
   import Tags from '../common/Tags.svelte';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  export let tags;
-  export let deleteTag: Function;
-  export let addTag: Function;
+	interface Props {
+		tags: any;
+		deleteTag: Function;
+		addTag: Function;
+		show?: boolean;
+	}
 
-  export let show = false;
+	let { tags, deleteTag, addTag, show = $bindable(false) }: Props = $props();
 </script>
 
-<Modal
-  size="xs"
-  bind:show
->
-  <div class="px-4 pt-4 pb-5 w-full flex flex-col justify-center">
-    <Tags
-      {tags}
-      on:delete={(e) => {
-        deleteTag(e.detail);
-      }}
-      on:add={(e) => {
-        addTag(e.detail);
-      }}
-    />
-  </div>
+<Modal size="xs" bind:show>
+	<div class="px-4 pt-4 pb-5 w-full flex flex-col justify-center">
+		<Tags
+			{tags}
+			on:delete={(e) => {
+				deleteTag(e.detail);
+			}}
+			on:add={(e) => {
+				addTag(e.detail);
+			}}
+		/>
+	</div>
 </Modal>

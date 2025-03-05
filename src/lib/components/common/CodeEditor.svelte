@@ -1,7 +1,9 @@
 <script lang="ts">
-  import { basicSetup, EditorView } from 'codemirror';
-  import { keymap, placeholder } from '@codemirror/view';
-  import { Compartment, EditorState } from '@codemirror/state';
+	import { run } from 'svelte/legacy';
+
+	import { basicSetup, EditorView } from 'codemirror';
+	import { keymap, placeholder } from '@codemirror/view';
+	import { Compartment, EditorState } from '@codemirror/state';
 
   import { acceptCompletion } from '@codemirror/autocomplete';
   import { indentWithTab } from '@codemirror/commands';
@@ -16,34 +18,40 @@
   import { formatPythonCode } from '$lib/apis/utils';
   import { toast } from 'svelte-sonner';
 
-  const dispatch = createEventDispatcher();
-  const i18n = getContext('i18n');
-
-  export let boilerplate = '';
-  export let value = '';
-
-  export let onSave = () => {};
-  export let onChange = () => {};
+	const dispatch = createEventDispatcher();
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   let _value = '';
 
-  $: if (value) {
-    updateValue();
-  }
+	const updateValue = () => {
+		if (_value !== value) {
+			_value = value;
+			if (codeEditor) {
+				codeEditor.dispatch({
+					changes: [{ from: 0, to: codeEditor.state.doc.length, insert: _value }]
+				});
+			}
+		}
+	};
 
-  const updateValue = () => {
-    if (_value !== value) {
-      _value = value;
-      if (codeEditor) {
-        codeEditor.dispatch({
-          changes: [{ from: 0, to: codeEditor.state.doc.length, insert: _value }]
-        });
-      }
-    }
-  };
+	interface Props {
+		boilerplate?: string;
+		value?: string;
+		onSave?: any;
+		onChange?: any;
+		id?: string;
+		lang?: string;
+	}
 
-  export let id = '';
-  export let lang = '';
+	let {
+		boilerplate = '',
+		value = $bindable(''),
+		onSave = () => {},
+		onChange = () => {},
+		id = '',
+		lang = ''
+	}: Props = $props();
 
   let codeEditor;
 
@@ -51,9 +59,9 @@
     codeEditor.focus();
   };
 
-  let isDarkMode = false;
-  let editorTheme = new Compartment();
-  let editorLanguage = new Compartment();
+	let isDarkMode = false;
+	const editorTheme = new Compartment();
+	const editorLanguage = new Compartment();
 
   languages.push(
     LanguageDescription.of({
@@ -94,33 +102,29 @@
     return false;
   };
 
-  let extensions = [
-    basicSetup,
-    keymap.of([{ key: 'Tab', run: acceptCompletion }, indentWithTab]),
-    indentUnit.of('    '),
-    placeholder('Enter your code here...'),
-    EditorView.updateListener.of((e) => {
-      if (e.docChanged) {
-        _value = e.state.doc.toString();
-        onChange(_value);
-      }
-    }),
-    editorTheme.of([]),
-    editorLanguage.of([])
-  ];
+	const extensions = [
+		basicSetup,
+		keymap.of([{ key: 'Tab', run: acceptCompletion }, indentWithTab]),
+		indentUnit.of('    '),
+		placeholder('Enter your code here...'),
+		EditorView.updateListener.of((e) => {
+			if (e.docChanged) {
+				_value = e.state.doc.toString();
+				onChange(_value);
+			}
+		}),
+		editorTheme.of([]),
+		editorLanguage.of([])
+	];
 
-  $: if (lang) {
-    setLanguage();
-  }
-
-  const setLanguage = async () => {
-    const language = await getLang();
-    if (language && codeEditor) {
-      codeEditor.dispatch({
-        effects: editorLanguage.reconfigure(language)
-      });
-    }
-  };
+	const setLanguage = async () => {
+		const language = await getLang();
+		if (language && codeEditor) {
+			codeEditor.dispatch({
+				effects: editorLanguage.reconfigure(language)
+			});
+		}
+	};
 
   onMount(() => {
     console.log(value);
@@ -191,14 +195,21 @@
 
     document.addEventListener('keydown', keydownHandler);
 
-    return () => {
-      observer.disconnect();
-      document.removeEventListener('keydown', keydownHandler);
-    };
-  });
+		return () => {
+			observer.disconnect();
+			document.removeEventListener('keydown', keydownHandler);
+		};
+	});
+	run(() => {
+		if (value) {
+			updateValue();
+		}
+	});
+	run(() => {
+		if (lang) {
+			setLanguage();
+		}
+	});
 </script>
 
-<div
-  id="code-textarea-{id}"
-  class="h-full w-full"
-/>
+<div id="code-textarea-{id}" class="h-full w-full"></div>

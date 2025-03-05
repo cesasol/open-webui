@@ -1,10 +1,13 @@
 <script lang="ts">
-  import { marked } from 'marked';
-  import fileSaver from 'file-saver';
-  const { saveAs } = fileSaver;
+	import { run } from 'svelte/legacy';
 
-  import { onMount, getContext, tick } from 'svelte';
-  const i18n = getContext('i18n');
+	import { marked } from 'marked';
+	import fileSaver from 'file-saver';
+	const { saveAs } = fileSaver;
+
+	import { onMount, getContext, tick } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
   import {
@@ -30,41 +33,28 @@
   import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
   import ManageModelsModal from './Models/ManageModelsModal.svelte';
 
-  let importFiles;
-  let modelsImportInputElement: HTMLInputElement;
+	let importFiles = $state();
+	let modelsImportInputElement: HTMLInputElement = $state();
 
-  let models = null;
+	let models = $state(null);
 
   let workspaceModels = null;
   let baseModels = null;
 
-  let filteredModels = [];
-  let selectedModelId = null;
+	let filteredModels = $state([]);
+	let selectedModelId = $state(null);
 
-  let showConfigModal = false;
-  let showManageModal = false;
+	let showConfigModal = $state(false);
+	let showManageModal = $state(false);
 
-  $: if (models) {
-    filteredModels = models
-      .filter((m) => searchValue === '' || m.name.toLowerCase().includes(searchValue.toLowerCase()))
-      .sort((a, b) => {
-        // // Check if either model is inactive and push them to the bottom
-				// if ((a.is_active ?? true) !== (b.is_active ?? true)) {
-				// 	return (b.is_active ?? true) - (a.is_active ?? true);
-				// }
-				// If both models' active states are the same, sort alphabetically
-        return a.name.localeCompare(b.name);
-      });
-  }
+	let searchValue = $state('');
 
-  let searchValue = '';
-
-  const downloadModels = async (models) => {
-    let blob = new Blob([JSON.stringify(models)], {
-      type: 'application/json'
-    });
-    saveAs(blob, `models-export-${Date.now()}.json`);
-  };
+	const downloadModels = async (models) => {
+		const blob = new Blob([JSON.stringify(models)], {
+			type: 'application/json'
+		});
+		saveAs(blob, `models-export-${Date.now()}.json`);
+	};
 
   const init = async () => {
     workspaceModels = await getBaseModels(localStorage.token);
@@ -146,150 +136,159 @@
     );
   };
 
-  onMount(async () => {
-    init();
-  });
+	onMount(async () => {
+		init();
+	});
+	run(() => {
+		if (models) {
+			filteredModels = models
+				.filter(
+					(m) => searchValue === '' || m.name.toLowerCase().includes(searchValue.toLowerCase())
+				)
+				.sort((a, b) => {
+					// // Check if either model is inactive and push them to the bottom
+					// if ((a.is_active ?? true) !== (b.is_active ?? true)) {
+					// 	return (b.is_active ?? true) - (a.is_active ?? true);
+					// }
+					// If both models' active states are the same, sort alphabetically
+					return a.name.localeCompare(b.name);
+				});
+		}
+	});
 </script>
 
-<ConfigureModelsModal
-  initHandler={init}
-  bind:show={showConfigModal}
-/>
+<ConfigureModelsModal initHandler={init} bind:show={showConfigModal} />
 <ManageModelsModal bind:show={showManageModal} />
 
 {#if models !== null}
-  {#if selectedModelId === null}
-    <div class="flex flex-col gap-1 mt-1.5 mb-2">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center md:self-center text-xl font-medium px-0.5">
-          {$i18n.t('Models')}
-          <div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850" />
-          <span class="text-lg font-medium text-gray-500 dark:text-gray-300">{filteredModels.length}</span>
-        </div>
+	{#if selectedModelId === null}
+		<div class="flex flex-col gap-1 mt-1.5 mb-2">
+			<div class="flex justify-between items-center">
+				<div class="flex items-center md:self-center text-xl font-medium px-0.5">
+					{$i18n.t('Models')}
+					<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850"></div>
+					<span class="text-lg font-medium text-gray-500 dark:text-gray-300"
+						>{filteredModels.length}</span
+					>
+				</div>
 
-        <div class="flex items-center gap-1.5">
-          <Tooltip content={$i18n.t('Manage Models')}>
-            <button
-              class=" p-1 rounded-full flex gap-1 items-center"
-              type="button"
-              on:click={() => {
-                showManageModal = true;
-              }}
-            >
-              <ArrowDownTray />
-            </button>
-          </Tooltip>
+				<div class="flex items-center gap-1.5">
+					<Tooltip content={$i18n.t('Manage Models')}>
+						<button
+							class=" p-1 rounded-full flex gap-1 items-center"
+							onclick={() => {
+								showManageModal = true;
+							}}
+							type="button"
+						>
+							<ArrowDownTray />
+						</button>
+					</Tooltip>
 
-          <Tooltip content={$i18n.t('Settings')}>
-            <button
-              class=" p-1 rounded-full flex gap-1 items-center"
-              type="button"
-              on:click={() => {
-                showConfigModal = true;
-              }}
-            >
-              <Cog6 />
-            </button>
-          </Tooltip>
-        </div>
-      </div>
+					<Tooltip content={$i18n.t('Settings')}>
+						<button
+							class=" p-1 rounded-full flex gap-1 items-center"
+							onclick={() => {
+								showConfigModal = true;
+							}}
+							type="button"
+						>
+							<Cog6 />
+						</button>
+					</Tooltip>
+				</div>
+			</div>
 
-      <div class=" flex flex-1 items-center w-full space-x-2">
-        <div class="flex flex-1 items-center">
-          <div class=" self-center ml-1 mr-3">
-            <Search className="size-3.5" />
-          </div>
-          <input
-            class=" w-full text-sm py-1 rounded-r-xl outline-hidden bg-transparent"
-            placeholder={$i18n.t('Search Models')}
-            bind:value={searchValue}
-          />
-        </div>
-      </div>
-    </div>
+			<div class=" flex flex-1 items-center w-full space-x-2">
+				<div class="flex flex-1 items-center">
+					<div class=" self-center ml-1 mr-3">
+						<Search className="size-3.5" />
+					</div>
+					<input
+						class=" w-full text-sm py-1 rounded-r-xl outline-hidden bg-transparent"
+						placeholder={$i18n.t('Search Models')}
+						bind:value={searchValue}
+					/>
+				</div>
+			</div>
+		</div>
 
-    <div
-      id="model-list"
-      class=" my-2 mb-5"
-    >
-      {#if models.length > 0}
-        {#each filteredModels as model, modelIdx (model.id)}
-          <div
-            id="model-item-{model.id}"
-            class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-lg transition"
-          >
-            <button
-              class=" flex flex-1 text-left space-x-3.5 cursor-pointer w-full"
-              type="button"
-              on:click={() => {
-                selectedModelId = model.id;
-              }}
-            >
-              <div class=" self-center w-8">
-                <div
-                  class=" rounded-full object-cover {(model?.is_active ?? true)
-                    ? ''
-                    : 'opacity-50 dark:opacity-50'} "
-                >
-                  <img
-                    class=" rounded-full w-full h-auto object-cover"
-                    alt="modelfile profile"
-                    src={model?.meta?.profile_image_url ?? '/static/favicon.png'}
-                  />
-                </div>
-              </div>
+		<div id="model-list" class=" my-2 mb-5">
+			{#if models.length > 0}
+				{#each filteredModels as model, modelIdx (model.id)}
+					<div
+						id="model-item-{model.id}"
+						class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-lg transition"
+					>
+						<button
+							class=" flex flex-1 text-left space-x-3.5 cursor-pointer w-full"
+							onclick={() => {
+								selectedModelId = model.id;
+							}}
+							type="button"
+						>
+							<div class=" self-center w-8">
+								<div
+									class=" rounded-full object-cover {(model?.is_active ?? true)
+										? ''
+										: 'opacity-50 dark:opacity-50'} "
+								>
+									<img
+										class=" rounded-full w-full h-auto object-cover"
+										alt="modelfile profile"
+										src={model?.meta?.profile_image_url ?? '/static/favicon.png'}
+									/>
+								</div>
+							</div>
 
-              <div
-                class=" flex-1 self-center"
-                class:text-gray-500={!(model?.is_active ?? true)}
-              >
-                <Tooltip
-                  className=" w-fit"
-                  content={marked.parse(
-                    model?.meta?.description
-                      ? model?.meta?.description
-                      : model?.ollama?.digest
-                      ? `${model?.ollama?.digest} **(${model?.ollama?.modified_at})**`
-                      : model.id
-                  )}
-                  placement="top-start"
-                >
-                  <div class="  font-semibold line-clamp-1">{model.name}</div>
-                </Tooltip>
-                <div class=" text-xs overflow-hidden text-ellipsis line-clamp-1 text-gray-500">
-                  <span class=" line-clamp-1">
-                    {model?.meta?.description
-                      ? model?.meta?.description
-                      : model?.ollama?.digest
-                      ? `${model.id} (${model?.ollama?.digest})`
-                      : model.id}
-                  </span>
-                </div>
-              </div>
-            </button>
-            <div class="flex flex-row gap-0.5 items-center self-center">
-              <button
-                class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
-                type="button"
-                on:click={() => {
-                  selectedModelId = model.id;
-                }}
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
+							<div class=" flex-1 self-center" class:text-gray-500={!(model?.is_active ?? true)}>
+								<Tooltip
+									className=" w-fit"
+									content={marked.parse(
+										model?.meta?.description
+											? model?.meta?.description
+											: model?.ollama?.digest
+												? `${model?.ollama?.digest} **(${model?.ollama?.modified_at})**`
+												: model.id
+									)}
+									placement="top-start"
+								>
+									<div class="  font-semibold line-clamp-1">{model.name}</div>
+								</Tooltip>
+								<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1 text-gray-500">
+									<span class=" line-clamp-1">
+										{model?.meta?.description
+											? model?.meta?.description
+											: model?.ollama?.digest
+												? `${model.id} (${model?.ollama?.digest})`
+												: model.id}
+									</span>
+								</div>
+							</div>
+						</button>
+						<div class="flex flex-row gap-0.5 items-center self-center">
+							<button
+								class="self-center w-fit text-sm px-2 py-2 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+								onclick={() => {
+									selectedModelId = model.id;
+								}}
+								type="button"
+							>
+								<svg
+									class="w-4 h-4"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="1.5"
+									viewBox="0 0 24 24"
+									xmlns="http://www.w3.org/2000/svg"
+								>
+									<path
+										d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+									/>
+								</svg>
+							</button>
 
               <div class="ml-1">
                 <Tooltip content={(model?.is_active ?? true) ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
@@ -313,23 +312,21 @@
       {/if}
     </div>
 
-    {#if $user?.role === 'admin'}
-      <div class=" flex justify-end w-full mb-3">
-        <div class="flex space-x-1">
-          <input
-            bind:this={modelsImportInputElement}
-            id="models-import-input"
-            accept=".json"
-            hidden
-            type="file"
-            bind:files={importFiles}
-            on:change={() => {
-              console.log(importFiles);
+		{#if $user?.role === 'admin'}
+			<div class=" flex justify-end w-full mb-3">
+				<div class="flex space-x-1">
+					<input
+						bind:this={modelsImportInputElement}
+						id="models-import-input"
+						accept=".json"
+						hidden
+						onchange={() => {
+							console.log(importFiles);
 
-              let reader = new FileReader();
-              reader.onload = async (event) => {
-                let savedModels = JSON.parse(event.target.result);
-                console.log(savedModels);
+							const reader = new FileReader();
+							reader.onload = async (event) => {
+								const savedModels = JSON.parse(event.target.result);
+								console.log(savedModels);
 
                 for (const model of savedModels) {
                   if (Object.keys(model).includes('base_model_id')) {
@@ -355,79 +352,81 @@
                 init();
               };
 
-              reader.readAsText(importFiles[0]);
-            }}
-          />
+							reader.readAsText(importFiles[0]);
+						}}
+						type="file"
+						bind:files={importFiles}
+					/>
 
-          <button
-            class="flex text-xs items-center space-x-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 transition"
-            on:click={() => {
-              modelsImportInputElement.click();
-            }}
-          >
-            <div class=" self-center mr-2 font-medium line-clamp-1">
-              {$i18n.t('Import Presets')}
-            </div>
+					<button
+						class="flex text-xs items-center space-x-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 transition"
+						onclick={() => {
+							modelsImportInputElement.click();
+						}}
+					>
+						<div class=" self-center mr-2 font-medium line-clamp-1">
+							{$i18n.t('Import Presets')}
+						</div>
 
-            <div class=" self-center">
-              <svg
-                class="w-3.5 h-3.5"
-                fill="currentColor"
-                viewBox="0 0 16 16"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  clip-rule="evenodd"
-                  d="M4 2a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V6.621a1.5 1.5 0 0 0-.44-1.06L9.94 2.439A1.5 1.5 0 0 0 8.878 2H4Zm4 9.5a.75.75 0 0 1-.75-.75V8.06l-.72.72a.75.75 0 0 1-1.06-1.06l2-2a.75.75 0 0 1 1.06 0l2 2a.75.75 0 1 1-1.06 1.06l-.72-.72v2.69a.75.75 0 0 1-.75.75Z"
-                  fill-rule="evenodd"
-                />
-              </svg>
-            </div>
-          </button>
+						<div class=" self-center">
+							<svg
+								class="w-3.5 h-3.5"
+								fill="currentColor"
+								viewBox="0 0 16 16"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									clip-rule="evenodd"
+									d="M4 2a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V6.621a1.5 1.5 0 0 0-.44-1.06L9.94 2.439A1.5 1.5 0 0 0 8.878 2H4Zm4 9.5a.75.75 0 0 1-.75-.75V8.06l-.72.72a.75.75 0 0 1-1.06-1.06l2-2a.75.75 0 0 1 1.06 0l2 2a.75.75 0 1 1-1.06 1.06l-.72-.72v2.69a.75.75 0 0 1-.75.75Z"
+									fill-rule="evenodd"
+								/>
+							</svg>
+						</div>
+					</button>
 
-          <button
-            class="flex text-xs items-center space-x-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 transition"
-            on:click={async () => {
-              downloadModels(models);
-            }}
-          >
-            <div class=" self-center mr-2 font-medium line-clamp-1">
-              {$i18n.t('Export Presets')}
-            </div>
+					<button
+						class="flex text-xs items-center space-x-1 px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-200 transition"
+						onclick={async () => {
+							downloadModels(models);
+						}}
+					>
+						<div class=" self-center mr-2 font-medium line-clamp-1">
+							{$i18n.t('Export Presets')}
+						</div>
 
-            <div class=" self-center">
-              <svg
-                class="w-3.5 h-3.5"
-                fill="currentColor"
-                viewBox="0 0 16 16"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  clip-rule="evenodd"
-                  d="M4 2a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V6.621a1.5 1.5 0 0 0-.44-1.06L9.94 2.439A1.5 1.5 0 0 0 8.878 2H4Zm4 3.5a.75.75 0 0 1 .75.75v2.69l.72-.72a.75.75 0 1 1 1.06 1.06l-2 2a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06l.72.72V6.25A.75.75 0 0 1 8 5.5Z"
-                  fill-rule="evenodd"
-                />
-              </svg>
-            </div>
-          </button>
-        </div>
-      </div>
-    {/if}
-  {:else}
-    <ModelEditor
-      edit
-      model={models.find((m) => m.id === selectedModelId)}
-      onBack={() => {
-        selectedModelId = null;
-      }}
-      onSubmit={(model) => {
-        console.log(model);
-        upsertModelHandler(model);
-        selectedModelId = null;
-      }}
-      preset={false}
-    />
-  {/if}
+						<div class=" self-center">
+							<svg
+								class="w-3.5 h-3.5"
+								fill="currentColor"
+								viewBox="0 0 16 16"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									clip-rule="evenodd"
+									d="M4 2a1.5 1.5 0 0 0-1.5 1.5v9A1.5 1.5 0 0 0 4 14h8a1.5 1.5 0 0 0 1.5-1.5V6.621a1.5 1.5 0 0 0-.44-1.06L9.94 2.439A1.5 1.5 0 0 0 8.878 2H4Zm4 3.5a.75.75 0 0 1 .75.75v2.69l.72-.72a.75.75 0 1 1 1.06 1.06l-2 2a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06l.72.72V6.25A.75.75 0 0 1 8 5.5Z"
+									fill-rule="evenodd"
+								/>
+							</svg>
+						</div>
+					</button>
+				</div>
+			</div>
+		{/if}
+	{:else}
+		<ModelEditor
+			edit
+			model={models.find((m) => m.id === selectedModelId)}
+			onBack={() => {
+				selectedModelId = null;
+			}}
+			onSubmit={(model) => {
+				console.log(model);
+				upsertModelHandler(model);
+				selectedModelId = null;
+			}}
+			preset={false}
+		/>
+	{/if}
 {:else}
   <div class=" h-full w-full flex justify-center items-center">
     <Spinner />

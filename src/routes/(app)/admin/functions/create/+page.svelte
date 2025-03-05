@@ -10,11 +10,12 @@
   import { compareVersion, extractFrontmatter } from '$lib/utils';
   import { WEBUI_VERSION } from '$lib/constants';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let mounted = false;
-  let clone = false;
-  let func = null;
+	let mounted = $state(false);
+	let clone = $state(false);
+	let func = $state(null);
 
   const saveHandler = async (data) => {
     console.log(data);
@@ -88,16 +89,16 @@
 </script>
 
 {#if mounted}
-  {#key func?.content}
-    <FunctionEditor
-      id={func?.id ?? ''}
-      name={func?.name ?? ''}
-      {clone}
-      content={func?.content ?? ''}
-      meta={func?.meta ?? { description: '' }}
-      onSave={(value) => {
-        saveHandler(value);
-      }}
-    />
-  {/key}
+	{#key func?.content}
+		<FunctionEditor
+			id={func?.id ?? ''}
+			name={func?.name ?? ''}
+			{clone}
+			content={func?.content ?? ''}
+			meta={func?.meta ?? { description: '' }}
+			onSave={(value) => {
+				saveHandler(value);
+			}}
+		/>
+	{/key}
 {/if}

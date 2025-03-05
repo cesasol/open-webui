@@ -1,17 +1,20 @@
 <script lang="ts">
-  import Sortable from 'sortablejs';
+	import { run } from 'svelte/legacy';
 
-  import { createEventDispatcher, getContext, onMount } from 'svelte';
-  const i18n = getContext('i18n');
+	import Sortable from 'sortablejs';
+
+	import { createEventDispatcher, getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
   import { models } from '$lib/stores';
   import Tooltip from '$lib/components/common/Tooltip.svelte';
   import EllipsisVertical from '$lib/components/icons/EllipsisVertical.svelte';
 
-  export let modelIds = [];
+	let { modelIds = $bindable([]) } = $props();
 
-  let sortable = null;
-  let modelListElement = null;
+	let sortable = null;
+	let modelListElement = $state(null);
 
   const positionChangeHandler = () => {
     const modelList = Array.from(modelListElement.children).map((child) =>
@@ -21,42 +24,34 @@
     modelIds = modelList;
   };
 
-  $: if (modelIds) {
-    init();
-  }
+	const init = () => {
+		if (sortable) {
+			sortable.destroy();
+		}
 
-  const init = () => {
-    if (sortable) {
-      sortable.destroy();
-    }
-
-    if (modelListElement) {
-      sortable = Sortable.create(modelListElement, {
-        animation: 150,
-        onUpdate: async (event) => {
-          positionChangeHandler();
-        }
-      });
-    }
-  };
+		if (modelListElement) {
+			sortable = Sortable.create(modelListElement, {
+				animation: 150,
+				onUpdate: async (event) => {
+					positionChangeHandler();
+				}
+			});
+		}
+	};
+	run(() => {
+		if (modelIds) {
+			init();
+		}
+	});
 </script>
 
 {#if modelIds.length > 0}
-  <div
-    bind:this={modelListElement}
-    class="flex flex-col -translate-x-1"
-  >
-    {#each modelIds as modelId, modelIdx (modelId)}
-      <div
-        id="model-item-{modelId}"
-        class=" flex gap-2 w-full justify-between items-center"
-      >
-        <Tooltip
-          content={modelId}
-          placement="top-start"
-        >
-          <div class="flex items-center gap-1">
-            <EllipsisVertical className="size-4 cursor-move" />
+	<div bind:this={modelListElement} class="flex flex-col -translate-x-1">
+		{#each modelIds as modelId, modelIdx (modelId)}
+			<div id="model-item-{modelId}" class=" flex gap-2 w-full justify-between items-center">
+				<Tooltip content={modelId} placement="top-start">
+					<div class="flex items-center gap-1">
+						<EllipsisVertical className="size-4 cursor-move" />
 
             <div class=" text-sm flex-1 py-1 rounded-lg">
               {#if $models.find((model) => model.id === modelId)}

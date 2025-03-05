@@ -1,8 +1,10 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { createEventDispatcher } from 'svelte';
-  import { onMount, getContext } from 'svelte';
-  import { addUser } from '$lib/apis/auths';
+	import { run, preventDefault } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
+	import { createEventDispatcher } from 'svelte';
+	import { onMount, getContext } from 'svelte';
+	import { addUser } from '$lib/apis/auths';
 
   import Modal from '../../common/Modal.svelte';
   import {
@@ -15,19 +17,23 @@
   import Switch from '$lib/components/common/Switch.svelte';
   import Valves from '$lib/components/common/Valves.svelte';
 
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
 
-  export let show = false;
+	interface Props {
+		show?: boolean;
+		type?: string;
+		id?: any;
+	}
 
-  export let type = 'tool';
-  export let id = null;
+	let { show = $bindable(false), type = 'tool', id = null }: Props = $props();
 
-  let saving = false;
-  let loading = false;
+	let saving = $state(false);
+	let loading = $state(false);
 
-  let valvesSpec = null;
-  let valves = {};
+	let valvesSpec = $state(null);
+	let valves = $state({});
 
   const submitHandler = async () => {
     saving = true;
@@ -90,71 +96,69 @@
     loading = false;
   };
 
-  $: if (show) {
-    initHandler();
-  }
+	run(() => {
+		if (show) {
+			initHandler();
+		}
+	});
 </script>
 
-<Modal
-  size="sm"
-  bind:show
->
-  <div>
-    <div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-2">
-      <div class=" text-lg font-medium self-center">{$i18n.t('Valves')}</div>
-      <button
-        class="self-center"
-        on:click={() => {
-          show = false;
-        }}
-      >
-        <svg
-          class="w-5 h-5"
-          fill="currentColor"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-        </svg>
-      </button>
-    </div>
+<Modal size="sm" bind:show>
+	<div>
+		<div class=" flex justify-between dark:text-gray-300 px-5 pt-4 pb-2">
+			<div class=" text-lg font-medium self-center">{$i18n.t('Valves')}</div>
+			<button
+				class="self-center"
+				onclick={() => {
+					show = false;
+				}}
+			>
+				<svg
+					class="w-5 h-5"
+					fill="currentColor"
+					viewBox="0 0 20 20"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+					/>
+				</svg>
+			</button>
+		</div>
 
-    <div class="flex flex-col md:flex-row w-full px-5 pb-4 md:space-x-4 dark:text-gray-200">
-      <div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
-        <form
-          class="flex flex-col w-full"
-          on:submit|preventDefault={() => {
-            submitHandler();
-          }}
-        >
-          <div class="px-1">
-            {#if !loading}
-              <Valves
-                {valvesSpec}
-                bind:valves
-              />
-            {:else}
-              <Spinner className="size-5" />
-            {/if}
-          </div>
+		<div class="flex flex-col md:flex-row w-full px-5 pb-4 md:space-x-4 dark:text-gray-200">
+			<div class=" flex flex-col w-full sm:flex-row sm:justify-center sm:space-x-6">
+				<form
+					class="flex flex-col w-full"
+					onsubmit={preventDefault(() => {
+						submitHandler();
+					})}
+				>
+					<div class="px-1">
+						{#if !loading}
+							<Valves {valvesSpec} bind:valves />
+						{:else}
+							<Spinner className="size-5" />
+						{/if}
+					</div>
 
-          <div class="flex justify-end pt-3 text-sm font-medium">
-            <button
-              class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-              class:cursor-not-allowed={saving}
-              disabled={saving}
-              type="submit"
-            >
-              {$i18n.t('Save')}
+					<div class="flex justify-end pt-3 text-sm font-medium">
+						<button
+							class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+							class:cursor-not-allowed={saving}
+							disabled={saving}
+							type="submit"
+						>
+							{$i18n.t('Save')}
 
-              {#if saving}
-                <div class="ml-2 self-center">
-                  <svg
-                    class=" w-4 h-4"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  ><style>
+							{#if saving}
+								<div class="ml-2 self-center">
+									<svg
+										class=" w-4 h-4"
+										fill="currentColor"
+										viewBox="0 0 24 24"
+										xmlns="http://www.w3.org/2000/svg"
+										><style>
 											.spinner_ajPY {
 												transform-origin: center;
 												animation: spinner_AtaB 0.75s infinite linear;
@@ -164,21 +168,22 @@
 													transform: rotate(360deg);
 												}
 											}
-                    </style><path
-                      d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
-                      opacity=".25"
-                    /><path
-                      class="spinner_ajPY"
-                      d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
-                    /></svg>
-                </div>
-              {/if}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+										</style><path
+											d="M12,1A11,11,0,1,0,23,12,11,11,0,0,0,12,1Zm0,19a8,8,0,1,1,8-8A8,8,0,0,1,12,20Z"
+											opacity=".25"
+										/><path
+											class="spinner_ajPY"
+											d="M10.14,1.16a11,11,0,0,0-9,8.92A1.59,1.59,0,0,0,2.46,12,1.52,1.52,0,0,0,4.11,10.7a8,8,0,0,1,6.66-6.61A1.42,1.42,0,0,0,12,2.69h0A1.57,1.57,0,0,0,10.14,1.16Z"
+										/></svg
+									>
+								</div>
+							{/if}
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </Modal>
 
 <style>

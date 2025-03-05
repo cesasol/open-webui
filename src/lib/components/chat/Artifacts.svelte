@@ -1,8 +1,11 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { onMount, getContext, createEventDispatcher } from 'svelte';
-  const i18n = getContext('i18n');
-  const dispatch = createEventDispatcher();
+	import { run } from 'svelte/legacy';
+
+	import { toast } from 'svelte-sonner';
+	import { onMount, getContext, createEventDispatcher } from 'svelte';
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
+	const dispatch = createEventDispatcher();
 
   import { chatId, showArtifacts, showControls } from '$lib/stores';
   import XMark from '../icons/XMark.svelte';
@@ -12,30 +15,26 @@
   import SvgPanZoom from '../common/SVGPanZoom.svelte';
   import ArrowLeft from '../icons/ArrowLeft.svelte';
 
-  export let overlay = false;
-  export let history;
-  let messages = [];
+	interface Props {
+		overlay?: boolean;
+		history: any;
+	}
 
-  let contents: Array<{ type: string; content: string }> = [];
-  let selectedContentIdx = 0;
+	let { overlay = false, history }: Props = $props();
+	let messages = $state([]);
 
-  let copied = false;
-  let iframeElement: HTMLIFrameElement;
+	let contents: Array<{ type: string; content: string }> = $state([]);
+	let selectedContentIdx = $state(0);
 
-  $: if (history) {
-    messages = createMessagesList(history, history.currentId);
-    getContents();
-  } else {
-    messages = [];
-    getContents();
-  }
+	let copied = $state(false);
+	let iframeElement: HTMLIFrameElement = $state();
 
-  const getContents = () => {
-    contents = [];
-    messages.forEach((message) => {
-      if (message?.role !== 'user' && message?.content) {
-        const codeBlockContents = message.content.match(/```[\s\S]*?```/g);
-        let codeBlocks = [];
+	const getContents = () => {
+		contents = [];
+		messages.forEach((message) => {
+			if (message?.role !== 'user' && message?.content) {
+				const codeBlockContents = message.content.match(/```[\s\S]*?```/g);
+				const codeBlocks = [];
 
         if (codeBlockContents) {
           codeBlockContents.forEach((block) => {
@@ -180,7 +179,16 @@
     }
   };
 
-  onMount(() => {});
+	onMount(() => {});
+	run(() => {
+		if (history) {
+			messages = createMessagesList(history, history.currentId);
+			getContents();
+		} else {
+			messages = [];
+			getContents();
+		}
+	});
 </script>
 
 <div class=" w-full h-full relative flex flex-col bg-gray-50 dark:bg-gray-850">
@@ -189,86 +197,83 @@
       <div class=" absolute top-0 left-0 right-0 bottom-0 z-10" />
     {/if}
 
-    <div class="absolute pointer-events-none z-50 w-full flex items-center justify-start p-4">
-      <button
-        class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
-        on:click={() => {
-          showArtifacts.set(false);
-        }}
-      >
-        <ArrowLeft className="size-3.5  text-gray-900 dark:text-white" />
-      </button>
-    </div>
+		<div class="absolute pointer-events-none z-50 w-full flex items-center justify-start p-4">
+			<button
+				class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
+				onclick={() => {
+					showArtifacts.set(false);
+				}}
+			>
+				<ArrowLeft className="size-3.5  text-gray-900 dark:text-white" />
+			</button>
+		</div>
 
-    <div class=" absolute pointer-events-none z-50 w-full flex items-center justify-end p-4">
-      <button
-        class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
-        on:click={() => {
-          dispatch('close');
-          showControls.set(false);
-          showArtifacts.set(false);
-        }}
-      >
-        <XMark className="size-3.5 text-gray-900 dark:text-white" />
-      </button>
-    </div>
+		<div class=" absolute pointer-events-none z-50 w-full flex items-center justify-end p-4">
+			<button
+				class="self-center pointer-events-auto p-1 rounded-full bg-white dark:bg-gray-850"
+				onclick={() => {
+					dispatch('close');
+					showControls.set(false);
+					showArtifacts.set(false);
+				}}
+			>
+				<XMark className="size-3.5 text-gray-900 dark:text-white" />
+			</button>
+		</div>
 
-    <div class="flex-1 w-full h-full">
-      <div class=" h-full flex flex-col">
-        {#if contents.length > 0}
-          <div class="max-w-full w-full h-full">
-            {#if contents[selectedContentIdx].type === 'iframe'}
-              <iframe
-                bind:this={iframeElement}
-                class="w-full border-0 h-full rounded-none"
-                sandbox="allow-scripts allow-forms allow-same-origin"
-                srcdoc={contents[selectedContentIdx].content}
-                title="Content"
-                on:load={iframeLoadHandler}
-              />
-            {:else if contents[selectedContentIdx].type === 'svg'}
-              <SvgPanZoom
-                className=" w-full h-full max-h-full overflow-hidden"
-                svg={contents[selectedContentIdx].content}
-              />
-            {/if}
-          </div>
-        {:else}
-          <div class="m-auto font-medium text-xs text-gray-900 dark:text-white">
-            {$i18n.t('No HTML, CSS, or JavaScript content found.')}
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
+		<div class="flex-1 w-full h-full">
+			<div class=" h-full flex flex-col">
+				{#if contents.length > 0}
+					<div class="max-w-full w-full h-full">
+						{#if contents[selectedContentIdx].type === 'iframe'}
+							<iframe
+								bind:this={iframeElement}
+								class="w-full border-0 h-full rounded-none"
+								onload={iframeLoadHandler}
+								sandbox="allow-scripts allow-forms allow-same-origin"
+								srcdoc={contents[selectedContentIdx].content}
+								title="Content"
+							></iframe>
+						{:else if contents[selectedContentIdx].type === 'svg'}
+							<SvgPanZoom
+								className=" w-full h-full max-h-full overflow-hidden"
+								svg={contents[selectedContentIdx].content}
+							/>
+						{/if}
+					</div>
+				{:else}
+					<div class="m-auto font-medium text-xs text-gray-900 dark:text-white">
+						{$i18n.t('No HTML, CSS, or JavaScript content found.')}
+					</div>
+				{/if}
+			</div>
+		</div>
+	</div>
 
-  {#if contents.length > 0}
-    <div class="flex justify-between items-center p-2.5 font-primar text-gray-900 dark:text-white">
-      <div class="flex items-center space-x-2">
-        <div
-          class="flex items-center gap-0.5 self-center min-w-fit"
-          dir="ltr"
-        >
-          <button
-            class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition disabled:cursor-not-allowed"
-            disabled={contents.length <= 1}
-            on:click={() => navigateContent('prev')}
-          >
-            <svg
-              class="size-3.5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M15.75 19.5 8.25 12l7.5-7.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
+	{#if contents.length > 0}
+		<div class="flex justify-between items-center p-2.5 font-primar text-gray-900 dark:text-white">
+			<div class="flex items-center space-x-2">
+				<div class="flex items-center gap-0.5 self-center min-w-fit" dir="ltr">
+					<button
+						class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition disabled:cursor-not-allowed"
+						disabled={contents.length <= 1}
+						onclick={() => navigateContent('prev')}
+					>
+						<svg
+							class="size-3.5"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								d="M15.75 19.5 8.25 12l7.5-7.5"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							/>
+						</svg>
+					</button>
 
           <div class="text-xs self-center dark:text-gray-100 min-w-fit">
             {$i18n.t('Version {{selectedVersion}} of {{totalVersions}}', {
@@ -277,35 +282,31 @@
             })}
           </div>
 
-          <button
-            class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition disabled:cursor-not-allowed"
-            disabled={contents.length <= 1}
-            on:click={() => navigateContent('next')}
-          >
-            <svg
-              class="size-3.5"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
+					<button
+						class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition disabled:cursor-not-allowed"
+						disabled={contents.length <= 1}
+						onclick={() => navigateContent('next')}
+					>
+						<svg
+							class="size-3.5"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path d="m8.25 4.5 7.5 7.5-7.5 7.5" stroke-linecap="round" stroke-linejoin="round" />
+						</svg>
+					</button>
+				</div>
+			</div>
 
-      <div class="flex items-center gap-1">
-        <button
-          class="copy-code-button bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
-          on:click={() => {
-            copyToClipboard(contents[selectedContentIdx].content);
-            copied = true;
+			<div class="flex items-center gap-1">
+				<button
+					class="copy-code-button bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+					onclick={() => {
+						copyToClipboard(contents[selectedContentIdx].content);
+						copied = true;
 
             setTimeout(() => {
               copied = false;
@@ -313,17 +314,17 @@
           }}
         >{copied ? $i18n.t('Copied') : $i18n.t('Copy')}</button>
 
-        {#if contents[selectedContentIdx].type === 'iframe'}
-          <Tooltip content={$i18n.t('Open in full screen')}>
-            <button
-              class=" bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md p-0.5"
-              on:click={showFullScreen}
-            >
-              <ArrowsPointingOut className="size-3.5" />
-            </button>
-          </Tooltip>
-        {/if}
-      </div>
-    </div>
-  {/if}
+				{#if contents[selectedContentIdx].type === 'iframe'}
+					<Tooltip content={$i18n.t('Open in full screen')}>
+						<button
+							class=" bg-none border-none text-xs bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md p-0.5"
+							onclick={showFullScreen}
+						>
+							<ArrowsPointingOut className="size-3.5" />
+						</button>
+					</Tooltip>
+				{/if}
+			</div>
+		</div>
+	{/if}
 </div>

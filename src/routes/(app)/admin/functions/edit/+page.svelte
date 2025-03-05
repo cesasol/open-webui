@@ -2,10 +2,10 @@
   import { toast } from 'svelte-sonner';
   import { onMount, getContext } from 'svelte';
 
-  import { goto } from '$app/navigation';
-  import { page } from '$app/state';
-  import { config, functions, models, settings } from '$lib/stores';
-  import { updateFunctionById, getFunctions, getFunctionById } from '$lib/apis/functions';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/state';
+	import { config, functions, models, settings } from '$lib/stores';
+	import { updateFunctionById, getFunctions, getFunctionById } from '$lib/apis/functions';
 
   import FunctionEditor from '$lib/components/admin/Functions/FunctionEditor.svelte';
   import Spinner from '$lib/components/common/Spinner.svelte';
@@ -13,9 +13,10 @@
   import { compareVersion, extractFrontmatter } from '$lib/utils';
   import { WEBUI_VERSION } from '$lib/constants';
 
-  const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/contexts';
+	const i18n = getI18nContext();
 
-  let func = null;
+	let func = $state(null);
 
   const saveHandler = async (data) => {
     console.log(data);
@@ -57,9 +58,9 @@
     }
   };
 
-  onMount(async () => {
-    console.log('mounted');
-    const id = page.url.searchParams.get('id');
+	onMount(async () => {
+		console.log('mounted');
+		const id = page.url.searchParams.get('id');
 
     if (id) {
       func = await getFunctionById(localStorage.token, id).catch((error) => {
@@ -74,16 +75,16 @@
 </script>
 
 {#if func}
-  <FunctionEditor
-    id={func.id}
-    name={func.name}
-    content={func.content}
-    edit={true}
-    meta={func.meta}
-    onSave={(value) => {
-      saveHandler(value);
-    }}
-  />
+	<FunctionEditor
+		id={func.id}
+		name={func.name}
+		content={func.content}
+		edit={true}
+		meta={func.meta}
+		onSave={(value) => {
+			saveHandler(value);
+		}}
+	/>
 {:else}
   <div class="flex items-center justify-center h-full">
     <div class=" pb-16">
