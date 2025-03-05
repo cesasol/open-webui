@@ -4,9 +4,9 @@
 	import { getContext, createEventDispatcher, onMount } from 'svelte';
 	import { createNewChannel, deleteChannelById } from '$lib/apis/channels';
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import AccessControl from '$lib/components/workspace/common/AccessControl.svelte';
-  import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import AccessControl from '$lib/components/workspace/common/AccessControl.svelte';
+	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 
 	import { toast } from 'svelte-sonner';
 	import { page } from '$app/stores';
@@ -51,10 +51,10 @@
 		loading = false;
 	};
 
-  const init = () => {
-    name = channel.name;
-    accessControl = channel.access_control;
-  };
+	const init = () => {
+		name = channel.name;
+		accessControl = channel.access_control;
+	};
 
 	run(() => {
 		if (channel) {
@@ -64,24 +64,24 @@
 
 	let showDeleteConfirmDialog = $state(false);
 
-  const deleteHandler = async () => {
-    showDeleteConfirmDialog = false;
+	const deleteHandler = async () => {
+		showDeleteConfirmDialog = false;
 
-    const res = await deleteChannelById(localStorage.token, channel.id).catch((error) => {
-      toast.error(error.message);
-    });
+		const res = await deleteChannelById(localStorage.token, channel.id).catch((error) => {
+			toast.error(error.message);
+		});
 
-    if (res) {
-      toast.success('Channel deleted successfully');
-      onUpdate();
+		if (res) {
+			toast.success('Channel deleted successfully');
+			onUpdate();
 
-      if ($page.url.pathname === `/channels/${channel.id}`) {
-        goto('/');
-      }
-    }
+			if ($page.url.pathname === `/channels/${channel.id}`) {
+				goto('/');
+			}
+		}
 
-    show = false;
-  };
+		show = false;
+	};
 </script>
 
 <Modal size="sm" bind:show>
@@ -137,13 +137,13 @@
 						</div>
 					</div>
 
-          <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
+					<hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
 
-          <div class="my-2 -mx-2">
-            <div class="px-3 py-2 bg-gray-50 dark:bg-gray-950 rounded-lg">
-              <AccessControl bind:accessControl />
-            </div>
-          </div>
+					<div class="my-2 -mx-2">
+						<div class="px-3 py-2 bg-gray-50 dark:bg-gray-950 rounded-lg">
+							<AccessControl bind:accessControl />
+						</div>
+					</div>
 
 					<div class="flex justify-end pt-3 text-sm font-medium gap-1.5">
 						{#if edit}

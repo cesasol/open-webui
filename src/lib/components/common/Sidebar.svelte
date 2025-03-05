@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { fade, slide } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 
 	interface Props {
 		show?: boolean;

@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { getContext, createEventDispatcher, onMount, onDestroy } from 'svelte';
+	import { getContext, createEventDispatcher, onMount, onDestroy } from 'svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
-  import ChevronDown from '../icons/ChevronDown.svelte';
-  import ChevronRight from '../icons/ChevronRight.svelte';
-  import Collapsible from './Collapsible.svelte';
-  import Tooltip from './Tooltip.svelte';
-  import Plus from '../icons/Plus.svelte';
+	import ChevronDown from '../icons/ChevronDown.svelte';
+	import ChevronRight from '../icons/ChevronRight.svelte';
+	import Collapsible from './Collapsible.svelte';
+	import Tooltip from './Tooltip.svelte';
+	import Plus from '../icons/Plus.svelte';
 
 	interface Props {
 		open?: boolean;
@@ -39,95 +39,94 @@
 
 	let draggedOver = $state(false);
 
-  const onDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    draggedOver = true;
-  };
+	const onDragOver = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		draggedOver = true;
+	};
 
-  const onDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+	const onDrop = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
 
-    if (folderElement.contains(e.target)) {
-      console.log('Dropped on the Button');
+		if (folderElement.contains(e.target)) {
+			console.log('Dropped on the Button');
 
-      if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-        // Iterate over all items in the DataTransferItemList use functional programming
-        for (const item of Array.from(e.dataTransfer.items)) {
-          // If dropped items aren't files, reject them
-          if (item.kind === 'file') {
-            const file = item.getAsFile();
-            if (file && file.type === 'application/json') {
-              console.log('Dropped file is a JSON file!');
+			if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+				// Iterate over all items in the DataTransferItemList use functional programming
+				for (const item of Array.from(e.dataTransfer.items)) {
+					// If dropped items aren't files, reject them
+					if (item.kind === 'file') {
+						const file = item.getAsFile();
+						if (file && file.type === 'application/json') {
+							console.log('Dropped file is a JSON file!');
 
-              // Read the JSON file with FileReader
-              const reader = new FileReader();
-              reader.onload = async function (event) {
-                try {
-                  const fileContent = JSON.parse(event.target.result);
-                  console.log('Parsed JSON Content: ', fileContent);
-                  open = true;
-                  dispatch('import', fileContent);
-                } catch (error) {
-                  console.error('Error parsing JSON file:', error);
-                }
-              };
+							// Read the JSON file with FileReader
+							const reader = new FileReader();
+							reader.onload = async function (event) {
+								try {
+									const fileContent = JSON.parse(event.target.result);
+									console.log('Parsed JSON Content: ', fileContent);
+									open = true;
+									dispatch('import', fileContent);
+								} catch (error) {
+									console.error('Error parsing JSON file:', error);
+								}
+							};
 
-              // Start reading the file
-              reader.readAsText(file);
-            } else {
-              console.error('Only JSON file types are supported.');
-            }
-          } else {
-            open = true;
+							// Start reading the file
+							reader.readAsText(file);
+						} else {
+							console.error('Only JSON file types are supported.');
+						}
+					} else {
+						open = true;
 
-            const dataTransfer = e.dataTransfer.getData('text/plain');
-            const data = JSON.parse(dataTransfer);
+						const dataTransfer = e.dataTransfer.getData('text/plain');
+						const data = JSON.parse(dataTransfer);
 
-            console.log(data);
-            dispatch('drop', data);
-          }
-        }
-      }
+						console.log(data);
+						dispatch('drop', data);
+					}
+				}
+			}
 
-      draggedOver = false;
-    }
-  };
+			draggedOver = false;
+		}
+	};
 
-  const onDragLeave = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+	const onDragLeave = (e) => {
+		e.preventDefault();
+		e.stopPropagation();
 
-    draggedOver = false;
-  };
+		draggedOver = false;
+	};
 
-  onMount(() => {
-    if (!dragAndDrop) {
-      return;
-    }
-    folderElement.addEventListener('dragover', onDragOver);
-    folderElement.addEventListener('drop', onDrop);
-    folderElement.addEventListener('dragleave', onDragLeave);
-  });
+	onMount(() => {
+		if (!dragAndDrop) {
+			return;
+		}
+		folderElement.addEventListener('dragover', onDragOver);
+		folderElement.addEventListener('drop', onDrop);
+		folderElement.addEventListener('dragleave', onDragLeave);
+	});
 
-  onDestroy(() => {
-    if (!dragAndDrop) {
-      return;
-    }
-    folderElement.addEventListener('dragover', onDragOver);
-    folderElement.removeEventListener('drop', onDrop);
-    folderElement.removeEventListener('dragleave', onDragLeave);
-  });
+	onDestroy(() => {
+		if (!dragAndDrop) {
+			return;
+		}
+		folderElement.addEventListener('dragover', onDragOver);
+		folderElement.removeEventListener('drop', onDrop);
+		folderElement.removeEventListener('dragleave', onDragLeave);
+	});
 </script>
 
-<div
-  bind:this={folderElement}
-  class="relative {className}"
->
-  {#if draggedOver}
-    <div class="absolute top-0 left-0 w-full h-full rounded-xs bg-gray-100/50 dark:bg-gray-700/20 bg-opacity-50 dark:bg-opacity-10 z-50 pointer-events-none touch-none" />
-  {/if}
+<div bind:this={folderElement} class="relative {className}">
+	{#if draggedOver}
+		<div
+			class="absolute top-0 left-0 w-full h-full rounded-xs bg-gray-100/50 dark:bg-gray-700/20 bg-opacity-50 dark:bg-opacity-10 z-50 pointer-events-none touch-none"
+		/>
+	{/if}
 
 	{#if collapsible}
 		<Collapsible
@@ -151,10 +150,10 @@
 						{/if}
 					</div>
 
-          <div class="translate-y-[0.5px]">
-            {name}
-          </div>
-        </button>
+					<div class="translate-y-[0.5px]">
+						{name}
+					</div>
+				</button>
 
 				{#if onAdd}
 					<button

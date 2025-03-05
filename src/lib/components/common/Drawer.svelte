@@ -6,7 +6,7 @@
 	import { fade, fly, slide } from 'svelte/transition';
 	import { isApp } from '$lib/stores';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	interface Props {
 		show?: boolean;
@@ -19,21 +19,21 @@
 	let modalElement = $state(null);
 	let mounted = false;
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && isTopModal()) {
-      console.log('Escape');
-      show = false;
-    }
-  };
+	const handleKeyDown = (event: KeyboardEvent) => {
+		if (event.key === 'Escape' && isTopModal()) {
+			console.log('Escape');
+			show = false;
+		}
+	};
 
-  const isTopModal = () => {
-    const modals = document.getElementsByClassName('modal');
-    return modals.length && modals[modals.length - 1] === modalElement;
-  };
+	const isTopModal = () => {
+		const modals = document.getElementsByClassName('modal');
+		return modals.length && modals[modals.length - 1] === modalElement;
+	};
 
-  onMount(() => {
-    mounted = true;
-  });
+	onMount(() => {
+		mounted = true;
+	});
 
 	run(() => {
 		if (show && modalElement) {
@@ -51,15 +51,15 @@
 		}
 	});
 
-  onDestroy(() => {
-    show = false;
-    if (modalElement) {
-      if (document.body.contains(modalElement)) {
-        document.body.removeChild(modalElement);
-        document.body.style.overflow = 'unset';
-      }
-    }
-  });
+	onDestroy(() => {
+		show = false;
+		if (modalElement) {
+			if (document.body.contains(modalElement)) {
+				document.body.removeChild(modalElement);
+				document.body.style.overflow = 'unset';
+			}
+		}
+	});
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->

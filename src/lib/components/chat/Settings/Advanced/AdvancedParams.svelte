@@ -6,7 +6,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { getI18nContext } from '$lib/contexts';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	const i18n = getI18nContext();
 
@@ -312,11 +312,11 @@
 
 	<div class=" py-0.5 w-full justify-between">
 		<Tooltip
+			className="inline-tooltip"
 			content={$i18n.t(
 				'Boosting or penalizing specific tokens for constrained responses. Bias values will be clamped between -100 and 100 (inclusive). (Default: none)'
 			)}
 			placement="top-start"
-			className="inline-tooltip"
 		>
 			<div class="flex w-full justify-between">
 				<div class=" self-center text-xs font-medium">
@@ -324,10 +324,10 @@
 				</div>
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
-					type="button"
 					onclick={() => {
 						params.logit_bias = (params?.logit_bias ?? null) === null ? '' : null;
 					}}
+					type="button"
 				>
 					{#if (params?.logit_bias ?? null) === null}
 						<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
@@ -343,12 +343,12 @@
 				<div class=" flex-1">
 					<input
 						class="w-full rounded-lg pl-2 py-2 px-1 text-sm dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-						type="text"
+						autocomplete="off"
 						placeholder={$i18n.t(
 							'Enter comma-seperated "token:bias_value" pairs (example: 5432:100, 413:-100)'
 						)}
+						type="text"
 						bind:value={params.logit_bias}
-						autocomplete="off"
 					/>
 				</div>
 			</div>
@@ -368,10 +368,10 @@
 				</div>
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition shrink-0 outline-hidden"
-					type="button"
 					onclick={() => {
 						params.logit_bias = (params?.logit_bias ?? null) === null ? '' : null;
 					}}
+					type="button"
 				>
 					{#if (params?.logit_bias ?? null) === null}
 						<span class="ml-2 self-center"> {$i18n.t('Default')} </span>
@@ -387,12 +387,12 @@
 				<div class=" flex-1">
 					<input
 						class="w-full rounded-lg pl-2 py-2 px-1 text-sm dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-						type="text"
+						autocomplete="off"
 						placeholder={$i18n.t(
 							'Enter comma-seperated "token:bias_value" pairs (example: 5432:100, 413:-100)'
 						)}
+						type="text"
 						bind:value={params.logit_bias}
-						autocomplete="off"
 					/>
 				</div>
 			</div>
@@ -1452,5 +1452,5 @@
 				</div>
 			{/if}
 		</div> -->
-  {/if}
+	{/if}
 </div>

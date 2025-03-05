@@ -1686,111 +1686,111 @@
 			} else {
 				// If there are multiple models selected, use the model of the response message for regeneration
 				// e.g. many model chat
-        await sendPrompt(history, userPrompt, userMessage.id, {
-          modelId: message.model,
-          modelIdx: message.modelIdx
-        });
-      }
-    }
-  };
+				await sendPrompt(history, userPrompt, userMessage.id, {
+					modelId: message.model,
+					modelIdx: message.modelIdx
+				});
+			}
+		}
+	};
 
-  const continueResponse = async () => {
-    console.log('continueResponse');
-    const _chatId = JSON.parse(JSON.stringify($chatId));
+	const continueResponse = async () => {
+		console.log('continueResponse');
+		const _chatId = JSON.parse(JSON.stringify($chatId));
 
-    if (history.currentId && history.messages[history.currentId].done == true) {
-      const responseMessage = history.messages[history.currentId];
-      responseMessage.done = false;
-      await tick();
+		if (history.currentId && history.messages[history.currentId].done == true) {
+			const responseMessage = history.messages[history.currentId];
+			responseMessage.done = false;
+			await tick();
 
-      const model = $models
-        .filter((m) => m.id === (responseMessage?.selectedModelId ?? responseMessage.model))
-        .at(0);
+			const model = $models
+				.filter((m) => m.id === (responseMessage?.selectedModelId ?? responseMessage.model))
+				.at(0);
 
-      if (model) {
-        await sendPromptSocket(history, model, responseMessage.id, _chatId);
-      }
-    }
-  };
+			if (model) {
+				await sendPromptSocket(history, model, responseMessage.id, _chatId);
+			}
+		}
+	};
 
-  const mergeResponses = async (messageId, responses, _chatId) => {
-    console.log('mergeResponses', messageId, responses);
-    const message = history.messages[messageId];
-    const mergedResponse = {
-      status: true,
-      content: ''
-    };
-    message.merged = mergedResponse;
-    history.messages[messageId] = message;
+	const mergeResponses = async (messageId, responses, _chatId) => {
+		console.log('mergeResponses', messageId, responses);
+		const message = history.messages[messageId];
+		const mergedResponse = {
+			status: true,
+			content: ''
+		};
+		message.merged = mergedResponse;
+		history.messages[messageId] = message;
 
-    try {
-      const [res, controller] = await generateMoACompletion(
-        localStorage.token,
-        message.model,
-        history.messages[message.parentId].content,
-        responses
-      );
+		try {
+			const [res, controller] = await generateMoACompletion(
+				localStorage.token,
+				message.model,
+				history.messages[message.parentId].content,
+				responses
+			);
 
-      if (res && res.ok && res.body) {
-        const textStream = await createOpenAITextStream(res.body, $settings.splitLargeChunks);
-        for await (const update of textStream) {
-          const { value, done, sources, error, usage } = update;
-          if (error || done) {
-            break;
-          }
+			if (res && res.ok && res.body) {
+				const textStream = await createOpenAITextStream(res.body, $settings.splitLargeChunks);
+				for await (const update of textStream) {
+					const { value, done, sources, error, usage } = update;
+					if (error || done) {
+						break;
+					}
 
-          if (mergedResponse.content == '' && value == '\n') {
-            continue;
-          } else {
-            mergedResponse.content += value;
-            history.messages[messageId] = message;
-          }
+					if (mergedResponse.content == '' && value == '\n') {
+						continue;
+					} else {
+						mergedResponse.content += value;
+						history.messages[messageId] = message;
+					}
 
-          if (autoScroll) {
-            scrollToBottom();
-          }
-        }
+					if (autoScroll) {
+						scrollToBottom();
+					}
+				}
 
-        await saveChatHandler(_chatId, history);
-      } else {
-        console.error(res);
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  };
+				await saveChatHandler(_chatId, history);
+			} else {
+				console.error(res);
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	};
 
-  const initChatHandler = async (history) => {
-    let _chatId = $chatId;
+	const initChatHandler = async (history) => {
+		let _chatId = $chatId;
 
-    if (!$temporaryChatEnabled) {
-      chat = await createNewChat(localStorage.token, {
-        id: _chatId,
-        title: $i18n.t('New Chat'),
-        models: selectedModels,
-        system: $settings.system ?? undefined,
-        params: params,
-        history: history,
-        messages: createMessagesList(history, history.currentId),
-        tags: [],
-        timestamp: Date.now()
-      });
+		if (!$temporaryChatEnabled) {
+			chat = await createNewChat(localStorage.token, {
+				id: _chatId,
+				title: $i18n.t('New Chat'),
+				models: selectedModels,
+				system: $settings.system ?? undefined,
+				params: params,
+				history: history,
+				messages: createMessagesList(history, history.currentId),
+				tags: [],
+				timestamp: Date.now()
+			});
 
-      _chatId = chat.id;
-      await chatId.set(_chatId);
+			_chatId = chat.id;
+			await chatId.set(_chatId);
 
-      await chats.set(await getChatList(localStorage.token, $currentChatPage));
-      currentChatPage.set(1);
+			await chats.set(await getChatList(localStorage.token, $currentChatPage));
+			currentChatPage.set(1);
 
-      window.history.replaceState(history.state, '', `/c/${_chatId}`);
-    } else {
-      _chatId = 'local';
-      await chatId.set('local');
-    }
-    await tick();
+			window.history.replaceState(history.state, '', `/c/${_chatId}`);
+		} else {
+			_chatId = 'local';
+			await chatId.set('local');
+		}
+		await tick();
 
-    return _chatId;
-  };
+		return _chatId;
+	};
 
 	const saveChatHandler = async (_chatId, history) => {
 		if ($chatId == _chatId) {
@@ -1865,11 +1865,11 @@
 </script>
 
 <svelte:head>
-  <title>
-    {$chatTitle
-      ? `${$chatTitle.length > 30 ? `${$chatTitle.slice(0, 30)}...` : $chatTitle} | ${$WEBUI_NAME}`
-      : `${$WEBUI_NAME}`}
-  </title>
+	<title>
+		{$chatTitle
+			? `${$chatTitle.length > 30 ? `${$chatTitle.slice(0, 30)}...` : $chatTitle} | ${$WEBUI_NAME}`
+			: `${$WEBUI_NAME}`}
+	</title>
 </svelte:head>
 
 <audio id="audioElement" style:display="none" src=""></audio>
@@ -1967,21 +1967,21 @@
 									on:dismiss={(e) => {
 										const bannerId = e.detail;
 
-                    localStorage.setItem(
-                      'dismissedBannerIds',
-                      JSON.stringify(
-                        [
-                          bannerId,
-                          ...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
-                        ].filter((id) => $banners.find((b) => b.id === id))
-                      )
-                    );
-                  }}
-                />
-              {/each}
-            </div>
-          </div>
-        {/if}
+										localStorage.setItem(
+											'dismissedBannerIds',
+											JSON.stringify(
+												[
+													bannerId,
+													...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
+												].filter((id) => $banners.find((b) => b.id === id))
+											)
+										);
+									}}
+								/>
+							{/each}
+						</div>
+					</div>
+				{/if}
 
 				<div class="flex flex-col flex-auto z-10 w-full @container">
 					{#if $settings?.landingPageMode === 'chat' || createMessagesList(history, history.currentId).length > 0}
@@ -2041,25 +2041,25 @@
 								on:upload={async (e) => {
 									const { type, data } = e.detail;
 
-                  if (type === 'web') {
-                    await uploadWeb(data);
-                  } else if (type === 'youtube') {
-                    await uploadYoutubeTranscription(data);
-                  } else if (type === 'google-drive') {
-                    await uploadGoogleDriveFile(data);
-                  }
-                }}
-                on:submit={async (e) => {
-                  if (e.detail || files.length > 0) {
-                    await tick();
-                    submitPrompt(
-                      ($settings?.richTextInput ?? true)
-                        ? e.detail.replaceAll('\n\n', '\n')
-                        : e.detail
-                    );
-                  }
-                }}
-              />
+									if (type === 'web') {
+										await uploadWeb(data);
+									} else if (type === 'youtube') {
+										await uploadYoutubeTranscription(data);
+									} else if (type === 'google-drive') {
+										await uploadGoogleDriveFile(data);
+									}
+								}}
+								on:submit={async (e) => {
+									if (e.detail || files.length > 0) {
+										await tick();
+										submitPrompt(
+											($settings?.richTextInput ?? true)
+												? e.detail.replaceAll('\n\n', '\n')
+												: e.detail
+										);
+									}
+								}}
+							/>
 
 							<div
 								class="absolute bottom-1 text-xs text-gray-500 text-center line-clamp-1 right-0 left-0"
@@ -2086,27 +2086,27 @@
 								on:upload={async (e) => {
 									const { type, data } = e.detail;
 
-                  if (type === 'web') {
-                    await uploadWeb(data);
-                  } else if (type === 'youtube') {
-                    await uploadYoutubeTranscription(data);
-                  }
-                }}
-                on:submit={async (e) => {
-                  if (e.detail || files.length > 0) {
-                    await tick();
-                    submitPrompt(
-                      ($settings?.richTextInput ?? true)
-                        ? e.detail.replaceAll('\n\n', '\n')
-                        : e.detail
-                    );
-                  }
-                }}
-              />
-            </div>
-          {/if}
-        </div>
-      </Pane>
+									if (type === 'web') {
+										await uploadWeb(data);
+									} else if (type === 'youtube') {
+										await uploadYoutubeTranscription(data);
+									}
+								}}
+								on:submit={async (e) => {
+									if (e.detail || files.length > 0) {
+										await tick();
+										submitPrompt(
+											($settings?.richTextInput ?? true)
+												? e.detail.replaceAll('\n\n', '\n')
+												: e.detail
+										);
+									}
+								}}
+							/>
+						</div>
+					{/if}
+				</div>
+			</Pane>
 
 			<ChatControls
 				bind:this={controlPaneComponent}

@@ -6,12 +6,12 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import Display from './Display.svelte';
-  import Permissions from './Permissions.svelte';
-  import Users from './Users.svelte';
-  import UserPlusSolid from '$lib/components/icons/UserPlusSolid.svelte';
-  import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import Display from './Display.svelte';
+	import Permissions from './Permissions.svelte';
+	import Users from './Users.svelte';
+	import UserPlusSolid from '$lib/components/icons/UserPlusSolid.svelte';
+	import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
 
 	let selectedTab = $state('general');
 	let loading = $state(false);
@@ -65,31 +65,31 @@
 		userIds = $bindable([])
 	}: Props = $props();
 
-  const submitHandler = async () => {
-    loading = true;
+	const submitHandler = async () => {
+		loading = true;
 
-    const group = {
-      name,
-      description,
-      permissions,
-      user_ids: userIds
-    };
+		const group = {
+			name,
+			description,
+			permissions,
+			user_ids: userIds
+		};
 
-    await onSubmit(group);
+		await onSubmit(group);
 
-    loading = false;
-    show = false;
-  };
+		loading = false;
+		show = false;
+	};
 
-  const init = () => {
-    if (group) {
-      name = group.name;
-      description = group.description;
-      permissions = group?.permissions ?? {};
+	const init = () => {
+		if (group) {
+			name = group.name;
+			description = group.description;
+			permissions = group?.permissions ?? {};
 
-      userIds = group?.user_ids ?? [];
-    }
-  };
+			userIds = group?.user_ids ?? [];
+		}
+	};
 
 	run(() => {
 		if (show) {
@@ -97,11 +97,11 @@
 		}
 	});
 
-  onMount(() => {
-    console.log(tabs);
-    selectedTab = tabs[0];
-    init();
-  });
+	onMount(() => {
+		console.log(tabs);
+		selectedTab = tabs[0];
+		init();
+	});
 </script>
 
 <Modal size="md" bind:show>
@@ -230,7 +230,7 @@
 						</div>
 					</div>
 
-          <!-- <div
+					<!-- <div
 						class=" tabs flex flex-row overflow-x-auto gap-2.5 text-sm font-medium border-b border-b-gray-800 scrollbar-hidden"
 					>
 						{#if tabs.includes('display')}

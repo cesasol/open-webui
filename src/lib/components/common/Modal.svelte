@@ -4,7 +4,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 
-  import { flyAndScale } from '$lib/utils/transitions';
+	import { flyAndScale } from '$lib/utils/transitions';
 
 	interface Props {
 		show?: boolean;
@@ -25,36 +25,36 @@
 	let modalElement = $state(null);
 	let mounted = false;
 
-  const sizeToWidth = (size) => {
-    if (size === 'full') {
-      return 'w-full';
-    }
-    if (size === 'xs') {
-      return 'w-[16rem]';
-    } else if (size === 'sm') {
-      return 'w-[30rem]';
-    } else if (size === 'md') {
-      return 'w-[42rem]';
-    } else {
-      return 'w-[56rem]';
-    }
-  };
+	const sizeToWidth = (size) => {
+		if (size === 'full') {
+			return 'w-full';
+		}
+		if (size === 'xs') {
+			return 'w-[16rem]';
+		} else if (size === 'sm') {
+			return 'w-[30rem]';
+		} else if (size === 'md') {
+			return 'w-[42rem]';
+		} else {
+			return 'w-[56rem]';
+		}
+	};
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && isTopModal()) {
-      console.log('Escape');
-      show = false;
-    }
-  };
+	const handleKeyDown = (event: KeyboardEvent) => {
+		if (event.key === 'Escape' && isTopModal()) {
+			console.log('Escape');
+			show = false;
+		}
+	};
 
-  const isTopModal = () => {
-    const modals = document.getElementsByClassName('modal');
-    return modals.length && modals[modals.length - 1] === modalElement;
-  };
+	const isTopModal = () => {
+		const modals = document.getElementsByClassName('modal');
+		return modals.length && modals[modals.length - 1] === modalElement;
+	};
 
-  onMount(() => {
-    mounted = true;
-  });
+	onMount(() => {
+		mounted = true;
+	});
 
 	run(() => {
 		if (show && modalElement) {
@@ -68,12 +68,12 @@
 		}
 	});
 
-  onDestroy(() => {
-    show = false;
-    if (modalElement) {
-      document.body.removeChild(modalElement);
-    }
-  });
+	onDestroy(() => {
+		show = false;
+		if (modalElement) {
+			document.body.removeChild(modalElement);
+		}
+	});
 </script>
 
 {#if show}

@@ -5,30 +5,30 @@
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { getContext, createEventDispatcher } from 'svelte';
 
-  import fileSaver from 'file-saver';
-  const { saveAs } = fileSaver;
+	import fileSaver from 'file-saver';
+	const { saveAs } = fileSaver;
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
-  import Dropdown from '$lib/components/common/Dropdown.svelte';
-  import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
-  import Pencil from '$lib/components/icons/Pencil.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Tags from '$lib/components/chat/Tags.svelte';
-  import Share from '$lib/components/icons/Share.svelte';
-  import ArchiveBox from '$lib/components/icons/ArchiveBox.svelte';
-  import DocumentDuplicate from '$lib/components/icons/DocumentDuplicate.svelte';
-  import Bookmark from '$lib/components/icons/Bookmark.svelte';
-  import BookmarkSlash from '$lib/components/icons/BookmarkSlash.svelte';
-  import {
-    getChatById,
-    getChatPinnedStatusById,
-    toggleChatPinnedStatusById
-  } from '$lib/apis/chats';
-  import { chats } from '$lib/stores';
-  import { createMessagesList } from '$lib/utils';
-  import { downloadChatAsPDF } from '$lib/apis/utils';
-  import Download from '$lib/components/icons/Download.svelte';
+	import Dropdown from '$lib/components/common/Dropdown.svelte';
+	import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
+	import Pencil from '$lib/components/icons/Pencil.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Tags from '$lib/components/chat/Tags.svelte';
+	import Share from '$lib/components/icons/Share.svelte';
+	import ArchiveBox from '$lib/components/icons/ArchiveBox.svelte';
+	import DocumentDuplicate from '$lib/components/icons/DocumentDuplicate.svelte';
+	import Bookmark from '$lib/components/icons/Bookmark.svelte';
+	import BookmarkSlash from '$lib/components/icons/BookmarkSlash.svelte';
+	import {
+		getChatById,
+		getChatPinnedStatusById,
+		toggleChatPinnedStatusById
+	} from '$lib/apis/chats';
+	import { chats } from '$lib/stores';
+	import { createMessagesList } from '$lib/utils';
+	import { downloadChatAsPDF } from '$lib/apis/utils';
+	import Download from '$lib/components/icons/Download.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -58,70 +58,70 @@
 	let show = $state(false);
 	let pinned = $state(false);
 
-  const pinHandler = async () => {
-    await toggleChatPinnedStatusById(localStorage.token, chatId);
-    dispatch('change');
-  };
+	const pinHandler = async () => {
+		await toggleChatPinnedStatusById(localStorage.token, chatId);
+		dispatch('change');
+	};
 
-  const checkPinned = async () => {
-    pinned = await getChatPinnedStatusById(localStorage.token, chatId);
-  };
+	const checkPinned = async () => {
+		pinned = await getChatPinnedStatusById(localStorage.token, chatId);
+	};
 
-  const getChatAsText = async (chat) => {
-    const history = chat.chat.history;
-    const messages = createMessagesList(history, history.currentId);
-    const chatText = messages.reduce((a, message, i, arr) => {
-      return `${a}### ${message.role.toUpperCase()}\n${message.content}\n\n`;
-    }, '');
+	const getChatAsText = async (chat) => {
+		const history = chat.chat.history;
+		const messages = createMessagesList(history, history.currentId);
+		const chatText = messages.reduce((a, message, i, arr) => {
+			return `${a}### ${message.role.toUpperCase()}\n${message.content}\n\n`;
+		}, '');
 
-    return chatText.trim();
-  };
+		return chatText.trim();
+	};
 
-  const downloadTxt = async () => {
-    const chat = await getChatById(localStorage.token, chatId);
-    if (!chat) {
-      return;
-    }
+	const downloadTxt = async () => {
+		const chat = await getChatById(localStorage.token, chatId);
+		if (!chat) {
+			return;
+		}
 
 		const chatText = await getChatAsText(chat);
 		const blob = new Blob([chatText], {
 			type: 'text/plain'
 		});
 
-    saveAs(blob, `chat-${chat.chat.title}.txt`);
-  };
+		saveAs(blob, `chat-${chat.chat.title}.txt`);
+	};
 
-  const downloadPdf = async () => {
-    const chat = await getChatById(localStorage.token, chatId);
-    if (!chat) {
-      return;
-    }
+	const downloadPdf = async () => {
+		const chat = await getChatById(localStorage.token, chatId);
+		if (!chat) {
+			return;
+		}
 
-    const history = chat.chat.history;
-    const messages = createMessagesList(history, history.currentId);
-    const blob = await downloadChatAsPDF(localStorage.token, chat.chat.title, messages);
+		const history = chat.chat.history;
+		const messages = createMessagesList(history, history.currentId);
+		const blob = await downloadChatAsPDF(localStorage.token, chat.chat.title, messages);
 
-    // Create a URL for the blob
-    const url = window.URL.createObjectURL(blob);
+		// Create a URL for the blob
+		const url = window.URL.createObjectURL(blob);
 
-    // Create a link element to trigger the download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `chat-${chat.chat.title}.pdf`;
+		// Create a link element to trigger the download
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `chat-${chat.chat.title}.pdf`;
 
-    // Append the link to the body and click it programmatically
-    document.body.appendChild(a);
-    a.click();
+		// Append the link to the body and click it programmatically
+		document.body.appendChild(a);
+		a.click();
 
-    // Remove the link from the body
-    document.body.removeChild(a);
+		// Remove the link from the body
+		document.body.removeChild(a);
 
-    // Revoke the URL to release memory
-    window.URL.revokeObjectURL(url);
-  };
+		// Revoke the URL to release memory
+		window.URL.revokeObjectURL(url);
+	};
 
-  const downloadJSONExport = async () => {
-    const chat = await getChatById(localStorage.token, chatId);
+	const downloadJSONExport = async () => {
+		const chat = await getChatById(localStorage.token, chatId);
 
 		if (chat) {
 			const blob = new Blob([JSON.stringify([chat])], {
@@ -139,12 +139,12 @@
 </script>
 
 <Dropdown
-  bind:show
-  on:change={(e) => {
-    if (e.detail === false) {
-      onClose();
-    }
-  }}
+	bind:show
+	on:change={(e) => {
+		if (e.detail === false) {
+			onClose();
+		}
+	}}
 >
 	<Tooltip content={$i18n.t('More')}>
 		{@render children?.()}

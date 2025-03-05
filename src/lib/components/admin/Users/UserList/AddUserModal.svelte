@@ -6,9 +6,9 @@
 	import { onMount, getContext } from 'svelte';
 	import { addUser } from '$lib/apis/auths';
 
-  import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL } from '$lib/constants';
 
-  import Modal from '$lib/components/common/Modal.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -42,90 +42,90 @@
 		}
 	});
 
-  const submitHandler = async () => {
-    const stopLoading = () => {
-      dispatch('save');
-      loading = false;
-    };
+	const submitHandler = async () => {
+		const stopLoading = () => {
+			dispatch('save');
+			loading = false;
+		};
 
-    if (tab === '') {
-      loading = true;
+		if (tab === '') {
+			loading = true;
 
-      const res = await addUser(
-        localStorage.token,
-        _user.name,
-        _user.email,
-        _user.password,
-        _user.role
-      ).catch((error) => {
-        toast.error(`${error}`);
-      });
+			const res = await addUser(
+				localStorage.token,
+				_user.name,
+				_user.email,
+				_user.password,
+				_user.role
+			).catch((error) => {
+				toast.error(`${error}`);
+			});
 
-      if (res) {
-        stopLoading();
-        show = false;
-      }
-    } else {
-      if (inputFiles) {
-        loading = true;
+			if (res) {
+				stopLoading();
+				show = false;
+			}
+		} else {
+			if (inputFiles) {
+				loading = true;
 
-        const file = inputFiles[0];
-        const reader = new FileReader();
+				const file = inputFiles[0];
+				const reader = new FileReader();
 
-        reader.onload = async (e) => {
-          const csv = e.target.result;
-          const rows = csv.split('\n');
+				reader.onload = async (e) => {
+					const csv = e.target.result;
+					const rows = csv.split('\n');
 
-          let userCount = 0;
+					let userCount = 0;
 
-          for (const [idx, row] of rows.entries()) {
-            const columns = row.split(',').map((col) => col.trim());
-            console.log(idx, columns);
+					for (const [idx, row] of rows.entries()) {
+						const columns = row.split(',').map((col) => col.trim());
+						console.log(idx, columns);
 
-            if (idx > 0) {
-              if (
-                columns.length === 4 &&
-                ['admin', 'user', 'pending'].includes(columns[3].toLowerCase())
-              ) {
-                const res = await addUser(
-                  localStorage.token,
-                  columns[0],
-                  columns[1],
-                  columns[2],
-                  columns[3].toLowerCase()
-                ).catch((error) => {
-                  toast.error(`Row ${idx + 1}: ${error}`);
-                  return null;
-                });
+						if (idx > 0) {
+							if (
+								columns.length === 4 &&
+								['admin', 'user', 'pending'].includes(columns[3].toLowerCase())
+							) {
+								const res = await addUser(
+									localStorage.token,
+									columns[0],
+									columns[1],
+									columns[2],
+									columns[3].toLowerCase()
+								).catch((error) => {
+									toast.error(`Row ${idx + 1}: ${error}`);
+									return null;
+								});
 
-                if (res) {
-                  userCount = userCount + 1;
-                }
-              } else {
-                toast.error(`Row ${idx + 1}: invalid format.`);
-              }
-            }
-          }
+								if (res) {
+									userCount = userCount + 1;
+								}
+							} else {
+								toast.error(`Row ${idx + 1}: invalid format.`);
+							}
+						}
+					}
 
-          toast.success(`Successfully imported ${userCount} users.`);
-          inputFiles = null;
-          const uploadInputElement = document.getElementById('upload-user-csv-input');
+					toast.success(`Successfully imported ${userCount} users.`);
+					inputFiles = null;
+					const uploadInputElement = document.getElementById('upload-user-csv-input');
 
-          if (uploadInputElement) {
-            uploadInputElement.value = null;
-          }
+					if (uploadInputElement) {
+						uploadInputElement.value = null;
+					}
 
-          stopLoading();
-        };
+					stopLoading();
+				};
 
-        reader.readAsText(file);
-      } else {
-        toast.error($i18n.t('File not found.'));
-      }
-    }
+				reader.readAsText(file);
+			} else {
+				toast.error($i18n.t('File not found.'));
+			}
+		}
 
-    loading = false;
-  };
+		loading = false;
+	};
 </script>
 
 <Modal size="sm" bind:show>
@@ -183,10 +183,10 @@
 						>
 					</div>
 
-          <div class="px-1">
-            {#if tab === ''}
-              <div class="flex flex-col w-full mb-3">
-                <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Role')}</div>
+					<div class="px-1">
+						{#if tab === ''}
+							<div class="flex flex-col w-full mb-3">
+								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Role')}</div>
 
 								<div class="flex-1">
 									<select
@@ -202,8 +202,8 @@
 								</div>
 							</div>
 
-              <div class="flex flex-col w-full mt-1">
-                <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Name')}</div>
+							<div class="flex flex-col w-full mt-1">
+								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Name')}</div>
 
 								<div class="flex-1">
 									<input
@@ -217,10 +217,10 @@
 								</div>
 							</div>
 
-              <hr class=" border-gray-100 dark:border-gray-850 my-2.5 w-full" />
+							<hr class=" border-gray-100 dark:border-gray-850 my-2.5 w-full" />
 
-              <div class="flex flex-col w-full">
-                <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
+							<div class="flex flex-col w-full">
+								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
 
 								<div class="flex-1">
 									<input
@@ -233,8 +233,8 @@
 								</div>
 							</div>
 
-              <div class="flex flex-col w-full mt-1">
-                <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Password')}</div>
+							<div class="flex flex-col w-full mt-1">
+								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Password')}</div>
 
 								<div class="flex-1">
 									<input
@@ -272,20 +272,20 @@
 									</button>
 								</div>
 
-                <div class=" text-xs text-gray-500">
-                  ⓘ {$i18n.t(
-                    'Ensure your CSV file includes 4 columns in this order: Name, Email, Password, Role.'
-                  )}
-                  <a
-                    class="underline dark:text-gray-200"
-                    href="{WEBUI_BASE_URL}/static/user-import.csv"
-                  >
-                    {$i18n.t('Click here to download user import template file.')}
-                  </a>
-                </div>
-              </div>
-            {/if}
-          </div>
+								<div class=" text-xs text-gray-500">
+									ⓘ {$i18n.t(
+										'Ensure your CSV file includes 4 columns in this order: Name, Email, Password, Role.'
+									)}
+									<a
+										class="underline dark:text-gray-200"
+										href="{WEBUI_BASE_URL}/static/user-import.csv"
+									>
+										{$i18n.t('Click here to download user import template file.')}
+									</a>
+								</div>
+							</div>
+						{/if}
+					</div>
 
 					<div class="flex justify-end pt-3 text-sm font-medium">
 						<button

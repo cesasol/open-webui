@@ -1,10 +1,10 @@
 <script>
-  import { getContext, tick, onMount } from 'svelte';
-  import { toast } from 'svelte-sonner';
-  import Leaderboard from './Evaluations/Leaderboard.svelte';
-  import Feedbacks from './Evaluations/Feedbacks.svelte';
+	import { getContext, tick, onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import Leaderboard from './Evaluations/Leaderboard.svelte';
+	import Feedbacks from './Evaluations/Feedbacks.svelte';
 
-  import { getAllFeedbacks } from '$lib/apis/evaluations';
+	import { getAllFeedbacks } from '$lib/apis/evaluations';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -14,21 +14,21 @@
 	let loaded = $state(false);
 	let feedbacks = $state([]);
 
-  onMount(async () => {
-    feedbacks = await getAllFeedbacks(localStorage.token);
-    loaded = true;
+	onMount(async () => {
+		feedbacks = await getAllFeedbacks(localStorage.token);
+		loaded = true;
 
-    const containerElement = document.getElementById('users-tabs-container');
+		const containerElement = document.getElementById('users-tabs-container');
 
-    if (containerElement) {
-      containerElement.addEventListener('wheel', function (event) {
-        if (event.deltaY !== 0) {
-          // Adjust horizontal scroll position based on vertical scroll
-          containerElement.scrollLeft += event.deltaY;
-        }
-      });
-    }
-  });
+		if (containerElement) {
+			containerElement.addEventListener('wheel', function (event) {
+				if (event.deltaY !== 0) {
+					// Adjust horizontal scroll position based on vertical scroll
+					containerElement.scrollLeft += event.deltaY;
+				}
+			});
+		}
+	});
 </script>
 
 {#if loaded}
@@ -90,12 +90,12 @@
 			</button>
 		</div>
 
-    <div class="flex-1 mt-1 lg:mt-0 overflow-y-scroll">
-      {#if selectedTab === 'leaderboard'}
-        <Leaderboard {feedbacks} />
-      {:else if selectedTab === 'feedbacks'}
-        <Feedbacks {feedbacks} />
-      {/if}
-    </div>
-  </div>
+		<div class="flex-1 mt-1 lg:mt-0 overflow-y-scroll">
+			{#if selectedTab === 'leaderboard'}
+				<Leaderboard {feedbacks} />
+			{:else if selectedTab === 'feedbacks'}
+				<Feedbacks {feedbacks} />
+			{/if}
+		</div>
+	</div>
 {/if}

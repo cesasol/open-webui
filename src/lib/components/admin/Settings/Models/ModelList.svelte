@@ -7,22 +7,22 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { models } from '$lib/stores';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import EllipsisVertical from '$lib/components/icons/EllipsisVertical.svelte';
+	import { models } from '$lib/stores';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import EllipsisVertical from '$lib/components/icons/EllipsisVertical.svelte';
 
 	let { modelIds = $bindable([]) } = $props();
 
 	let sortable = null;
 	let modelListElement = $state(null);
 
-  const positionChangeHandler = () => {
-    const modelList = Array.from(modelListElement.children).map((child) =>
-      child.id.replace('model-item-', '')
-    );
+	const positionChangeHandler = () => {
+		const modelList = Array.from(modelListElement.children).map((child) =>
+			child.id.replace('model-item-', '')
+		);
 
-    modelIds = modelList;
-  };
+		modelIds = modelList;
+	};
 
 	const init = () => {
 		if (sortable) {
@@ -53,20 +53,20 @@
 					<div class="flex items-center gap-1">
 						<EllipsisVertical className="size-4 cursor-move" />
 
-            <div class=" text-sm flex-1 py-1 rounded-lg">
-              {#if $models.find((model) => model.id === modelId)}
-                {$models.find((model) => model.id === modelId).name}
-              {:else}
-                {modelId}
-              {/if}
-            </div>
-          </div>
-        </Tooltip>
-      </div>
-    {/each}
-  </div>
+						<div class=" text-sm flex-1 py-1 rounded-lg">
+							{#if $models.find((model) => model.id === modelId)}
+								{$models.find((model) => model.id === modelId).name}
+							{:else}
+								{modelId}
+							{/if}
+						</div>
+					</div>
+				</Tooltip>
+			</div>
+		{/each}
+	</div>
 {:else}
-  <div class="text-gray-500 text-xs text-center py-2">
-    {$i18n.t('No models found')}
-  </div>
+	<div class="text-gray-500 text-xs text-center py-2">
+		{$i18n.t('No models found')}
+	</div>
 {/if}

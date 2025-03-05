@@ -9,37 +9,37 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
-  import {
-    createNewModel,
-    deleteAllModels,
-    getBaseModels,
-    toggleModelById,
-    updateModelById
-  } from '$lib/apis/models';
+	import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
+	import {
+		createNewModel,
+		deleteAllModels,
+		getBaseModels,
+		toggleModelById,
+		updateModelById
+	} from '$lib/apis/models';
 
-  import { getModels } from '$lib/apis';
-  import Search from '$lib/components/icons/Search.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import Spinner from '$lib/components/common/Spinner.svelte';
+	import { getModels } from '$lib/apis';
+	import Search from '$lib/components/icons/Search.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import Spinner from '$lib/components/common/Spinner.svelte';
 
-  import ModelEditor from '$lib/components/workspace/Models/ModelEditor.svelte';
-  import { toast } from 'svelte-sonner';
-  import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-  import Cog6 from '$lib/components/icons/Cog6.svelte';
-  import ConfigureModelsModal from './Models/ConfigureModelsModal.svelte';
-  import Wrench from '$lib/components/icons/Wrench.svelte';
-  import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
-  import ManageModelsModal from './Models/ManageModelsModal.svelte';
+	import ModelEditor from '$lib/components/workspace/Models/ModelEditor.svelte';
+	import { toast } from 'svelte-sonner';
+	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import Cog6 from '$lib/components/icons/Cog6.svelte';
+	import ConfigureModelsModal from './Models/ConfigureModelsModal.svelte';
+	import Wrench from '$lib/components/icons/Wrench.svelte';
+	import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
+	import ManageModelsModal from './Models/ManageModelsModal.svelte';
 
 	let importFiles = $state();
 	let modelsImportInputElement: HTMLInputElement = $state();
 
 	let models = $state(null);
 
-  let workspaceModels = null;
-  let baseModels = null;
+	let workspaceModels = null;
+	let baseModels = null;
 
 	let filteredModels = $state([]);
 	let selectedModelId = $state(null);
@@ -56,85 +56,85 @@
 		saveAs(blob, `models-export-${Date.now()}.json`);
 	};
 
-  const init = async () => {
-    workspaceModels = await getBaseModels(localStorage.token);
-    baseModels = await getModels(localStorage.token, null, true);
+	const init = async () => {
+		workspaceModels = await getBaseModels(localStorage.token);
+		baseModels = await getModels(localStorage.token, null, true);
 
-    models = baseModels.map((m) => {
-      const workspaceModel = workspaceModels.find((wm) => wm.id === m.id);
+		models = baseModels.map((m) => {
+			const workspaceModel = workspaceModels.find((wm) => wm.id === m.id);
 
-      if (workspaceModel) {
-        return {
-          ...m,
-          ...workspaceModel
-        };
-      } else {
-        return {
-          ...m,
-          id: m.id,
-          name: m.name,
+			if (workspaceModel) {
+				return {
+					...m,
+					...workspaceModel
+				};
+			} else {
+				return {
+					...m,
+					id: m.id,
+					name: m.name,
 
-          is_active: true
-        };
-      }
-    });
-  };
+					is_active: true
+				};
+			}
+		});
+	};
 
-  const upsertModelHandler = async (model) => {
-    model.base_model_id = null;
+	const upsertModelHandler = async (model) => {
+		model.base_model_id = null;
 
-    if (workspaceModels.find((m) => m.id === model.id)) {
-      const res = await updateModelById(localStorage.token, model.id, model).catch((error) => {
-        return null;
-      });
+		if (workspaceModels.find((m) => m.id === model.id)) {
+			const res = await updateModelById(localStorage.token, model.id, model).catch((error) => {
+				return null;
+			});
 
-      if (res) {
-        toast.success($i18n.t('Model updated successfully'));
-      }
-    } else {
-      const res = await createNewModel(localStorage.token, model).catch((error) => {
-        return null;
-      });
+			if (res) {
+				toast.success($i18n.t('Model updated successfully'));
+			}
+		} else {
+			const res = await createNewModel(localStorage.token, model).catch((error) => {
+				return null;
+			});
 
-      if (res) {
-        toast.success($i18n.t('Model updated successfully'));
-      }
-    }
+			if (res) {
+				toast.success($i18n.t('Model updated successfully'));
+			}
+		}
 
-    _models.set(
-      await getModels(
-        localStorage.token,
-        $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-      )
-    );
-    await init();
-  };
+		_models.set(
+			await getModels(
+				localStorage.token,
+				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+			)
+		);
+		await init();
+	};
 
-  const toggleModelHandler = async (model) => {
-    if (!Object.keys(model).includes('base_model_id')) {
-      await createNewModel(localStorage.token, {
-        id: model.id,
-        name: model.name,
-        base_model_id: null,
-        meta: {},
-        params: {},
-        access_control: {},
-        is_active: model.is_active
-      }).catch((error) => {
-        return null;
-      });
-    } else {
-      await toggleModelById(localStorage.token, model.id);
-    }
+	const toggleModelHandler = async (model) => {
+		if (!Object.keys(model).includes('base_model_id')) {
+			await createNewModel(localStorage.token, {
+				id: model.id,
+				name: model.name,
+				base_model_id: null,
+				meta: {},
+				params: {},
+				access_control: {},
+				is_active: model.is_active
+			}).catch((error) => {
+				return null;
+			});
+		} else {
+			await toggleModelById(localStorage.token, model.id);
+		}
 
-    // await init();
-    _models.set(
-      await getModels(
-        localStorage.token,
-        $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-      )
-    );
-  };
+		// await init();
+		_models.set(
+			await getModels(
+				localStorage.token,
+				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+			)
+		);
+	};
 
 	onMount(async () => {
 		init();
@@ -290,27 +290,29 @@
 								</svg>
 							</button>
 
-              <div class="ml-1">
-                <Tooltip content={(model?.is_active ?? true) ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
-                  <Switch
-                    bind:state={model.is_active}
-                    on:change={async () => {
-                      toggleModelHandler(model);
-                    }}
-                  />
-                </Tooltip>
-              </div>
-            </div>
-          </div>
-        {/each}
-      {:else}
-        <div class="flex flex-col items-center justify-center w-full h-20">
-          <div class="text-gray-500 dark:text-gray-400 text-xs">
-            {$i18n.t('No models found')}
-          </div>
-        </div>
-      {/if}
-    </div>
+							<div class="ml-1">
+								<Tooltip
+									content={(model?.is_active ?? true) ? $i18n.t('Enabled') : $i18n.t('Disabled')}
+								>
+									<Switch
+										bind:state={model.is_active}
+										on:change={async () => {
+											toggleModelHandler(model);
+										}}
+									/>
+								</Tooltip>
+							</div>
+						</div>
+					</div>
+				{/each}
+			{:else}
+				<div class="flex flex-col items-center justify-center w-full h-20">
+					<div class="text-gray-500 dark:text-gray-400 text-xs">
+						{$i18n.t('No models found')}
+					</div>
+				</div>
+			{/if}
+		</div>
 
 		{#if $user?.role === 'admin'}
 			<div class=" flex justify-end w-full mb-3">
@@ -328,29 +330,29 @@
 								const savedModels = JSON.parse(event.target.result);
 								console.log(savedModels);
 
-                for (const model of savedModels) {
-                  if (Object.keys(model).includes('base_model_id')) {
-                    if (model.base_model_id === null) {
-                      upsertModelHandler(model);
-                    }
-                  } else {
-                    if (model?.info ?? false) {
-                      if (model.info.base_model_id === null) {
-                        upsertModelHandler(model.info);
-                      }
-                    }
-                  }
-                }
+								for (const model of savedModels) {
+									if (Object.keys(model).includes('base_model_id')) {
+										if (model.base_model_id === null) {
+											upsertModelHandler(model);
+										}
+									} else {
+										if (model?.info ?? false) {
+											if (model.info.base_model_id === null) {
+												upsertModelHandler(model.info);
+											}
+										}
+									}
+								}
 
-                await _models.set(
-                  await getModels(
-                    localStorage.token,
-                    $config?.features?.enable_direct_connections &&
-                      ($settings?.directConnections ?? null)
-                  )
-                );
-                init();
-              };
+								await _models.set(
+									await getModels(
+										localStorage.token,
+										$config?.features?.enable_direct_connections &&
+											($settings?.directConnections ?? null)
+									)
+								);
+								init();
+							};
 
 							reader.readAsText(importFiles[0]);
 						}}
@@ -428,7 +430,7 @@
 		/>
 	{/if}
 {:else}
-  <div class=" h-full w-full flex justify-center items-center">
-    <Spinner />
-  </div>
+	<div class=" h-full w-full flex justify-center items-center">
+		<Spinner />
+	</div>
 {/if}

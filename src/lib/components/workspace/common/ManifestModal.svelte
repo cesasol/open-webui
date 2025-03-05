@@ -5,7 +5,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, getContext } from 'svelte';
 
-  import Modal from '../../common/Modal.svelte';
+	import Modal from '../../common/Modal.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -57,11 +57,11 @@
 							)}
 						</div>
 
-            <div class="my-2">
-              {$i18n.t(
-                'Your entire contribution will go directly to the plugin developer; Open WebUI does not take any percentage. However, the chosen funding platform might have its own fees.'
-              )}
-            </div>
+						<div class="my-2">
+							{$i18n.t(
+								'Your entire contribution will go directly to the plugin developer; Open WebUI does not take any percentage. However, the chosen funding platform might have its own fees.'
+							)}
+						</div>
 
 						<hr class="dark:border-gray-800 my-3" />
 						<div class="my-2">
@@ -74,18 +74,18 @@
 						</div>
 					</div>
 
-          <div class="flex justify-end pt-3 text-sm font-medium">
-            <button
-              class=" px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg flex flex-row space-x-1 items-center"
-              type="submit"
-            >
-              {$i18n.t('Done')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+					<div class="flex justify-end pt-3 text-sm font-medium">
+						<button
+							class=" px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg flex flex-row space-x-1 items-center"
+							type="submit"
+						>
+							{$i18n.t('Done')}
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </Modal>
 
 <style>

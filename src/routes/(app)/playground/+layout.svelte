@@ -12,19 +12,19 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  onMount(async () => {});
+	onMount(async () => {});
 </script>
 
 <svelte:head>
-  <title>
-    {$i18n.t('Playground')} | {$WEBUI_NAME}
-  </title>
+	<title>
+		{$i18n.t('Playground')} | {$WEBUI_NAME}
+	</title>
 </svelte:head>
 
 <div
-  class=" flex flex-col w-full h-screen max-h-[100dvh] transition-width duration-200 ease-in-out {$showSidebar
-    ? 'md:max-w-[calc(100%-260px)]'
-    : ''} max-w-full"
+	class=" flex flex-col w-full h-screen max-h-[100dvh] transition-width duration-200 ease-in-out {$showSidebar
+		? 'md:max-w-[calc(100%-260px)]'
+		: ''} max-w-full"
 >
 	<nav class="   px-2.5 pt-1 backdrop-blur-xl w-full drag-region">
 		<div class=" flex items-center">

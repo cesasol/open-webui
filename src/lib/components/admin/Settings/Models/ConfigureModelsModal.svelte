@@ -8,19 +8,19 @@
 	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
-  import { models } from '$lib/stores';
-  import { deleteAllModels } from '$lib/apis/models';
+	import { models } from '$lib/stores';
+	import { deleteAllModels } from '$lib/apis/models';
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import ModelList from './ModelList.svelte';
-  import { getModelsConfig, setModelsConfig } from '$lib/apis/configs';
-  import Spinner from '$lib/components/common/Spinner.svelte';
-  import Minus from '$lib/components/icons/Minus.svelte';
-  import Plus from '$lib/components/icons/Plus.svelte';
-  import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
-  import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import ModelList from './ModelList.svelte';
+	import { getModelsConfig, setModelsConfig } from '$lib/apis/configs';
+	import Spinner from '$lib/components/common/Spinner.svelte';
+	import Minus from '$lib/components/icons/Minus.svelte';
+	import Plus from '$lib/components/icons/Plus.svelte';
+	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
+	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 
 	interface Props {
 		show?: boolean;
@@ -41,62 +41,62 @@
 	let loading = $state(false);
 	let showResetModal = $state(false);
 
-  const onModelSelect = () => {
-    if (selectedModelId === '') {
-      return;
-    }
+	const onModelSelect = () => {
+		if (selectedModelId === '') {
+			return;
+		}
 
-    if (defaultModelIds.includes(selectedModelId)) {
-      selectedModelId = '';
-      return;
-    }
+		if (defaultModelIds.includes(selectedModelId)) {
+			selectedModelId = '';
+			return;
+		}
 
-    defaultModelIds = [...defaultModelIds, selectedModelId];
-    selectedModelId = '';
-  };
+		defaultModelIds = [...defaultModelIds, selectedModelId];
+		selectedModelId = '';
+	};
 
-  const init = async () => {
-    config = await getModelsConfig(localStorage.token);
+	const init = async () => {
+		config = await getModelsConfig(localStorage.token);
 
-    if (config?.DEFAULT_MODELS) {
-      defaultModelIds = (config?.DEFAULT_MODELS).split(',').filter((id) => id);
-    } else {
-      defaultModelIds = [];
-    }
-    const modelOrderList = config.MODEL_ORDER_LIST || [];
-    const allModelIds = $models.map((model) => model.id);
+		if (config?.DEFAULT_MODELS) {
+			defaultModelIds = (config?.DEFAULT_MODELS).split(',').filter((id) => id);
+		} else {
+			defaultModelIds = [];
+		}
+		const modelOrderList = config.MODEL_ORDER_LIST || [];
+		const allModelIds = $models.map((model) => model.id);
 
-    // Create a Set for quick lookup of ordered IDs
-    const orderedSet = new Set(modelOrderList);
+		// Create a Set for quick lookup of ordered IDs
+		const orderedSet = new Set(modelOrderList);
 
-    modelIds = [
-      // Add all IDs from MODEL_ORDER_LIST that exist in allModelIds
-      ...modelOrderList.filter((id) => orderedSet.has(id) && allModelIds.includes(id)),
-      // Add remaining IDs not in MODEL_ORDER_LIST, sorted alphabetically
-      ...allModelIds.filter((id) => !orderedSet.has(id)).sort((a, b) => a.localeCompare(b))
-    ];
+		modelIds = [
+			// Add all IDs from MODEL_ORDER_LIST that exist in allModelIds
+			...modelOrderList.filter((id) => orderedSet.has(id) && allModelIds.includes(id)),
+			// Add remaining IDs not in MODEL_ORDER_LIST, sorted alphabetically
+			...allModelIds.filter((id) => !orderedSet.has(id)).sort((a, b) => a.localeCompare(b))
+		];
 
-    sortKey = '';
-    sortOrder = '';
-  };
-  const submitHandler = async () => {
-    loading = true;
+		sortKey = '';
+		sortOrder = '';
+	};
+	const submitHandler = async () => {
+		loading = true;
 
-    const res = await setModelsConfig(localStorage.token, {
-      DEFAULT_MODELS: defaultModelIds.join(','),
-      MODEL_ORDER_LIST: modelIds
-    });
+		const res = await setModelsConfig(localStorage.token, {
+			DEFAULT_MODELS: defaultModelIds.join(','),
+			MODEL_ORDER_LIST: modelIds
+		});
 
-    if (res) {
-      toast.success($i18n.t('Models configuration saved successfully'));
-      initHandler();
-      show = false;
-    } else {
-      toast.error($i18n.t('Failed to save models configuration'));
-    }
+		if (res) {
+			toast.success($i18n.t('Models configuration saved successfully'));
+			initHandler();
+			show = false;
+		} else {
+			toast.error($i18n.t('Failed to save models configuration'));
+		}
 
-    loading = false;
-  };
+		loading = false;
+	};
 
 	onMount(async () => {
 		init();
@@ -167,11 +167,11 @@
 									onclick={() => {
 										sortKey = 'model';
 
-                    if (sortOrder === 'asc') {
-                      sortOrder = 'desc';
-                    } else {
-                      sortOrder = 'asc';
-                    }
+										if (sortOrder === 'asc') {
+											sortOrder = 'desc';
+										} else {
+											sortOrder = 'asc';
+										}
 
 										modelIds = modelIds
 											.filter((id) => id !== '')
@@ -187,32 +187,32 @@
 								>
 									<div class="text-xs text-gray-500">{$i18n.t('Reorder Models')}</div>
 
-                  {#if sortKey === 'model'}
-                    <span class="font-normal self-center">
-                      {#if sortOrder === 'asc'}
-                        <ChevronUp className="size-3" />
-                      {:else}
-                        <ChevronDown className="size-3" />
-                      {/if}
-                    </span>
-                  {:else}
-                    <span class="invisible">
-                      <ChevronUp className="size-3" />
-                    </span>
-                  {/if}
-                </button>
+									{#if sortKey === 'model'}
+										<span class="font-normal self-center">
+											{#if sortOrder === 'asc'}
+												<ChevronUp className="size-3" />
+											{:else}
+												<ChevronDown className="size-3" />
+											{/if}
+										</span>
+									{:else}
+										<span class="invisible">
+											<ChevronUp className="size-3" />
+										</span>
+									{/if}
+								</button>
 
-                <ModelList bind:modelIds />
-              </div>
-            </div>
+								<ModelList bind:modelIds />
+							</div>
+						</div>
 
-            <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
+						<hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
 
-            <div>
-              <div class="flex flex-col w-full">
-                <div class="mb-1 flex justify-between">
-                  <div class="text-xs text-gray-500">{$i18n.t('Default Models')}</div>
-                </div>
+						<div>
+							<div class="flex flex-col w-full">
+								<div class="mb-1 flex justify-between">
+									<div class="text-xs text-gray-500">{$i18n.t('Default Models')}</div>
+								</div>
 
 								<div class="flex items-center -mr-1">
 									<select
@@ -229,7 +229,7 @@
 									</select>
 								</div>
 
-                <!-- <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" /> -->
+								<!-- <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" /> -->
 
 								{#if defaultModelIds.length > 0}
 									<div class="flex flex-col">

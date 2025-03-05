@@ -4,15 +4,15 @@
 	import { WEBUI_BASE_URL } from '$lib/constants';
 	import { marked } from 'marked';
 
-  import { config, user, models as _models, temporaryChatEnabled } from '$lib/stores';
-  import { onMount, getContext } from 'svelte';
+	import { config, user, models as _models, temporaryChatEnabled } from '$lib/stores';
+	import { onMount, getContext } from 'svelte';
 
-  import { blur, fade } from 'svelte/transition';
+	import { blur, fade } from 'svelte/transition';
 
-  import Suggestions from './Suggestions.svelte';
-  import { sanitizeResponseContent } from '$lib/utils';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
+	import Suggestions from './Suggestions.svelte';
+	import { sanitizeResponseContent } from '$lib/utils';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -32,9 +32,9 @@
 		models = modelIds.map((id) => $_models.find((m) => m.id === id));
 	});
 
-  onMount(() => {
-    mounted = true;
-  });
+	onMount(() => {
+		mounted = true;
+	});
 </script>
 
 {#key mounted}
@@ -81,64 +81,63 @@
 			</Tooltip>
 		{/if}
 
-    <div class=" mt-2 mb-4 text-3xl text-gray-800 dark:text-gray-100 font-medium text-left flex items-center gap-4 font-primary">
-      <div>
-        <div
-          class=" capitalize line-clamp-1"
-          in:fade={{ duration: 200 }}
-        >
-          {#if models[selectedModelIdx]?.name}
-            {models[selectedModelIdx]?.name}
-          {:else}
-            {$i18n.t('Hello, {{name}}', { name: $user.name })}
-          {/if}
-        </div>
+		<div
+			class=" mt-2 mb-4 text-3xl text-gray-800 dark:text-gray-100 font-medium text-left flex items-center gap-4 font-primary"
+		>
+			<div>
+				<div class=" capitalize line-clamp-1" in:fade={{ duration: 200 }}>
+					{#if models[selectedModelIdx]?.name}
+						{models[selectedModelIdx]?.name}
+					{:else}
+						{$i18n.t('Hello, {{name}}', { name: $user.name })}
+					{/if}
+				</div>
 
-        <div in:fade={{ duration: 200, delay: 200 }}>
-          {#if models[selectedModelIdx]?.info?.meta?.description ?? null}
-            <div class="mt-0.5 text-base font-normal text-gray-500 dark:text-gray-400 line-clamp-3 markdown">
-              {@html marked.parse(
-                sanitizeResponseContent(models[selectedModelIdx]?.info?.meta?.description)
-              )}
-            </div>
-            {#if models[selectedModelIdx]?.info?.meta?.user}
-              <div class="mt-0.5 text-sm font-normal text-gray-400 dark:text-gray-500">
-                By
-                {#if models[selectedModelIdx]?.info?.meta?.user.community}
-                  <a
-                    href="https://openwebui.com/m/{models[selectedModelIdx]?.info?.meta?.user
-                      .username}"
-                  >{models[selectedModelIdx]?.info?.meta?.user.name
-                    ? models[selectedModelIdx]?.info?.meta?.user.name
-                    : `@${models[selectedModelIdx]?.info?.meta?.user.username}`}</a>
-                {:else}
-                  {models[selectedModelIdx]?.info?.meta?.user.name}
-                {/if}
-              </div>
-            {/if}
-          {:else}
-            <div class=" font-medium text-gray-400 dark:text-gray-500 line-clamp-1 font-p">
-              {$i18n.t('How can I help you today?')}
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
+				<div in:fade={{ duration: 200, delay: 200 }}>
+					{#if models[selectedModelIdx]?.info?.meta?.description ?? null}
+						<div
+							class="mt-0.5 text-base font-normal text-gray-500 dark:text-gray-400 line-clamp-3 markdown"
+						>
+							{@html marked.parse(
+								sanitizeResponseContent(models[selectedModelIdx]?.info?.meta?.description)
+							)}
+						</div>
+						{#if models[selectedModelIdx]?.info?.meta?.user}
+							<div class="mt-0.5 text-sm font-normal text-gray-400 dark:text-gray-500">
+								By
+								{#if models[selectedModelIdx]?.info?.meta?.user.community}
+									<a
+										href="https://openwebui.com/m/{models[selectedModelIdx]?.info?.meta?.user
+											.username}"
+										>{models[selectedModelIdx]?.info?.meta?.user.name
+											? models[selectedModelIdx]?.info?.meta?.user.name
+											: `@${models[selectedModelIdx]?.info?.meta?.user.username}`}</a
+									>
+								{:else}
+									{models[selectedModelIdx]?.info?.meta?.user.name}
+								{/if}
+							</div>
+						{/if}
+					{:else}
+						<div class=" font-medium text-gray-400 dark:text-gray-500 line-clamp-1 font-p">
+							{$i18n.t('How can I help you today?')}
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
 
-    <div
-      class=" w-full font-primary"
-      in:fade={{ duration: 200, delay: 300 }}
-    >
-      <Suggestions
-        className="grid grid-cols-2"
-        suggestionPrompts={atSelectedModel?.info?.meta?.suggestion_prompts ??
-          models[selectedModelIdx]?.info?.meta?.suggestion_prompts ??
-          $config?.default_prompt_suggestions ??
-          []}
-        on:select={(e) => {
-          submitPrompt(e.detail);
-        }}
-      />
-    </div>
-  </div>
+		<div class=" w-full font-primary" in:fade={{ duration: 200, delay: 300 }}>
+			<Suggestions
+				className="grid grid-cols-2"
+				suggestionPrompts={atSelectedModel?.info?.meta?.suggestion_prompts ??
+					models[selectedModelIdx]?.info?.meta?.suggestion_prompts ??
+					$config?.default_prompt_suggestions ??
+					[]}
+				on:select={(e) => {
+					submitPrompt(e.detail);
+				}}
+			/>
+		</div>
+	</div>
 {/key}

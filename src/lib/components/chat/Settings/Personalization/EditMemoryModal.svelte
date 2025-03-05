@@ -4,11 +4,11 @@
 	import { createEventDispatcher, getContext } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-  import { updateMemoryById } from '$lib/apis/memories';
+	import { updateMemoryById } from '$lib/apis/memories';
 
-  import Modal from '$lib/components/common/Modal.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	let { show = $bindable(), memory = {} } = $props();
 
@@ -18,25 +18,25 @@
 	let loading = $state(false);
 	let content = $state('');
 
-  const setContent = () => {
-    content = memory.content;
-  };
+	const setContent = () => {
+		content = memory.content;
+	};
 
-  const submitHandler = async () => {
-    loading = true;
+	const submitHandler = async () => {
+		loading = true;
 
-    const res = await updateMemoryById(localStorage.token, memory.id, content).catch((error) => {
-      toast.error(`${error}`);
+		const res = await updateMemoryById(localStorage.token, memory.id, content).catch((error) => {
+			toast.error(`${error}`);
 
-      return null;
-    });
+			return null;
+		});
 
-    if (res) {
-      console.log(res);
-      toast.success($i18n.t('Memory updated successfully'));
-      dispatch('save');
-      show = false;
-    }
+		if (res) {
+			console.log(res);
+			toast.success($i18n.t('Memory updated successfully'));
+			dispatch('save');
+			show = false;
+		}
 
 		loading = false;
 	};
@@ -88,10 +88,10 @@
 							bind:value={content}
 						></textarea>
 
-            <div class="text-xs text-gray-500">
-              ⓘ {$i18n.t('Refer to yourself as "User" (e.g., "User is learning Spanish")')}
-            </div>
-          </div>
+						<div class="text-xs text-gray-500">
+							ⓘ {$i18n.t('Refer to yourself as "User" (e.g., "User is learning Spanish")')}
+						</div>
+					</div>
 
 					<div class="flex justify-end pt-1 text-sm font-medium">
 						<button

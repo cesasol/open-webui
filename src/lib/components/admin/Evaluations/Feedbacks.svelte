@@ -1,102 +1,102 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import fileSaver from 'file-saver';
-  const { saveAs } = fileSaver;
+	import { toast } from 'svelte-sonner';
+	import fileSaver from 'file-saver';
+	const { saveAs } = fileSaver;
 
-  import dayjs from 'dayjs';
-  import relativeTime from 'dayjs/plugin/relativeTime';
-  dayjs.extend(relativeTime);
+	import dayjs from 'dayjs';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+	dayjs.extend(relativeTime);
 
 	import { onMount, getContext } from 'svelte';
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { deleteFeedbackById, exportAllFeedbacks, getAllFeedbacks } from '$lib/apis/evaluations';
+	import { deleteFeedbackById, exportAllFeedbacks, getAllFeedbacks } from '$lib/apis/evaluations';
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
-  import Badge from '$lib/components/common/Badge.svelte';
-  import CloudArrowUp from '$lib/components/icons/CloudArrowUp.svelte';
-  import Pagination from '$lib/components/common/Pagination.svelte';
-  import FeedbackMenu from './FeedbackMenu.svelte';
-  import EllipsisHorizontal from '$lib/components/icons/EllipsisHorizontal.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
+	import Badge from '$lib/components/common/Badge.svelte';
+	import CloudArrowUp from '$lib/components/icons/CloudArrowUp.svelte';
+	import Pagination from '$lib/components/common/Pagination.svelte';
+	import FeedbackMenu from './FeedbackMenu.svelte';
+	import EllipsisHorizontal from '$lib/components/icons/EllipsisHorizontal.svelte';
 
 	let { feedbacks = $bindable([]) } = $props();
 
 	let page = $state(1);
 	let paginatedFeedbacks = $derived(feedbacks.slice((page - 1) * 10, page * 10));
 
-  type Feedback = {
-    id: string;
-    data: {
-      rating: number;
-      model_id: string;
-      sibling_model_ids: string[] | null;
-      reason: string;
-      comment: string;
-      tags: string[];
-    };
-    user: {
-      name: string;
-      profile_image_url: string;
-    };
-    updated_at: number;
-  };
+	type Feedback = {
+		id: string;
+		data: {
+			rating: number;
+			model_id: string;
+			sibling_model_ids: string[] | null;
+			reason: string;
+			comment: string;
+			tags: string[];
+		};
+		user: {
+			name: string;
+			profile_image_url: string;
+		};
+		updated_at: number;
+	};
 
-  type ModelStats = {
-    rating: number;
-    won: number;
-    lost: number;
-  };
+	type ModelStats = {
+		rating: number;
+		won: number;
+		lost: number;
+	};
 
-  //////////////////////
+	//////////////////////
 	//
 	// CRUD operations
 	//
 	//////////////////////
 
-  const deleteFeedbackHandler = async (feedbackId: string) => {
-    const response = await deleteFeedbackById(localStorage.token, feedbackId).catch((err) => {
-      toast.error(err);
-      return null;
-    });
-    if (response) {
-      feedbacks = feedbacks.filter((f) => f.id !== feedbackId);
-    }
-  };
+	const deleteFeedbackHandler = async (feedbackId: string) => {
+		const response = await deleteFeedbackById(localStorage.token, feedbackId).catch((err) => {
+			toast.error(err);
+			return null;
+		});
+		if (response) {
+			feedbacks = feedbacks.filter((f) => f.id !== feedbackId);
+		}
+	};
 
-  const shareHandler = async () => {
-    toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+	const shareHandler = async () => {
+		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
 
-    // remove snapshot from feedbacks
-    const feedbacksToShare = feedbacks.map((f) => {
-      const { snapshot, user, ...rest } = f;
-      return rest;
-    });
-    console.log(feedbacksToShare);
+		// remove snapshot from feedbacks
+		const feedbacksToShare = feedbacks.map((f) => {
+			const { snapshot, user, ...rest } = f;
+			return rest;
+		});
+		console.log(feedbacksToShare);
 
-    const url = 'https://openwebui.com';
-    const tab = await window.open(`${url}/leaderboard`, '_blank');
+		const url = 'https://openwebui.com';
+		const tab = await window.open(`${url}/leaderboard`, '_blank');
 
-    // Define the event handler function
-    const messageHandler = (event) => {
-      if (event.origin !== url) return;
-      if (event.data === 'loaded') {
-        tab.postMessage(JSON.stringify(feedbacksToShare), '*');
+		// Define the event handler function
+		const messageHandler = (event) => {
+			if (event.origin !== url) return;
+			if (event.data === 'loaded') {
+				tab.postMessage(JSON.stringify(feedbacksToShare), '*');
 
-        // Remove the event listener after handling the message
-        window.removeEventListener('message', messageHandler);
-      }
-    };
+				// Remove the event listener after handling the message
+				window.removeEventListener('message', messageHandler);
+			}
+		};
 
-    window.addEventListener('message', messageHandler, false);
-  };
+		window.addEventListener('message', messageHandler, false);
+	};
 
-  const exportHandler = async () => {
-    const _feedbacks = await exportAllFeedbacks(localStorage.token).catch((err) => {
-      toast.error(err);
-      return null;
-    });
+	const exportHandler = async () => {
+		const _feedbacks = await exportAllFeedbacks(localStorage.token).catch((err) => {
+			toast.error(err);
+			return null;
+		});
 
 		if (_feedbacks) {
 			const blob = new Blob([JSON.stringify(_feedbacks)], {
@@ -108,13 +108,13 @@
 </script>
 
 <div class="mt-0.5 mb-2 gap-1 flex flex-row justify-between">
-  <div class="flex md:self-center text-lg font-medium px-0.5">
-    {$i18n.t('Feedback History')}
+	<div class="flex md:self-center text-lg font-medium px-0.5">
+		{$i18n.t('Feedback History')}
 
 		<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850"></div>
 
-    <span class="text-lg font-medium text-gray-500 dark:text-gray-300">{feedbacks.length}</span>
-  </div>
+		<span class="text-lg font-medium text-gray-500 dark:text-gray-300">{feedbacks.length}</span>
+	</div>
 
 	<div>
 		<div>
@@ -183,13 +183,13 @@
 							</div>
 						</td>
 
-            <td class=" py-1 pl-3 flex flex-col">
-              <div class="flex flex-col items-start gap-0.5 h-full">
-                <div class="flex flex-col h-full">
-                  {#if feedback.data?.sibling_model_ids}
-                    <div class="font-semibold text-gray-600 dark:text-gray-400 flex-1">
-                      {feedback.data?.model_id}
-                    </div>
+						<td class=" py-1 pl-3 flex flex-col">
+							<div class="flex flex-col items-start gap-0.5 h-full">
+								<div class="flex flex-col h-full">
+									{#if feedback.data?.sibling_model_ids}
+										<div class="font-semibold text-gray-600 dark:text-gray-400 flex-1">
+											{feedback.data?.model_id}
+										</div>
 
 										<Tooltip content={feedback.data.sibling_model_ids.join(', ')}>
 											<div class=" text-[0.65rem] text-gray-600 dark:text-gray-400 line-clamp-1">
@@ -226,33 +226,35 @@
 							</div>
 						</td>
 
-            <td class=" px-3 py-1 text-right font-medium">
-              {dayjs(feedback.updated_at * 1000).fromNow()}
-            </td>
+						<td class=" px-3 py-1 text-right font-medium">
+							{dayjs(feedback.updated_at * 1000).fromNow()}
+						</td>
 
-            <td class=" px-3 py-1 text-right font-semibold">
-              <FeedbackMenu
-                on:delete={(e) => {
-                  deleteFeedbackHandler(feedback.id);
-                }}
-              >
-                <button class="self-center w-fit text-sm p-1.5 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl">
-                  <EllipsisHorizontal />
-                </button>
-              </FeedbackMenu>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  {/if}
+						<td class=" px-3 py-1 text-right font-semibold">
+							<FeedbackMenu
+								on:delete={(e) => {
+									deleteFeedbackHandler(feedback.id);
+								}}
+							>
+								<button
+									class="self-center w-fit text-sm p-1.5 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+								>
+									<EllipsisHorizontal />
+								</button>
+							</FeedbackMenu>
+						</td>
+					</tr>
+				{/each}
+			</tbody>
+		</table>
+	{/if}
 </div>
 
 {#if feedbacks.length > 0}
-  <div class=" flex flex-col justify-end w-full text-right gap-1">
-    <div class="line-clamp-1 text-gray-500 text-xs">
-      {$i18n.t('Help us create the best community leaderboard by sharing your feedback history!')}
-    </div>
+	<div class=" flex flex-col justify-end w-full text-right gap-1">
+		<div class="line-clamp-1 text-gray-500 text-xs">
+			{$i18n.t('Help us create the best community leaderboard by sharing your feedback history!')}
+		</div>
 
 		<div class="flex space-x-1 ml-auto">
 			<Tooltip
@@ -270,16 +272,13 @@
 						{$i18n.t('Share to Open WebUI Community')}
 					</div>
 
-          <div class=" self-center">
-            <CloudArrowUp
-              className="size-3"
-              strokeWidth="3"
-            />
-          </div>
-        </button>
-      </Tooltip>
-    </div>
-  </div>
+					<div class=" self-center">
+						<CloudArrowUp className="size-3" strokeWidth="3" />
+					</div>
+				</button>
+			</Tooltip>
+		</div>
+	</div>
 {/if}
 
 {#if feedbacks.length > 10}

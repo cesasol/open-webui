@@ -1,18 +1,18 @@
 <script lang="ts">
-  import dayjs from 'dayjs';
-  import relativeTime from 'dayjs/plugin/relativeTime';
-  import isToday from 'dayjs/plugin/isToday';
-  import isYesterday from 'dayjs/plugin/isYesterday';
-  import localizedFormat from 'dayjs/plugin/localizedFormat';
+	import dayjs from 'dayjs';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+	import isToday from 'dayjs/plugin/isToday';
+	import isYesterday from 'dayjs/plugin/isYesterday';
+	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
-  dayjs.extend(relativeTime);
-  dayjs.extend(isToday);
-  dayjs.extend(isYesterday);
-  dayjs.extend(localizedFormat);
+	dayjs.extend(relativeTime);
+	dayjs.extend(isToday);
+	dayjs.extend(isYesterday);
+	dayjs.extend(localizedFormat);
 
 	import { settings, user, shortCodesToEmojis } from '$lib/stores';
 
-  import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	import Markdown from '$lib/components/chat/Messages/Markdown.svelte';
 	import ProfileImage from '$lib/components/chat/Messages/ProfileImage.svelte';
@@ -32,7 +32,7 @@
 	import { formatDate } from '$lib/utils';
 	import { getI18nContext } from '$lib/contexts';
 
-	const i18n = getI18nContext()
+	const i18n = getI18nContext();
 	interface Props {
 		message: any;
 		showUserProfile?: boolean;
@@ -161,32 +161,36 @@
 				{:else}
 					<!-- <div class="w-7 h-7 rounded-full bg-transparent" /> -->
 
-          {#if message.created_at}
-            <div class="mt-1.5 flex shrink-0 items-center text-xs self-center invisible group-hover:visible text-gray-500 font-medium first-letter:capitalize">
-              <Tooltip content={dayjs(message.created_at / 1000000).format('LLLL')}>
-                {dayjs(message.created_at / 1000000).format('HH:mm')}
-              </Tooltip>
-            </div>
-          {/if}
-        {/if}
-      </div>
+					{#if message.created_at}
+						<div
+							class="mt-1.5 flex shrink-0 items-center text-xs self-center invisible group-hover:visible text-gray-500 font-medium first-letter:capitalize"
+						>
+							<Tooltip content={dayjs(message.created_at / 1000000).format('LLLL')}>
+								{dayjs(message.created_at / 1000000).format('HH:mm')}
+							</Tooltip>
+						</div>
+					{/if}
+				{/if}
+			</div>
 
-      <div class="flex-auto w-0 pl-1">
-        {#if showUserProfile}
-          <Name>
-            <div class=" self-end text-base shrink-0 font-medium truncate">
-              {message?.user?.name}
-            </div>
+			<div class="flex-auto w-0 pl-1">
+				{#if showUserProfile}
+					<Name>
+						<div class=" self-end text-base shrink-0 font-medium truncate">
+							{message?.user?.name}
+						</div>
 
-            {#if message.created_at}
-              <div class=" self-center text-xs invisible group-hover:visible text-gray-400 font-medium first-letter:capitalize ml-0.5 translate-y-[1px]">
-                <Tooltip content={dayjs(message.created_at / 1000000).format('LLLL')}>
-                  <span class="line-clamp-1">{formatDate(message.created_at / 1000000)}</span>
-                </Tooltip>
-              </div>
-            {/if}
-          </Name>
-        {/if}
+						{#if message.created_at}
+							<div
+								class=" self-center text-xs invisible group-hover:visible text-gray-400 font-medium first-letter:capitalize ml-0.5 translate-y-[1px]"
+							>
+								<Tooltip content={dayjs(message.created_at / 1000000).format('LLLL')}>
+									<span class="line-clamp-1">{formatDate(message.created_at / 1000000)}</span>
+								</Tooltip>
+							</div>
+						{/if}
+					</Name>
+				{/if}
 
 				{#if (message?.data?.files ?? []).length > 0}
 					<div class="my-2.5 w-full flex overflow-x-auto gap-2 flex-wrap">
@@ -218,8 +222,8 @@
 									document.getElementById('close-edit-message-button')?.click();
 								}
 
-                const isCmdOrCtrlPressed = e.metaKey || e.ctrlKey;
-                const isEnterPressed = e.key === 'Enter';
+								const isCmdOrCtrlPressed = e.metaKey || e.ctrlKey;
+								const isEnterPressed = e.key === 'Enter';
 
 								if (isCmdOrCtrlPressed && isEnterPressed) {
 									document.getElementById('confirm-edit-message-button')?.click();
@@ -294,29 +298,31 @@
 												</div>
 											{/if}
 
-                      {#if reaction.user_ids.length > 0}
-                        <div class="text-xs font-medium text-gray-500 dark:text-gray-400">
-                          {reaction.user_ids?.length}
-                        </div>
-                      {/if}
-                    </button>
-                  </Tooltip>
-                {/each}
+											{#if reaction.user_ids.length > 0}
+												<div class="text-xs font-medium text-gray-500 dark:text-gray-400">
+													{reaction.user_ids?.length}
+												</div>
+											{/if}
+										</button>
+									</Tooltip>
+								{/each}
 
-                <ReactionPicker
-                  onSubmit={(name) => {
-                    onReaction(name);
-                  }}
-                >
-                  <Tooltip content={$i18n.t('Add Reaction')}>
-                    <div class="flex items-center gap-1.5 bg-gray-500/10 hover:outline hover:outline-gray-700/30 dark:hover:outline-gray-300/30 hover:outline-1 transition rounded-xl px-1 py-1 cursor-pointer text-gray-500 dark:text-gray-400">
-                      <FaceSmile />
-                    </div>
-                  </Tooltip>
-                </ReactionPicker>
-              </div>
-            </div>
-          {/if}
+								<ReactionPicker
+									onSubmit={(name) => {
+										onReaction(name);
+									}}
+								>
+									<Tooltip content={$i18n.t('Add Reaction')}>
+										<div
+											class="flex items-center gap-1.5 bg-gray-500/10 hover:outline hover:outline-gray-700/30 dark:hover:outline-gray-300/30 hover:outline-1 transition rounded-xl px-1 py-1 cursor-pointer text-gray-500 dark:text-gray-400"
+										>
+											<FaceSmile />
+										</div>
+									</Tooltip>
+								</ReactionPicker>
+							</div>
+						</div>
+					{/if}
 
 					{#if !thread && message.reply_count > 0}
 						<div class="flex items-center gap-1.5 -mt-0.5 mb-1.5">
@@ -333,18 +339,15 @@
 									{dayjs.unix(message.latest_reply_at / 1000000000).fromNow()}</span
 								>
 
-                <span class="ml-1">
-                  <ChevronRight
-                    className="size-2.5"
-                    strokeWidth="3"
-                  />
-                </span>
-                <!-- {$i18n.t('View Replies')} -->
-              </button>
-            </div>
-          {/if}
-        {/if}
-      </div>
-    </div>
-  </div>
+								<span class="ml-1">
+									<ChevronRight className="size-2.5" strokeWidth="3" />
+								</span>
+								<!-- {$i18n.t('View Replies')} -->
+							</button>
+						</div>
+					{/if}
+				{/if}
+			</div>
+		</div>
+	</div>
 {/if}

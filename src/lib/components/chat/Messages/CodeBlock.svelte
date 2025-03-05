@@ -450,7 +450,7 @@
 				<div class="flex items-center gap-0.5 translate-y-[1px]">
 					<button
 						class="flex gap-1 items-center bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
-						on:click={collapseCodeBlock}
+						onclick={collapseCodeBlock}
 					>
 						<div>
 							<ChevronUpDown className="size-3" />
@@ -466,8 +466,8 @@
 							<div class="run-code-button bg-none border-none p-1 cursor-not-allowed">Running</div>
 						{:else if run}
 							<button
-							class="flex gap-1 items-center run-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
-							onclick={async () => {
+								class="flex gap-1 items-center run-code-button bg-none border-none bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-md px-1.5 py-0.5"
+								onclick={async () => {
 									code = _code;
 									await tick();
 									executePython(code);
@@ -511,15 +511,15 @@
 
 				{#if !collapsed}
 					<CodeEditor
-						value={code}
 						{id}
 						{lang}
-						onSave={() => {
-							saveCode();
-						}}
 						onChange={(value) => {
 							_code = value;
 						}}
+						onSave={() => {
+							saveCode();
+						}}
+						value={code}
 					/>
 				{:else}
 					<div
@@ -554,9 +554,8 @@
 								<div class=" ">
 									<div class=" text-gray-500 text-xs mb-1">STDOUT/STDERR</div>
 									<div
-										class="text-sm {stdout?.split('\n')?.length > 100
-											? `max-h-96`
-											: ''}  overflow-y-auto"
+										class="text-sm overflow-y-auto"
+										class:max-h-96={stdout?.split('\n')?.length > 100}
 									>
 										{stdout || stderr}
 									</div>
@@ -572,7 +571,7 @@
 										<div class="flex flex-col gap-2">
 											{#each files as file}
 												{#if file.type.startsWith('image')}
-													<img src={file.data} alt="Output" class=" w-full max-w-[36rem]" />
+													<img class=" w-full max-w-[36rem]" alt="Output" src={file.data} />
 												{/if}
 											{/each}
 										</div>

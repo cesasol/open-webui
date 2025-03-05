@@ -528,173 +528,173 @@
 					// If content is available in the cache, play it
 
 					// Set the emoji for the content if available
-          if (($settings?.showEmojiInCall ?? false) && emojiCache.has(content)) {
-            emoji = emojiCache.get(content);
-          } else {
-            emoji = null;
-          }
+					if (($settings?.showEmojiInCall ?? false) && emojiCache.has(content)) {
+						emoji = emojiCache.get(content);
+					} else {
+						emoji = null;
+					}
 
-          if ($config.audio.tts.engine !== '') {
-            try {
-              console.log(
-                '%c%s',
-                'color: red; font-size: 20px;',
-                `Playing audio for content: ${content}`
-              );
+					if ($config.audio.tts.engine !== '') {
+						try {
+							console.log(
+								'%c%s',
+								'color: red; font-size: 20px;',
+								`Playing audio for content: ${content}`
+							);
 
-              const audio = audioCache.get(content);
-              await playAudio(audio); // Here ensure that playAudio is indeed correct method to execute
-              console.log(`Played audio for content: ${content}`);
-              await new Promise((resolve) => setTimeout(resolve, 200)); // Wait before retrying to reduce tight loop
-            } catch (error) {
-              console.error('Error playing audio:', error);
-            }
-          } else {
-            await speakSpeechSynthesisHandler(content);
-          }
-        } else {
-          // If not available in the cache, push it back to the queue and delay
-          messages[id].unshift(content); // Re-queue the content at the start
-          console.log(`Audio for "${content}" not yet available in the cache, re-queued...`);
-          await new Promise((resolve) => setTimeout(resolve, 200)); // Wait before retrying to reduce tight loop
-        }
-      } else if (finishedMessages[id] && messages[id] && messages[id].length === 0) {
-        // If the message is finished and there are no more messages to process, break the loop
-        assistantSpeaking = false;
-        break;
-      } else {
-        // No messages to process, sleep for a bit
-        await new Promise((resolve) => setTimeout(resolve, 200));
-      }
-    }
-    console.log(`Audio monitoring and playing stopped for message ID ${id}`);
-  };
+							const audio = audioCache.get(content);
+							await playAudio(audio); // Here ensure that playAudio is indeed correct method to execute
+							console.log(`Played audio for content: ${content}`);
+							await new Promise((resolve) => setTimeout(resolve, 200)); // Wait before retrying to reduce tight loop
+						} catch (error) {
+							console.error('Error playing audio:', error);
+						}
+					} else {
+						await speakSpeechSynthesisHandler(content);
+					}
+				} else {
+					// If not available in the cache, push it back to the queue and delay
+					messages[id].unshift(content); // Re-queue the content at the start
+					console.log(`Audio for "${content}" not yet available in the cache, re-queued...`);
+					await new Promise((resolve) => setTimeout(resolve, 200)); // Wait before retrying to reduce tight loop
+				}
+			} else if (finishedMessages[id] && messages[id] && messages[id].length === 0) {
+				// If the message is finished and there are no more messages to process, break the loop
+				assistantSpeaking = false;
+				break;
+			} else {
+				// No messages to process, sleep for a bit
+				await new Promise((resolve) => setTimeout(resolve, 200));
+			}
+		}
+		console.log(`Audio monitoring and playing stopped for message ID ${id}`);
+	};
 
-  const chatStartHandler = async (e) => {
-    const { id } = e.detail;
+	const chatStartHandler = async (e) => {
+		const { id } = e.detail;
 
-    chatStreaming = true;
+		chatStreaming = true;
 
-    if (currentMessageId !== id) {
-      console.log(`Received chat start event for message ID ${id}`);
+		if (currentMessageId !== id) {
+			console.log(`Received chat start event for message ID ${id}`);
 
-      currentMessageId = id;
-      if (audioAbortController) {
-        audioAbortController.abort();
-      }
-      audioAbortController = new AbortController();
+			currentMessageId = id;
+			if (audioAbortController) {
+				audioAbortController.abort();
+			}
+			audioAbortController = new AbortController();
 
-      assistantSpeaking = true;
-      // Start monitoring and playing audio for the message ID
-      monitorAndPlayAudio(id, audioAbortController.signal);
-    }
-  };
+			assistantSpeaking = true;
+			// Start monitoring and playing audio for the message ID
+			monitorAndPlayAudio(id, audioAbortController.signal);
+		}
+	};
 
-  const chatEventHandler = async (e) => {
-    const { id, content } = e.detail;
-    // "id" here is message id
+	const chatEventHandler = async (e) => {
+		const { id, content } = e.detail;
+		// "id" here is message id
 		// if "id" is not the same as "currentMessageId" then do not process
 		// "content" here is a sentence from the assistant,
 		// there will be many sentences for the same "id"
 
-    if (currentMessageId === id) {
-      console.log(`Received chat event for message ID ${id}: ${content}`);
+		if (currentMessageId === id) {
+			console.log(`Received chat event for message ID ${id}: ${content}`);
 
-      try {
-        if (messages[id] === undefined) {
-          messages[id] = [content];
-        } else {
-          messages[id].push(content);
-        }
+			try {
+				if (messages[id] === undefined) {
+					messages[id] = [content];
+				} else {
+					messages[id].push(content);
+				}
 
-        console.log(content);
+				console.log(content);
 
-        fetchAudio(content);
-      } catch (error) {
-        console.error('Failed to fetch or play audio:', error);
-      }
-    }
-  };
+				fetchAudio(content);
+			} catch (error) {
+				console.error('Failed to fetch or play audio:', error);
+			}
+		}
+	};
 
-  const chatFinishHandler = async (e) => {
-    const { id, content } = e.detail;
-    // "content" here is the entire message from the assistant
-    finishedMessages[id] = true;
+	const chatFinishHandler = async (e) => {
+		const { id, content } = e.detail;
+		// "content" here is the entire message from the assistant
+		finishedMessages[id] = true;
 
-    chatStreaming = false;
-  };
+		chatStreaming = false;
+	};
 
-  onMount(async () => {
-    const setWakeLock = async () => {
-      try {
-        wakeLock = await navigator.wakeLock.request('screen');
-      } catch (err) {
-        // The Wake Lock request has failed - usually system related, such as battery.
-        console.log(err);
-      }
+	onMount(async () => {
+		const setWakeLock = async () => {
+			try {
+				wakeLock = await navigator.wakeLock.request('screen');
+			} catch (err) {
+				// The Wake Lock request has failed - usually system related, such as battery.
+				console.log(err);
+			}
 
-      if (wakeLock) {
-        // Add a listener to release the wake lock when the page is unloaded
-        wakeLock.addEventListener('release', () => {
-          // the wake lock has been released
-          console.log('Wake Lock released');
-        });
-      }
-    };
+			if (wakeLock) {
+				// Add a listener to release the wake lock when the page is unloaded
+				wakeLock.addEventListener('release', () => {
+					// the wake lock has been released
+					console.log('Wake Lock released');
+				});
+			}
+		};
 
-    if ('wakeLock' in navigator) {
-      await setWakeLock();
+		if ('wakeLock' in navigator) {
+			await setWakeLock();
 
-      document.addEventListener('visibilitychange', async () => {
-        // Re-request the wake lock if the document becomes visible
-        if (wakeLock !== null && document.visibilityState === 'visible') {
-          await setWakeLock();
-        }
-      });
-    }
+			document.addEventListener('visibilitychange', async () => {
+				// Re-request the wake lock if the document becomes visible
+				if (wakeLock !== null && document.visibilityState === 'visible') {
+					await setWakeLock();
+				}
+			});
+		}
 
-    model = $models.find((m) => m.id === modelId);
+		model = $models.find((m) => m.id === modelId);
 
-    startRecording();
+		startRecording();
 
-    eventTarget.addEventListener('chat:start', chatStartHandler);
-    eventTarget.addEventListener('chat', chatEventHandler);
-    eventTarget.addEventListener('chat:finish', chatFinishHandler);
+		eventTarget.addEventListener('chat:start', chatStartHandler);
+		eventTarget.addEventListener('chat', chatEventHandler);
+		eventTarget.addEventListener('chat:finish', chatFinishHandler);
 
-    return async () => {
-      await stopAllAudio();
+		return async () => {
+			await stopAllAudio();
 
-      stopAudioStream();
+			stopAudioStream();
 
-      eventTarget.removeEventListener('chat:start', chatStartHandler);
-      eventTarget.removeEventListener('chat', chatEventHandler);
-      eventTarget.removeEventListener('chat:finish', chatFinishHandler);
+			eventTarget.removeEventListener('chat:start', chatStartHandler);
+			eventTarget.removeEventListener('chat', chatEventHandler);
+			eventTarget.removeEventListener('chat:finish', chatFinishHandler);
 
-      audioAbortController.abort();
-      await tick();
+			audioAbortController.abort();
+			await tick();
 
-      await stopAllAudio();
+			await stopAllAudio();
 
-      await stopRecordingCallback(false);
-      await stopCamera();
-    };
-  });
+			await stopRecordingCallback(false);
+			await stopCamera();
+		};
+	});
 
-  onDestroy(async () => {
-    await stopAllAudio();
-    await stopRecordingCallback(false);
-    await stopCamera();
+	onDestroy(async () => {
+		await stopAllAudio();
+		await stopRecordingCallback(false);
+		await stopCamera();
 
-    await stopAudioStream();
-    eventTarget.removeEventListener('chat:start', chatStartHandler);
-    eventTarget.removeEventListener('chat', chatEventHandler);
-    eventTarget.removeEventListener('chat:finish', chatFinishHandler);
-    audioAbortController.abort();
+		await stopAudioStream();
+		eventTarget.removeEventListener('chat:start', chatStartHandler);
+		eventTarget.removeEventListener('chat', chatEventHandler);
+		eventTarget.removeEventListener('chat:finish', chatFinishHandler);
+		audioAbortController.abort();
 
-    await tick();
+		await tick();
 
-    await stopAllAudio();
-  });
+		await stopAllAudio();
+	});
 </script>
 
 {#if $showCallOverlay}
@@ -988,8 +988,8 @@
 						await stopAudioStream();
 						await stopVideoStream();
 
-            console.log(audioStream);
-            console.log(cameraStream);
+						console.log(audioStream);
+						console.log(cameraStream);
 
 						showCallOverlay.set(false);
 						dispatch('close');

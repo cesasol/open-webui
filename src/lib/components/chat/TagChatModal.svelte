@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import Modal from '../common/Modal.svelte';
+	import { getContext } from 'svelte';
+	import Modal from '../common/Modal.svelte';
 
-  import Tags from '../common/Tags.svelte';
+	import Tags from '../common/Tags.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();

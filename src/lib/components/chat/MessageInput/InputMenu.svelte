@@ -5,20 +5,20 @@
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { getContext, onMount, tick } from 'svelte';
 
-  import { config, user, tools as _tools, mobile } from '$lib/stores';
-  import { createPicker } from '$lib/utils/google-drive-picker';
+	import { config, user, tools as _tools, mobile } from '$lib/stores';
+	import { createPicker } from '$lib/utils/google-drive-picker';
 
-  import { getTools } from '$lib/apis/tools';
+	import { getTools } from '$lib/apis/tools';
 
-  import Dropdown from '$lib/components/common/Dropdown.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import DocumentArrowUpSolid from '$lib/components/icons/DocumentArrowUpSolid.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import GlobeAltSolid from '$lib/components/icons/GlobeAltSolid.svelte';
-  import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
-  import CameraSolid from '$lib/components/icons/CameraSolid.svelte';
-  import PhotoSolid from '$lib/components/icons/PhotoSolid.svelte';
-  import CommandLineSolid from '$lib/components/icons/CommandLineSolid.svelte';
+	import Dropdown from '$lib/components/common/Dropdown.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import DocumentArrowUpSolid from '$lib/components/icons/DocumentArrowUpSolid.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import GlobeAltSolid from '$lib/components/icons/GlobeAltSolid.svelte';
+	import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
+	import CameraSolid from '$lib/components/icons/CameraSolid.svelte';
+	import PhotoSolid from '$lib/components/icons/PhotoSolid.svelte';
+	import CommandLineSolid from '$lib/components/icons/CommandLineSolid.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -50,25 +50,25 @@
 
 	let fileUploadEnabled = $state(true);
 
-  const init = async () => {
-    if ($_tools === null) {
-      await _tools.set(await getTools(localStorage.token));
-    }
+	const init = async () => {
+		if ($_tools === null) {
+			await _tools.set(await getTools(localStorage.token));
+		}
 
-    tools = $_tools.reduce((a, tool, i, arr) => {
-      a[tool.id] = {
-        name: tool.name,
-        description: tool.meta.description,
-        enabled: selectedToolIds.includes(tool.id)
-      };
-      return a;
-    }, {});
-  };
+		tools = $_tools.reduce((a, tool, i, arr) => {
+			a[tool.id] = {
+				name: tool.name,
+				description: tool.meta.description,
+				enabled: selectedToolIds.includes(tool.id)
+			};
+			return a;
+		}, {});
+	};
 
-  const detectMobile = () => {
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    return /android|iphone|ipad|ipod|windows phone/i.test(userAgent);
-  };
+	const detectMobile = () => {
+		const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+		return /android|iphone|ipad|ipod|windows phone/i.test(userAgent);
+	};
 
 	function handleFileChange(event) {
 		const inputFiles = Array.from(event.target?.files);
@@ -98,12 +98,12 @@
 />
 
 <Dropdown
-  bind:show
-  on:change={(e) => {
-    if (e.detail === false) {
-      onClose();
-    }
-  }}
+	bind:show
+	on:change={(e) => {
+		if (e.detail === false) {
+			onClose();
+		}
+	}}
 >
 	<Tooltip content={$i18n.t('More')}>
 		{@render children?.()}

@@ -6,12 +6,12 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { getGroups } from '$lib/apis/groups';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Plus from '$lib/components/icons/Plus.svelte';
-  import UserCircleSolid from '$lib/components/icons/UserCircleSolid.svelte';
-  import XMark from '$lib/components/icons/XMark.svelte';
-  import Badge from '$lib/components/common/Badge.svelte';
+	import { getGroups } from '$lib/apis/groups';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Plus from '$lib/components/icons/Plus.svelte';
+	import UserCircleSolid from '$lib/components/icons/UserCircleSolid.svelte';
+	import XMark from '$lib/components/icons/XMark.svelte';
+	import Badge from '$lib/components/common/Badge.svelte';
 
 	interface Props {
 		onChange?: Function;
@@ -28,24 +28,24 @@
 	let selectedGroupId = $state('');
 	let groups = $state([]);
 
-  onMount(async () => {
-    groups = await getGroups(localStorage.token);
+	onMount(async () => {
+		groups = await getGroups(localStorage.token);
 
-    if (accessControl === null) {
-      accessControl = null;
-    } else {
-      accessControl = {
-        read: {
-          group_ids: accessControl?.read?.group_ids ?? [],
-          user_ids: accessControl?.read?.user_ids ?? []
-        },
-        write: {
-          group_ids: accessControl?.write?.group_ids ?? [],
-          user_ids: accessControl?.write?.user_ids ?? []
-        }
-      };
-    }
-  });
+		if (accessControl === null) {
+			accessControl = null;
+		} else {
+			accessControl = {
+				read: {
+					group_ids: accessControl?.read?.group_ids ?? [],
+					user_ids: accessControl?.read?.user_ids ?? []
+				},
+				write: {
+					group_ids: accessControl?.write?.group_ids ?? [],
+					user_ids: accessControl?.write?.user_ids ?? []
+				}
+			};
+		}
+	});
 
 	const onSelectGroup = () => {
 		if (selectedGroupId !== '') {
@@ -65,8 +65,8 @@
 </script>
 
 <div class=" rounded-lg flex flex-col gap-2">
-  <div class="">
-    <div class=" text-sm font-semibold mb-1">{$i18n.t('Visibility')}</div>
+	<div class="">
+		<div class=" text-sm font-semibold mb-1">{$i18n.t('Visibility')}</div>
 
 		<div class="flex gap-2.5 items-center mb-1">
 			<div>
@@ -129,27 +129,27 @@
 					<option class=" text-gray-700" selected value="public">Public</option>
 				</select>
 
-        <div class=" text-xs text-gray-400 font-medium">
-          {#if accessControl !== null}
-            {$i18n.t('Only select users and groups with permission can access')}
-          {:else}
-            {$i18n.t('Accessible to all users')}
-          {/if}
-        </div>
-      </div>
-    </div>
-  </div>
-  {#if accessControl !== null}
-    {@const accessGroups = groups.filter((group) =>
-      accessControl.read.group_ids.includes(group.id)
-    )}
-    <div>
-      <div class="">
-        <div class="flex justify-between mb-1.5">
-          <div class="text-sm font-semibold">
-            {$i18n.t('Groups')}
-          </div>
-        </div>
+				<div class=" text-xs text-gray-400 font-medium">
+					{#if accessControl !== null}
+						{$i18n.t('Only select users and groups with permission can access')}
+					{:else}
+						{$i18n.t('Accessible to all users')}
+					{/if}
+				</div>
+			</div>
+		</div>
+	</div>
+	{#if accessControl !== null}
+		{@const accessGroups = groups.filter((group) =>
+			accessControl.read.group_ids.includes(group.id)
+		)}
+		<div>
+			<div class="">
+				<div class="flex justify-between mb-1.5">
+					<div class="text-sm font-semibold">
+						{$i18n.t('Groups')}
+					</div>
+				</div>
 
 				<div class="mb-1">
 					<div class="flex w-full">
@@ -179,25 +179,25 @@
 									</button>
 								</Tooltip>
 							</div> -->
-            </div>
-          </div>
-        </div>
+						</div>
+					</div>
+				</div>
 
-        <hr class=" border-gray-100 dark:border-gray-700/10 mt-1.5 mb-2.5 w-full" />
+				<hr class=" border-gray-100 dark:border-gray-700/10 mt-1.5 mb-2.5 w-full" />
 
-        <div class="flex flex-col gap-2 mb-1 px-0.5">
-          {#if accessGroups.length > 0}
-            {#each accessGroups as group}
-              <div class="flex items-center gap-3 justify-between text-xs w-full transition">
-                <div class="flex items-center gap-1.5 w-full font-medium">
-                  <div>
-                    <UserCircleSolid className="size-4" />
-                  </div>
+				<div class="flex flex-col gap-2 mb-1 px-0.5">
+					{#if accessGroups.length > 0}
+						{#each accessGroups as group}
+							<div class="flex items-center gap-3 justify-between text-xs w-full transition">
+								<div class="flex items-center gap-1.5 w-full font-medium">
+									<div>
+										<UserCircleSolid className="size-4" />
+									</div>
 
-                  <div>
-                    {group.name}
-                  </div>
-                </div>
+									<div>
+										{group.name}
+									</div>
+								</div>
 
 								<div class="w-full flex justify-end items-center gap-0.5">
 									<button

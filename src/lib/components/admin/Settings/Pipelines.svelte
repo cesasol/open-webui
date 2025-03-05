@@ -3,22 +3,22 @@
 
 	import { v4 as uuidv4 } from 'uuid';
 
-  import { toast } from 'svelte-sonner';
-  import { config, models, settings } from '$lib/stores';
-  import { getContext, onMount, tick } from 'svelte';
-  import type { Writable } from 'svelte/store';
-  import type { i18n as i18nType } from 'i18next';
-  import {
-    getPipelineValves,
-    getPipelineValvesSpec,
-    updatePipelineValves,
-    getPipelines,
-    getModels,
-    getPipelinesList,
-    downloadPipeline,
-    deletePipeline,
-    uploadPipeline
-  } from '$lib/apis';
+	import { toast } from 'svelte-sonner';
+	import { config, models, settings } from '$lib/stores';
+	import { getContext, onMount, tick } from 'svelte';
+	import type { Writable } from 'svelte/store';
+	import type { i18n as i18nType } from 'i18next';
+	import {
+		getPipelineValves,
+		getPipelineValvesSpec,
+		updatePipelineValves,
+		getPipelines,
+		getModels,
+		getPipelinesList,
+		downloadPipeline,
+		deletePipeline,
+		uploadPipeline
+	} from '$lib/apis';
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
@@ -48,178 +48,178 @@
 
 	let pipelineDownloadUrl = $state('');
 
-  const updateHandler = async () => {
-    const pipeline = pipelines[selectedPipelineIdx];
+	const updateHandler = async () => {
+		const pipeline = pipelines[selectedPipelineIdx];
 
-    if (pipeline && (pipeline?.valves ?? false)) {
-      for (const property in valves_spec.properties) {
-        if (valves_spec.properties[property]?.type === 'array') {
-          valves[property] = valves[property].split(',').map((v) => v.trim());
-        }
-      }
+		if (pipeline && (pipeline?.valves ?? false)) {
+			for (const property in valves_spec.properties) {
+				if (valves_spec.properties[property]?.type === 'array') {
+					valves[property] = valves[property].split(',').map((v) => v.trim());
+				}
+			}
 
-      const res = await updatePipelineValves(
-        localStorage.token,
-        pipeline.id,
-        valves,
-        selectedPipelinesUrlIdx
-      ).catch((error) => {
-        toast.error(`${error}`);
-      });
+			const res = await updatePipelineValves(
+				localStorage.token,
+				pipeline.id,
+				valves,
+				selectedPipelinesUrlIdx
+			).catch((error) => {
+				toast.error(`${error}`);
+			});
 
-      if (res) {
-        toast.success($i18n.t('Valves updated successfully'));
-        setPipelines();
-        models.set(
-          await getModels(
-            localStorage.token,
-            $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-          )
-        );
-        saveHandler();
-      }
-    } else {
-      toast.error($i18n.t('No valves to update'));
-    }
-  };
+			if (res) {
+				toast.success($i18n.t('Valves updated successfully'));
+				setPipelines();
+				models.set(
+					await getModels(
+						localStorage.token,
+						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+					)
+				);
+				saveHandler();
+			}
+		} else {
+			toast.error($i18n.t('No valves to update'));
+		}
+	};
 
-  const getValves = async (idx) => {
-    valves = null;
-    valves_spec = null;
+	const getValves = async (idx) => {
+		valves = null;
+		valves_spec = null;
 
-    valves_spec = await getPipelineValvesSpec(
-      localStorage.token,
-      pipelines[idx].id,
-      selectedPipelinesUrlIdx
-    );
-    valves = await getPipelineValves(
-      localStorage.token,
-      pipelines[idx].id,
-      selectedPipelinesUrlIdx
-    );
+		valves_spec = await getPipelineValvesSpec(
+			localStorage.token,
+			pipelines[idx].id,
+			selectedPipelinesUrlIdx
+		);
+		valves = await getPipelineValves(
+			localStorage.token,
+			pipelines[idx].id,
+			selectedPipelinesUrlIdx
+		);
 
-    for (const property in valves_spec.properties) {
-      if (valves_spec.properties[property]?.type === 'array') {
-        valves[property] = valves[property].join(',');
-      }
-    }
-  };
+		for (const property in valves_spec.properties) {
+			if (valves_spec.properties[property]?.type === 'array') {
+				valves[property] = valves[property].join(',');
+			}
+		}
+	};
 
-  const setPipelines = async () => {
-    pipelines = null;
-    valves = null;
-    valves_spec = null;
+	const setPipelines = async () => {
+		pipelines = null;
+		valves = null;
+		valves_spec = null;
 
-    if (PIPELINES_LIST.length > 0) {
-      console.log(selectedPipelinesUrlIdx);
-      pipelines = await getPipelines(localStorage.token, selectedPipelinesUrlIdx);
+		if (PIPELINES_LIST.length > 0) {
+			console.log(selectedPipelinesUrlIdx);
+			pipelines = await getPipelines(localStorage.token, selectedPipelinesUrlIdx);
 
-      if (pipelines.length > 0) {
-        selectedPipelineIdx = 0;
-        await getValves(selectedPipelineIdx);
-      }
-    } else {
-      pipelines = [];
-    }
-  };
+			if (pipelines.length > 0) {
+				selectedPipelineIdx = 0;
+				await getValves(selectedPipelineIdx);
+			}
+		} else {
+			pipelines = [];
+		}
+	};
 
-  const addPipelineHandler = async () => {
-    downloading = true;
-    const res = await downloadPipeline(
-      localStorage.token,
-      pipelineDownloadUrl,
-      selectedPipelinesUrlIdx
-    ).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const addPipelineHandler = async () => {
+		downloading = true;
+		const res = await downloadPipeline(
+			localStorage.token,
+			pipelineDownloadUrl,
+			selectedPipelinesUrlIdx
+		).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
-    if (res) {
-      toast.success($i18n.t('Pipeline downloaded successfully'));
-      setPipelines();
-      models.set(
-        await getModels(
-          localStorage.token,
-          $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-        )
-      );
-    }
+		if (res) {
+			toast.success($i18n.t('Pipeline downloaded successfully'));
+			setPipelines();
+			models.set(
+				await getModels(
+					localStorage.token,
+					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+				)
+			);
+		}
 
-    downloading = false;
-  };
+		downloading = false;
+	};
 
-  const uploadPipelineHandler = async () => {
-    uploading = true;
+	const uploadPipelineHandler = async () => {
+		uploading = true;
 
-    if (pipelineFiles && pipelineFiles.length !== 0) {
-      const file = pipelineFiles[0];
+		if (pipelineFiles && pipelineFiles.length !== 0) {
+			const file = pipelineFiles[0];
 
-      console.log(file);
+			console.log(file);
 
-      const res = await uploadPipeline(localStorage.token, file, selectedPipelinesUrlIdx).catch(
-        (error) => {
-          console.log(error);
-          toast.error('Something went wrong :/');
-          return null;
-        }
-      );
+			const res = await uploadPipeline(localStorage.token, file, selectedPipelinesUrlIdx).catch(
+				(error) => {
+					console.log(error);
+					toast.error('Something went wrong :/');
+					return null;
+				}
+			);
 
-      if (res) {
-        toast.success($i18n.t('Pipeline downloaded successfully'));
-        setPipelines();
-        models.set(
-          await getModels(
-            localStorage.token,
-            $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-          )
-        );
-      }
-    } else {
-      toast.error($i18n.t('No file selected'));
-    }
+			if (res) {
+				toast.success($i18n.t('Pipeline downloaded successfully'));
+				setPipelines();
+				models.set(
+					await getModels(
+						localStorage.token,
+						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+					)
+				);
+			}
+		} else {
+			toast.error($i18n.t('No file selected'));
+		}
 
-    pipelineFiles = null;
-    const pipelineUploadInputElement = document.getElementById('pipelines-upload-input');
+		pipelineFiles = null;
+		const pipelineUploadInputElement = document.getElementById('pipelines-upload-input');
 
-    if (pipelineUploadInputElement) {
-      pipelineUploadInputElement.value = null;
-    }
+		if (pipelineUploadInputElement) {
+			pipelineUploadInputElement.value = null;
+		}
 
-    uploading = false;
-  };
+		uploading = false;
+	};
 
-  const deletePipelineHandler = async () => {
-    const res = await deletePipeline(
-      localStorage.token,
-      pipelines[selectedPipelineIdx].id,
-      selectedPipelinesUrlIdx
-    ).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const deletePipelineHandler = async () => {
+		const res = await deletePipeline(
+			localStorage.token,
+			pipelines[selectedPipelineIdx].id,
+			selectedPipelinesUrlIdx
+		).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
-    if (res) {
-      toast.success($i18n.t('Pipeline deleted successfully'));
-      setPipelines();
-      models.set(
-        await getModels(
-          localStorage.token,
-          $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-        )
-      );
-    }
-  };
+		if (res) {
+			toast.success($i18n.t('Pipeline deleted successfully'));
+			setPipelines();
+			models.set(
+				await getModels(
+					localStorage.token,
+					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+				)
+			);
+		}
+	};
 
-  onMount(async () => {
-    PIPELINES_LIST = await getPipelinesList(localStorage.token);
-    console.log(PIPELINES_LIST);
+	onMount(async () => {
+		PIPELINES_LIST = await getPipelinesList(localStorage.token);
+		console.log(PIPELINES_LIST);
 
-    if (PIPELINES_LIST.length > 0) {
-      selectedPipelinesUrlIdx = PIPELINES_LIST[0]['idx'].toString();
-    }
+		if (PIPELINES_LIST.length > 0) {
+			selectedPipelinesUrlIdx = PIPELINES_LIST[0]['idx'].toString();
+		}
 
-    await setPipelines();
-  });
+		await setPipelines();
+	});
 </script>
 
 <form
@@ -228,13 +228,13 @@
 		updateHandler();
 	})}
 >
-  <div class="overflow-y-scroll scrollbar-hidden h-full">
-    {#if PIPELINES_LIST !== null}
-      <div class="flex w-full justify-between mb-2">
-        <div class=" self-center text-sm font-semibold">
-          {$i18n.t('Manage Pipelines')}
-        </div>
-      </div>
+	<div class="overflow-y-scroll scrollbar-hidden h-full">
+		{#if PIPELINES_LIST !== null}
+			<div class="flex w-full justify-between mb-2">
+				<div class=" self-center text-sm font-semibold">
+					{$i18n.t('Manage Pipelines')}
+				</div>
+			</div>
 
 			{#if PIPELINES_LIST.length > 0}
 				<div class="space-y-1">
@@ -416,14 +416,16 @@
 						</button>
 					</div>
 
-          <div class="mt-2 text-xs text-gray-500">
-            <span class=" font-semibold dark:text-gray-200">Warning:</span> Pipelines are a plugin
-            system with arbitrary code execution —
-            <span class=" font-medium dark:text-gray-400">don't fetch random pipelines from sources you don't trust.</span>
-          </div>
-        </div>
+					<div class="mt-2 text-xs text-gray-500">
+						<span class=" font-semibold dark:text-gray-200">Warning:</span> Pipelines are a plugin
+						system with arbitrary code execution —
+						<span class=" font-medium dark:text-gray-400"
+							>don't fetch random pipelines from sources you don't trust.</span
+						>
+					</div>
+				</div>
 
-        <hr class="border-gray-100 dark:border-gray-850 my-3 w-full" />
+				<hr class="border-gray-100 dark:border-gray-850 my-3 w-full" />
 
 				{#if pipelines !== null}
 					{#if pipelines.length > 0}
@@ -476,15 +478,15 @@
 								</div>
 							{/if}
 
-              <div class="space-y-1">
-                {#if pipelines[selectedPipelineIdx].valves}
-                  {#if valves}
-                    {#each Object.keys(valves_spec.properties) as property, idx}
-                      <div class=" py-0.5 w-full justify-between">
-                        <div class="flex w-full justify-between">
-                          <div class=" self-center text-xs font-medium">
-                            {valves_spec.properties[property].title}
-                          </div>
+							<div class="space-y-1">
+								{#if pipelines[selectedPipelineIdx].valves}
+									{#if valves}
+										{#each Object.keys(valves_spec.properties) as property, idx}
+											<div class=" py-0.5 w-full justify-between">
+												<div class="flex w-full justify-between">
+													<div class=" self-center text-xs font-medium">
+														{valves_spec.properties[property].title}
+													</div>
 
 													<button
 														class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -571,14 +573,14 @@
 		{/if}
 	</div>
 
-  {#if PIPELINES_LIST !== null && PIPELINES_LIST.length > 0}
-    <div class="flex justify-end pt-3 text-sm font-medium">
-      <button
-        class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-        type="submit"
-      >
-        {$i18n.t('Save')}
-      </button>
-    </div>
-  {/if}
+	{#if PIPELINES_LIST !== null && PIPELINES_LIST.length > 0}
+		<div class="flex justify-end pt-3 text-sm font-medium">
+			<button
+				class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+				type="submit"
+			>
+				{$i18n.t('Save')}
+			</button>
+		</div>
+	{/if}
 </form>

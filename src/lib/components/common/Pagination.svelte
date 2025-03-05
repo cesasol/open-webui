@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Pagination } from 'bits-ui';
-  import { createEventDispatcher } from 'svelte';
+	import { Pagination } from 'bits-ui';
+	import { createEventDispatcher } from 'svelte';
 
-  import ChevronLeft from '../icons/ChevronLeft.svelte';
-  import ChevronRight from '../icons/ChevronRight.svelte';
+	import ChevronLeft from '../icons/ChevronLeft.svelte';
+	import ChevronRight from '../icons/ChevronRight.svelte';
 
 	interface Props {
 		page?: number;

@@ -1,19 +1,19 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 
-  import DOMPurify from 'dompurify';
-  import { marked } from 'marked';
+	import DOMPurify from 'dompurify';
+	import { marked } from 'marked';
 
 	import { getContext, tick } from 'svelte';
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { chatCompletion } from '$lib/apis/openai';
+	import { chatCompletion } from '$lib/apis/openai';
 
-  import ChatBubble from '$lib/components/icons/ChatBubble.svelte';
-  import LightBlub from '$lib/components/icons/LightBlub.svelte';
-  import Markdown from '../Messages/Markdown.svelte';
-  import Skeleton from '../Messages/Skeleton.svelte';
+	import ChatBubble from '$lib/components/icons/ChatBubble.svelte';
+	import LightBlub from '$lib/components/icons/LightBlub.svelte';
+	import Markdown from '../Messages/Markdown.svelte';
+	import Skeleton from '../Messages/Skeleton.svelte';
 
 	interface Props {
 		id?: string;
@@ -33,93 +33,93 @@
 	let responseContent = $state(null);
 	let responseDone = $state(false);
 
-  const autoScroll = async () => {
-    // Scroll to bottom only if the scroll is at the bottom give 50px buffer
-    const responseContainer = document.getElementById('response-container');
-    if (
-      responseContainer.scrollHeight - responseContainer.clientHeight <=
-      responseContainer.scrollTop + 50
-    ) {
-      responseContainer.scrollTop = responseContainer.scrollHeight;
-    }
-  };
+	const autoScroll = async () => {
+		// Scroll to bottom only if the scroll is at the bottom give 50px buffer
+		const responseContainer = document.getElementById('response-container');
+		if (
+			responseContainer.scrollHeight - responseContainer.clientHeight <=
+			responseContainer.scrollTop + 50
+		) {
+			responseContainer.scrollTop = responseContainer.scrollHeight;
+		}
+	};
 
-  const askHandler = async () => {
-    if (!model) {
-      toast.error('Model not selected');
-      return;
-    }
-    prompt = `${floatingInputValue}\n\`\`\`\n${selectedText}\n\`\`\``;
-    floatingInputValue = '';
+	const askHandler = async () => {
+		if (!model) {
+			toast.error('Model not selected');
+			return;
+		}
+		prompt = `${floatingInputValue}\n\`\`\`\n${selectedText}\n\`\`\``;
+		floatingInputValue = '';
 
-    responseContent = '';
-    const [res, controller] = await chatCompletion(localStorage.token, {
-      model: model,
-      messages: [
-        ...messages,
-        {
-          role: 'user',
-          content: prompt
-        }
-      ].map((message) => ({
-        role: message.role,
-        content: message.content
-      })),
-      stream: true // Enable streaming
-    });
+		responseContent = '';
+		const [res, controller] = await chatCompletion(localStorage.token, {
+			model: model,
+			messages: [
+				...messages,
+				{
+					role: 'user',
+					content: prompt
+				}
+			].map((message) => ({
+				role: message.role,
+				content: message.content
+			})),
+			stream: true // Enable streaming
+		});
 
-    if (res && res.ok) {
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
+		if (res && res.ok) {
+			const reader = res.body.getReader();
+			const decoder = new TextDecoder();
 
-      const processStream = async () => {
-        while (true) {
-          // Read data chunks from the response stream
-          const { done, value } = await reader.read();
-          if (done) {
-            break;
-          }
+			const processStream = async () => {
+				while (true) {
+					// Read data chunks from the response stream
+					const { done, value } = await reader.read();
+					if (done) {
+						break;
+					}
 
-          // Decode the received chunk
-          const chunk = decoder.decode(value, { stream: true });
+					// Decode the received chunk
+					const chunk = decoder.decode(value, { stream: true });
 
-          // Process lines within the chunk
-          const lines = chunk.split('\n').filter((line) => line.trim() !== '');
+					// Process lines within the chunk
+					const lines = chunk.split('\n').filter((line) => line.trim() !== '');
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              if (line.startsWith('data: [DONE]')) {
-                responseDone = true;
+					for (const line of lines) {
+						if (line.startsWith('data: ')) {
+							if (line.startsWith('data: [DONE]')) {
+								responseDone = true;
 
-                await tick();
-                autoScroll();
-                continue;
-              } else {
-                // Parse the JSON chunk
-                try {
-                  const data = JSON.parse(line.slice(6));
+								await tick();
+								autoScroll();
+								continue;
+							} else {
+								// Parse the JSON chunk
+								try {
+									const data = JSON.parse(line.slice(6));
 
-                  // Append the `content` field from the "choices" object
-                  if (data.choices && data.choices[0]?.delta?.content) {
-                    responseContent += data.choices[0].delta.content;
+									// Append the `content` field from the "choices" object
+									if (data.choices && data.choices[0]?.delta?.content) {
+										responseContent += data.choices[0].delta.content;
 
-                    autoScroll();
-                  }
-                } catch (e) {
-                  console.error(e);
-                }
-              }
-            }
-          }
-        }
-      };
+										autoScroll();
+									}
+								} catch (e) {
+									console.error(e);
+								}
+							}
+						}
+					}
+				}
+			};
 
-      // Process the stream in the background
-      await processStream();
-    } else {
-      toast.error('An error occurred while fetching the explanation');
-    }
-  };
+			// Process the stream in the background
+			await processStream();
+		} else {
+			toast.error('An error occurred while fetching the explanation');
+		}
+	};
 
 	const explainHandler = async () => {
 		if (!model) {
@@ -129,100 +129,100 @@
 		const explainText = $i18n.t('Explain this section to me in more detail');
 		prompt = `${explainText}\n\n\`\`\`\n${selectedText}\n\`\`\``;
 
-    responseContent = '';
-    const [res, controller] = await chatCompletion(localStorage.token, {
-      model: model,
-      messages: [
-        ...messages,
-        {
-          role: 'user',
-          content: prompt
-        }
-      ].map((message) => ({
-        role: message.role,
-        content: message.content
-      })),
-      stream: true // Enable streaming
-    });
+		responseContent = '';
+		const [res, controller] = await chatCompletion(localStorage.token, {
+			model: model,
+			messages: [
+				...messages,
+				{
+					role: 'user',
+					content: prompt
+				}
+			].map((message) => ({
+				role: message.role,
+				content: message.content
+			})),
+			stream: true // Enable streaming
+		});
 
-    if (res && res.ok) {
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
+		if (res && res.ok) {
+			const reader = res.body.getReader();
+			const decoder = new TextDecoder();
 
-      const processStream = async () => {
-        while (true) {
-          // Read data chunks from the response stream
-          const { done, value } = await reader.read();
-          if (done) {
-            break;
-          }
+			const processStream = async () => {
+				while (true) {
+					// Read data chunks from the response stream
+					const { done, value } = await reader.read();
+					if (done) {
+						break;
+					}
 
-          // Decode the received chunk
-          const chunk = decoder.decode(value, { stream: true });
+					// Decode the received chunk
+					const chunk = decoder.decode(value, { stream: true });
 
-          // Process lines within the chunk
-          const lines = chunk.split('\n').filter((line) => line.trim() !== '');
+					// Process lines within the chunk
+					const lines = chunk.split('\n').filter((line) => line.trim() !== '');
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              if (line.startsWith('data: [DONE]')) {
-                responseDone = true;
+					for (const line of lines) {
+						if (line.startsWith('data: ')) {
+							if (line.startsWith('data: [DONE]')) {
+								responseDone = true;
 
-                await tick();
-                autoScroll();
-                continue;
-              } else {
-                // Parse the JSON chunk
-                try {
-                  const data = JSON.parse(line.slice(6));
+								await tick();
+								autoScroll();
+								continue;
+							} else {
+								// Parse the JSON chunk
+								try {
+									const data = JSON.parse(line.slice(6));
 
-                  // Append the `content` field from the "choices" object
-                  if (data.choices && data.choices[0]?.delta?.content) {
-                    responseContent += data.choices[0].delta.content;
+									// Append the `content` field from the "choices" object
+									if (data.choices && data.choices[0]?.delta?.content) {
+										responseContent += data.choices[0].delta.content;
 
-                    autoScroll();
-                  }
-                } catch (e) {
-                  console.error(e);
-                }
-              }
-            }
-          }
-        }
-      };
+										autoScroll();
+									}
+								} catch (e) {
+									console.error(e);
+								}
+							}
+						}
+					}
+				}
+			};
 
-      // Process the stream in the background
-      await processStream();
-    } else {
-      toast.error('An error occurred while fetching the explanation');
-    }
-  };
+			// Process the stream in the background
+			await processStream();
+		} else {
+			toast.error('An error occurred while fetching the explanation');
+		}
+	};
 
-  const addHandler = async () => {
-    const messages = [
-      {
-        role: 'user',
-        content: prompt
-      },
-      {
-        role: 'assistant',
-        content: responseContent
-      }
-    ];
+	const addHandler = async () => {
+		const messages = [
+			{
+				role: 'user',
+				content: prompt
+			},
+			{
+				role: 'assistant',
+				content: responseContent
+			}
+		];
 
-    onAdd({
-      modelId: model,
-      parentId: id,
-      messages: messages
-    });
-  };
+		onAdd({
+			modelId: model,
+			parentId: id,
+			messages: messages
+		});
+	};
 
-  export const closeHandler = () => {
-    responseContent = null;
-    responseDone = false;
-    floatingInput = false;
-    floatingInputValue = '';
-  };
+	export const closeHandler = () => {
+		responseContent = null;
+		responseDone = false;
+		floatingInput = false;
+		floatingInputValue = '';
+	};
 </script>
 
 <div
@@ -241,16 +241,16 @@
 						selectedText = window.getSelection().toString();
 						floatingInput = true;
 
-            await tick();
-            setTimeout(() => {
-              const input = document.getElementById('floating-message-input');
-              if (input) {
-                input.focus();
-              }
-            }, 0);
-          }}
-        >
-          <ChatBubble className="size-3 shrink-0" />
+						await tick();
+						setTimeout(() => {
+							const input = document.getElementById('floating-message-input');
+							if (input) {
+								input.focus();
+							}
+						}, 0);
+					}}
+				>
+					<ChatBubble className="size-3 shrink-0" />
 
 					<div class="shrink-0">{$i18n.t('Ask')}</div>
 				</button>

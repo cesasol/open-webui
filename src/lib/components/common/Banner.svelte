@@ -1,16 +1,16 @@
 <script lang="ts">
-  import type { Banner } from '$lib/types';
-  import { onMount, createEventDispatcher } from 'svelte';
-  import { fade } from 'svelte/transition';
-  import DOMPurify from 'dompurify';
-  import { marked } from 'marked';
+	import type { Banner } from '$lib/types';
+	import { onMount, createEventDispatcher } from 'svelte';
+	import { fade } from 'svelte/transition';
+	import DOMPurify from 'dompurify';
+	import { marked } from 'marked';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	interface Props {
 		banner?: Banner;
 		dismissed?: boolean;
-		className?: string
+		className?: string;
 	}
 
 	let {
@@ -29,21 +29,21 @@
 
 	let mounted = $state(false);
 
-  const classNames: Record<string, string> = {
-    info: 'bg-blue-500/20 text-blue-700 dark:text-blue-200 ',
-    success: 'bg-green-500/20 text-green-700 dark:text-green-200',
-    warning: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-200',
-    error: 'bg-red-500/20 text-red-700 dark:text-red-200'
-  };
+	const classNames: Record<string, string> = {
+		info: 'bg-blue-500/20 text-blue-700 dark:text-blue-200 ',
+		success: 'bg-green-500/20 text-green-700 dark:text-green-200',
+		warning: 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-200',
+		error: 'bg-red-500/20 text-red-700 dark:text-red-200'
+	};
 
-  const dismiss = (id) => {
-    dismissed = true;
-    dispatch('dismiss', id);
-  };
+	const dismiss = (id) => {
+		dismissed = true;
+		dispatch('dismiss', id);
+	};
 
-  onMount(() => {
-    mounted = true;
-  });
+	onMount(() => {
+		mounted = true;
+	});
 </script>
 
 {#if !dismissed}
@@ -61,13 +61,13 @@
 						{banner.type}
 					</div>
 
-          {#if banner.url}
-            <div class="flex md:hidden group w-fit md:items-center">
-              <a
-                class="text-gray-700 dark:text-white text-xs font-semibold underline"
-                href="/assets/files/whitepaper.pdf"
-                target="_blank"
-              >Learn More</a>
+					{#if banner.url}
+						<div class="flex md:hidden group w-fit md:items-center">
+							<a
+								class="text-gray-700 dark:text-white text-xs font-semibold underline"
+								href="/assets/files/whitepaper.pdf"
+								target="_blank">Learn More</a
+							>
 
 							<div
 								class=" ml-1 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-white"
@@ -90,18 +90,18 @@
 					{/if}
 				</div>
 
-        <div class="flex-1 text-xs text-gray-700 dark:text-white">
-          {@html marked.parse(DOMPurify.sanitize(banner.content))}
-        </div>
-      </div>
+				<div class="flex-1 text-xs text-gray-700 dark:text-white">
+					{@html marked.parse(DOMPurify.sanitize(banner.content))}
+				</div>
+			</div>
 
-      {#if banner.url}
-        <div class="hidden md:flex group w-fit md:items-center">
-          <a
-            class="text-gray-700 dark:text-white text-xs font-semibold underline"
-            href="/"
-            target="_blank"
-          >Learn More</a>
+			{#if banner.url}
+				<div class="hidden md:flex group w-fit md:items-center">
+					<a
+						class="text-gray-700 dark:text-white text-xs font-semibold underline"
+						href="/"
+						target="_blank">Learn More</a
+					>
 
 					<div class=" ml-1 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-white">
 						<!--  -->

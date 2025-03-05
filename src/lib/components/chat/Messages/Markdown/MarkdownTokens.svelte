@@ -5,13 +5,13 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import fileSaver from 'file-saver';
-  const { saveAs } = fileSaver;
+	import fileSaver from 'file-saver';
+	const { saveAs } = fileSaver;
 
-  import { marked, type Token } from 'marked';
-  import { unescapeHtml } from '$lib/utils';
+	import { marked, type Token } from 'marked';
+	import { unescapeHtml } from '$lib/utils';
 
-  import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	import CodeBlock from '$lib/components/chat/Messages/CodeBlock.svelte';
 	import MarkdownInlineTokens from '$lib/components/chat/Messages/Markdown/MarkdownInlineTokens.svelte';
@@ -22,7 +22,7 @@
 	import Iframe from '$lib/components/common/Iframe.svelte';
 	import Source from './Source.svelte';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	interface Props {
 		id: string;
@@ -44,45 +44,45 @@
 		onSourceClick = () => {}
 	}: Props = $props();
 
-  const headerComponent = (depth: number) => {
-    return 'h' + depth;
-  };
+	const headerComponent = (depth: number) => {
+		return 'h' + depth;
+	};
 
-  const exportTableToCSVHandler = (token, tokenIdx = 0) => {
-    console.log('Exporting table to CSV');
+	const exportTableToCSVHandler = (token, tokenIdx = 0) => {
+		console.log('Exporting table to CSV');
 
-    // Extract header row text and escape for CSV.
-    const header = token.header.map((headerCell) => `"${headerCell.text.replace(/"/g, '""')}"`);
+		// Extract header row text and escape for CSV.
+		const header = token.header.map((headerCell) => `"${headerCell.text.replace(/"/g, '""')}"`);
 
-    // Create an array for rows that will hold the mapped cell text.
-    const rows = token.rows.map((row) =>
-      row.map((cell) => {
-        // Map tokens into a single text
-        const cellContent = cell.tokens.map((token) => token.text).join('');
-        // Escape double quotes and wrap the content in double quotes
-        return `"${cellContent.replace(/"/g, '""')}"`;
-      })
-    );
+		// Create an array for rows that will hold the mapped cell text.
+		const rows = token.rows.map((row) =>
+			row.map((cell) => {
+				// Map tokens into a single text
+				const cellContent = cell.tokens.map((token) => token.text).join('');
+				// Escape double quotes and wrap the content in double quotes
+				return `"${cellContent.replace(/"/g, '""')}"`;
+			})
+		);
 
-    // Combine header and rows
-    const csvData = [header, ...rows];
+		// Combine header and rows
+		const csvData = [header, ...rows];
 
-    // Join the rows using commas (,) as the separator and rows using newline (\n).
-    const csvContent = csvData.map((row) => row.join(',')).join('\n');
+		// Join the rows using commas (,) as the separator and rows using newline (\n).
+		const csvContent = csvData.map((row) => row.join(',')).join('\n');
 
-    // Log rows and CSV content to ensure everything is correct.
-    console.log(csvData);
-    console.log(csvContent);
+		// Log rows and CSV content to ensure everything is correct.
+		console.log(csvData);
+		console.log(csvContent);
 
-    // To handle Unicode characters, you need to prefix the data with a BOM:
-    const bom = '\uFEFF'; // BOM for UTF-8
+		// To handle Unicode characters, you need to prefix the data with a BOM:
+		const bom = '\uFEFF'; // BOM for UTF-8
 
-    // Create a new Blob prefixed with the BOM to ensure proper Unicode encoding.
-    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=UTF-8' });
+		// Create a new Blob prefixed with the BOM to ensure proper Unicode encoding.
+		const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=UTF-8' });
 
-    // Use FileSaver.js's saveAs function to save the generated CSV file.
-    saveAs(blob, `table-${id}-${tokenIdx}.csv`);
-  };
+		// Use FileSaver.js's saveAs function to save the generated CSV file.
+		saveAs(blob, `table-${id}-${tokenIdx}.csv`);
+	};
 </script>
 
 <!-- {JSON.stringify(tokens)} -->
@@ -283,7 +283,7 @@
 		{:else if token.text.includes(`<iframe src="${WEBUI_BASE_URL}/api/v1/files/`)}
 			{@html `${token.text}`}
 		{:else if token.text.includes(`<source_id`)}
-			<Source {id} {token} onClick={onSourceClick} />
+			<Source {id} onClick={onSourceClick} {token} />
 		{:else}
 			{token.text}
 		{/if}

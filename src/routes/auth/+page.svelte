@@ -1,20 +1,20 @@
 <script>
-  import { toast } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 
 	import { onMount, getContext, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-  import { getBackendConfig } from '$lib/apis';
-  import { ldapUserSignIn, getSessionUser, userSignIn, userSignUp } from '$lib/apis/auths';
+	import { getBackendConfig } from '$lib/apis';
+	import { ldapUserSignIn, getSessionUser, userSignIn, userSignUp } from '$lib/apis/auths';
 
-  import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
-  import { WEBUI_NAME, config, user, socket } from '$lib/stores';
+	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_NAME, config, user, socket } from '$lib/stores';
 
-  import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
+	import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
 
-  import Spinner from '$lib/components/common/Spinner.svelte';
-  import OnBoarding from '$lib/components/OnBoarding.svelte';
+	import Spinner from '$lib/components/common/Spinner.svelte';
+	import OnBoarding from '$lib/components/OnBoarding.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -29,90 +29,90 @@
 
 	let ldapUsername = $state('');
 
-  const querystringValue = (key) => {
-    const querystring = window.location.search;
-    const urlParams = new URLSearchParams(querystring);
-    return urlParams.get(key);
-  };
+	const querystringValue = (key) => {
+		const querystring = window.location.search;
+		const urlParams = new URLSearchParams(querystring);
+		return urlParams.get(key);
+	};
 
-  const setSessionUser = async (sessionUser) => {
-    if (sessionUser) {
-      console.log(sessionUser);
-      toast.success($i18n.t(`You're now logged in.`));
-      if (sessionUser.token) {
-        localStorage.token = sessionUser.token;
-      }
+	const setSessionUser = async (sessionUser) => {
+		if (sessionUser) {
+			console.log(sessionUser);
+			toast.success($i18n.t(`You're now logged in.`));
+			if (sessionUser.token) {
+				localStorage.token = sessionUser.token;
+			}
 
-      $socket.emit('user-join', { auth: { token: sessionUser.token } });
-      await user.set(sessionUser);
-      await config.set(await getBackendConfig());
+			$socket.emit('user-join', { auth: { token: sessionUser.token } });
+			await user.set(sessionUser);
+			await config.set(await getBackendConfig());
 
-      const redirectPath = querystringValue('redirect') || '/';
-      goto(redirectPath);
-    }
-  };
+			const redirectPath = querystringValue('redirect') || '/';
+			goto(redirectPath);
+		}
+	};
 
-  const signInHandler = async () => {
-    const sessionUser = await userSignIn(email, password).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const signInHandler = async () => {
+		const sessionUser = await userSignIn(email, password).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
-    await setSessionUser(sessionUser);
-  };
+		await setSessionUser(sessionUser);
+	};
 
-  const signUpHandler = async () => {
-    const sessionUser = await userSignUp(name, email, password, generateInitialsImage(name)).catch(
-      (error) => {
-        toast.error(`${error}`);
-        return null;
-      }
-    );
+	const signUpHandler = async () => {
+		const sessionUser = await userSignUp(name, email, password, generateInitialsImage(name)).catch(
+			(error) => {
+				toast.error(`${error}`);
+				return null;
+			}
+		);
 
-    await setSessionUser(sessionUser);
-  };
+		await setSessionUser(sessionUser);
+	};
 
-  const ldapSignInHandler = async () => {
-    const sessionUser = await ldapUserSignIn(ldapUsername, password).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
-    await setSessionUser(sessionUser);
-  };
+	const ldapSignInHandler = async () => {
+		const sessionUser = await ldapUserSignIn(ldapUsername, password).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
+		await setSessionUser(sessionUser);
+	};
 
-  const submitHandler = async () => {
-    if (mode === 'ldap') {
-      await ldapSignInHandler();
-    } else if (mode === 'signin') {
-      await signInHandler();
-    } else {
-      await signUpHandler();
-    }
-  };
+	const submitHandler = async () => {
+		if (mode === 'ldap') {
+			await ldapSignInHandler();
+		} else if (mode === 'signin') {
+			await signInHandler();
+		} else {
+			await signUpHandler();
+		}
+	};
 
-  const checkOauthCallback = async () => {
-    if (!$page.url.hash) {
-      return;
-    }
-    const hash = $page.url.hash.substring(1);
-    if (!hash) {
-      return;
-    }
-    const params = new URLSearchParams(hash);
-    const token = params.get('token');
-    if (!token) {
-      return;
-    }
-    const sessionUser = await getSessionUser(token).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
-    if (!sessionUser) {
-      return;
-    }
-    localStorage.token = token;
-    await setSessionUser(sessionUser);
-  };
+	const checkOauthCallback = async () => {
+		if (!$page.url.hash) {
+			return;
+		}
+		const hash = $page.url.hash.substring(1);
+		if (!hash) {
+			return;
+		}
+		const params = new URLSearchParams(hash);
+		const token = params.get('token');
+		if (!token) {
+			return;
+		}
+		const sessionUser = await getSessionUser(token).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
+		if (!sessionUser) {
+			return;
+		}
+		localStorage.token = token;
+		await setSessionUser(sessionUser);
+	};
 
 	let onboarding = $state(false);
 
@@ -139,27 +139,27 @@
 		}
 	}
 
-  onMount(async () => {
-    if ($user !== undefined) {
-      await goto('/');
-    }
-    await checkOauthCallback();
+	onMount(async () => {
+		if ($user !== undefined) {
+			await goto('/');
+		}
+		await checkOauthCallback();
 
-    loaded = true;
+		loaded = true;
 		setLogoImage();
 
-    if (($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false) {
-      await signInHandler();
-    } else {
-      onboarding = $config?.onboarding ?? false;
-    }
-  });
+		if (($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false) {
+			await signInHandler();
+		} else {
+			onboarding = $config?.onboarding ?? false;
+		}
+	});
 </script>
 
 <svelte:head>
-  <title>
-    {`${$WEBUI_NAME}`}
-  </title>
+	<title>
+		{`${$WEBUI_NAME}`}
+	</title>
 </svelte:head>
 
 <OnBoarding
@@ -171,7 +171,7 @@
 />
 
 <div class="w-full h-screen max-h-[100dvh] text-white relative">
-  <div class="w-full h-full absolute top-0 left-0 bg-white dark:bg-black" />
+	<div class="w-full h-full absolute top-0 left-0 bg-white dark:bg-black" />
 
 	<div class="w-full absolute top-0 left-0 right-0 h-8 drag-region"></div>
 
@@ -181,23 +181,27 @@
 				<div class=" self-center">
 					<img
 						id="logo"
+						class=" w-6 rounded-full"
 						alt="logo"
 						crossorigin="anonymous"
 						src="{WEBUI_BASE_URL}/static/splash.png"
-						class=" w-6 rounded-full"
 					/>
 				</div>
 			</div>
 		</div>
 
-    <div class="fixed bg-transparent min-h-screen w-full flex justify-center font-primary z-50 text-black dark:text-white">
-      <div class="w-full sm:max-w-md px-10 min-h-screen flex flex-col text-center">
-        {#if ($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false}
-          <div class=" my-auto pb-10 w-full">
-            <div class="flex items-center justify-center gap-3 text-xl sm:text-2xl text-center font-semibold dark:text-gray-200">
-              <div>
-                {$i18n.t('Signing in to {{WEBUI_NAME}}', { WEBUI_NAME: $WEBUI_NAME })}
-              </div>
+		<div
+			class="fixed bg-transparent min-h-screen w-full flex justify-center font-primary z-50 text-black dark:text-white"
+		>
+			<div class="w-full sm:max-w-md px-10 min-h-screen flex flex-col text-center">
+				{#if ($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false}
+					<div class=" my-auto pb-10 w-full">
+						<div
+							class="flex items-center justify-center gap-3 text-xl sm:text-2xl text-center font-semibold dark:text-gray-200"
+						>
+							<div>
+								{$i18n.t('Signing in to {{WEBUI_NAME}}', { WEBUI_NAME: $WEBUI_NAME })}
+							</div>
 
 							<div>
 								<Spinner />
@@ -226,15 +230,15 @@
 									{/if}
 								</div>
 
-                {#if $config?.onboarding ?? false}
-                  <div class=" mt-1 text-xs font-medium text-gray-500">
-                    ⓘ {$WEBUI_NAME}
-                    {$i18n.t(
-                      'does not make any external connections, and your data stays securely on your locally hosted server.'
-                    )}
-                  </div>
-                {/if}
-              </div>
+								{#if $config?.onboarding ?? false}
+									<div class=" mt-1 text-xs font-medium text-gray-500">
+										ⓘ {$WEBUI_NAME}
+										{$i18n.t(
+											'does not make any external connections, and your data stays securely on your locally hosted server.'
+										)}
+									</div>
+								{/if}
+							</div>
 
 							{#if $config?.features.enable_login_form || $config?.features.enable_ldap}
 								<div class="flex flex-col mt-4">
@@ -280,8 +284,8 @@
 										</div>
 									{/if}
 
-                  <div>
-                    <div class=" text-sm font-medium text-left mb-1">{$i18n.t('Password')}</div>
+									<div>
+										<div class=" text-sm font-medium text-left mb-1">{$i18n.t('Password')}</div>
 
 										<input
 											name="current-password"
@@ -316,11 +320,11 @@
 													: $i18n.t('Create Account')}
 										</button>
 
-                    {#if $config?.features.enable_signup && !($config?.onboarding ?? false)}
-                      <div class=" mt-4 text-sm text-center">
-                        {mode === 'signin'
-                          ? $i18n.t("Don't have an account?")
-                          : $i18n.t('Already have an account?')}
+										{#if $config?.features.enable_signup && !($config?.onboarding ?? false)}
+											<div class=" mt-4 text-sm text-center">
+												{mode === 'signin'
+													? $i18n.t("Don't have an account?")
+													: $i18n.t('Already have an account?')}
 
 												<button
 													class=" font-medium underline"
@@ -342,12 +346,15 @@
 							</div>
 						</form>
 
-            {#if Object.keys($config?.oauth?.providers ?? {}).length > 0}
-              <div class="inline-flex items-center justify-center w-full">
-                <hr class="w-32 h-px my-4 border-0 dark:bg-gray-100/10 bg-gray-700/10" />
-                {#if $config?.features.enable_login_form || $config?.features.enable_ldap}
-                  <span class="px-3 text-sm font-medium text-gray-900 dark:text-white bg-transparent">{$i18n.t('or')}</span>
-                {/if}
+						{#if Object.keys($config?.oauth?.providers ?? {}).length > 0}
+							<div class="inline-flex items-center justify-center w-full">
+								<hr class="w-32 h-px my-4 border-0 dark:bg-gray-100/10 bg-gray-700/10" />
+								{#if $config?.features.enable_login_form || $config?.features.enable_ldap}
+									<span
+										class="px-3 text-sm font-medium text-gray-900 dark:text-white bg-transparent"
+										>{$i18n.t('or')}</span
+									>
+								{/if}
 
 								<hr class="w-32 h-px my-4 border-0 dark:bg-gray-100/10 bg-gray-700/10" />
 							</div>
@@ -440,13 +447,15 @@
 											/>
 										</svg>
 
-                    <span>{$i18n.t('Continue with {{provider}}', {
-                      provider: $config?.oauth?.providers?.oidc ?? 'SSO'
-                    })}</span>
-                  </button>
-                {/if}
-              </div>
-            {/if}
+										<span
+											>{$i18n.t('Continue with {{provider}}', {
+												provider: $config?.oauth?.providers?.oidc ?? 'SSO'
+											})}</span
+										>
+									</button>
+								{/if}
+							</div>
+						{/if}
 
 						{#if $config?.features.enable_ldap && $config?.features.enable_login_form}
 							<div class="mt-2">

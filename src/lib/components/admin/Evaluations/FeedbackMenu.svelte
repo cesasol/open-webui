@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { DropdownMenu } from 'bits-ui';
-  import { flyAndScale } from '$lib/utils/transitions';
-  import { getContext, createEventDispatcher } from 'svelte';
+	import { DropdownMenu } from 'bits-ui';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { getContext, createEventDispatcher } from 'svelte';
 
-  import fileSaver from 'file-saver';
-  const { saveAs } = fileSaver;
+	import fileSaver from 'file-saver';
+	const { saveAs } = fileSaver;
 
 	const dispatch = createEventDispatcher();
 	import { getI18nContext } from '$lib/contexts';

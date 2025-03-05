@@ -4,19 +4,19 @@
 	import { toast } from 'svelte-sonner';
 	import { marked } from 'marked';
 
-  import { onMount, getContext, tick, createEventDispatcher } from 'svelte';
-  import { blur, fade } from 'svelte/transition';
+	import { onMount, getContext, tick, createEventDispatcher } from 'svelte';
+	import { blur, fade } from 'svelte/transition';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
-  import { config, user, models as _models, temporaryChatEnabled } from '$lib/stores';
-  import { sanitizeResponseContent, findWordIndices } from '$lib/utils';
-  import { WEBUI_BASE_URL } from '$lib/constants';
+	import { config, user, models as _models, temporaryChatEnabled } from '$lib/stores';
+	import { sanitizeResponseContent, findWordIndices } from '$lib/utils';
+	import { WEBUI_BASE_URL } from '$lib/constants';
 
-  import Suggestions from './Suggestions.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
-  import MessageInput from './MessageInput.svelte';
+	import Suggestions from './Suggestions.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
+	import MessageInput from './MessageInput.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -55,42 +55,42 @@
 
 	let models = $state([]);
 
-  const selectSuggestionPrompt = async (p) => {
-    let text = p;
+	const selectSuggestionPrompt = async (p) => {
+		let text = p;
 
-    if (p.includes('{{CLIPBOARD}}')) {
-      const clipboardText = await navigator.clipboard.readText().catch((err) => {
-        toast.error($i18n.t('Failed to read clipboard contents'));
-        return '{{CLIPBOARD}}';
-      });
+		if (p.includes('{{CLIPBOARD}}')) {
+			const clipboardText = await navigator.clipboard.readText().catch((err) => {
+				toast.error($i18n.t('Failed to read clipboard contents'));
+				return '{{CLIPBOARD}}';
+			});
 
-      text = p.replaceAll('{{CLIPBOARD}}', clipboardText);
+			text = p.replaceAll('{{CLIPBOARD}}', clipboardText);
 
-      console.log('Clipboard text:', clipboardText, text);
-    }
+			console.log('Clipboard text:', clipboardText, text);
+		}
 
-    prompt = text;
+		prompt = text;
 
-    console.log(prompt);
-    await tick();
+		console.log(prompt);
+		await tick();
 
-    const chatInputContainerElement = document.getElementById('chat-input-container');
-    const chatInputElement = document.getElementById('chat-input');
+		const chatInputContainerElement = document.getElementById('chat-input-container');
+		const chatInputElement = document.getElementById('chat-input');
 
-    if (chatInputContainerElement) {
-      chatInputContainerElement.style.height = '';
-      chatInputContainerElement.style.height =
-        Math.min(chatInputContainerElement.scrollHeight, 200) + 'px';
-    }
+		if (chatInputContainerElement) {
+			chatInputContainerElement.style.height = '';
+			chatInputContainerElement.style.height =
+				Math.min(chatInputContainerElement.scrollHeight, 200) + 'px';
+		}
 
-    await tick();
-    if (chatInputElement) {
-      chatInputElement.focus();
-      chatInputElement.dispatchEvent(new Event('input'));
-    }
+		await tick();
+		if (chatInputElement) {
+			chatInputElement.focus();
+			chatInputElement.dispatchEvent(new Event('input'));
+		}
 
-    await tick();
-  };
+		await tick();
+	};
 
 	let selectedModelIdx = $state(0);
 
@@ -104,7 +104,7 @@
 		models = selectedModels.map((id) => $_models.find((m) => m.id === id));
 	});
 
-  onMount(() => {});
+	onMount(() => {});
 </script>
 
 <div class="m-auto w-full max-w-6xl px-2 @2xl:px-20 translate-y-6 py-24 text-center">
@@ -140,8 +140,8 @@
 									}}
 								>
 									<img
-									class=" size-9 @sm:size-10 rounded-full border-[1px] border-gray-100 dark:border-none"
-									alt="logo"
+										class=" size-9 @sm:size-10 rounded-full border-[1px] border-gray-100 dark:border-none"
+										alt="logo"
 										crossorigin="anonymous"
 										draggable="false"
 										src={model?.info?.meta?.profile_image_url ??
@@ -155,53 +155,53 @@
 					</div>
 				</div>
 
-        <div
-          class=" text-3xl @sm:text-4xl line-clamp-1"
-          in:fade={{ duration: 100 }}
-        >
-          {#if models[selectedModelIdx]?.name}
-            {models[selectedModelIdx]?.name}
-          {:else}
-            {$i18n.t('Hello, {{name}}', { name: $user.name })}
-          {/if}
-        </div>
-      </div>
+				<div class=" text-3xl @sm:text-4xl line-clamp-1" in:fade={{ duration: 100 }}>
+					{#if models[selectedModelIdx]?.name}
+						{models[selectedModelIdx]?.name}
+					{:else}
+						{$i18n.t('Hello, {{name}}', { name: $user.name })}
+					{/if}
+				</div>
+			</div>
 
-      <div class="flex mt-1 mb-2">
-        <div in:fade={{ duration: 100, delay: 50 }}>
-          {#if models[selectedModelIdx]?.info?.meta?.description ?? null}
-            <Tooltip
-              className=" w-fit"
-              content={marked.parse(
-                sanitizeResponseContent(models[selectedModelIdx]?.info?.meta?.description ?? '')
-              )}
-              placement="top"
-            >
-              <div class="mt-0.5 px-2 text-sm font-normal text-gray-500 dark:text-gray-400 line-clamp-2 max-w-xl markdown">
-                {@html marked.parse(
-                  sanitizeResponseContent(models[selectedModelIdx]?.info?.meta?.description)
-                )}
-              </div>
-            </Tooltip>
+			<div class="flex mt-1 mb-2">
+				<div in:fade={{ duration: 100, delay: 50 }}>
+					{#if models[selectedModelIdx]?.info?.meta?.description ?? null}
+						<Tooltip
+							className=" w-fit"
+							content={marked.parse(
+								sanitizeResponseContent(models[selectedModelIdx]?.info?.meta?.description ?? '')
+							)}
+							placement="top"
+						>
+							<div
+								class="mt-0.5 px-2 text-sm font-normal text-gray-500 dark:text-gray-400 line-clamp-2 max-w-xl markdown"
+							>
+								{@html marked.parse(
+									sanitizeResponseContent(models[selectedModelIdx]?.info?.meta?.description)
+								)}
+							</div>
+						</Tooltip>
 
-            {#if models[selectedModelIdx]?.info?.meta?.user}
-              <div class="mt-0.5 text-sm font-normal text-gray-400 dark:text-gray-500">
-                By
-                {#if models[selectedModelIdx]?.info?.meta?.user.community}
-                  <a
-                    href="https://openwebui.com/m/{models[selectedModelIdx]?.info?.meta?.user
-                      .username}"
-                  >{models[selectedModelIdx]?.info?.meta?.user.name
-                    ? models[selectedModelIdx]?.info?.meta?.user.name
-                    : `@${models[selectedModelIdx]?.info?.meta?.user.username}`}</a>
-                {:else}
-                  {models[selectedModelIdx]?.info?.meta?.user.name}
-                {/if}
-              </div>
-            {/if}
-          {/if}
-        </div>
-      </div>
+						{#if models[selectedModelIdx]?.info?.meta?.user}
+							<div class="mt-0.5 text-sm font-normal text-gray-400 dark:text-gray-500">
+								By
+								{#if models[selectedModelIdx]?.info?.meta?.user.community}
+									<a
+										href="https://openwebui.com/m/{models[selectedModelIdx]?.info?.meta?.user
+											.username}"
+										>{models[selectedModelIdx]?.info?.meta?.user.name
+											? models[selectedModelIdx]?.info?.meta?.user.name
+											: `@${models[selectedModelIdx]?.info?.meta?.user.username}`}</a
+									>
+								{:else}
+									{models[selectedModelIdx]?.info?.meta?.user.name}
+								{/if}
+							</div>
+						{/if}
+					{/if}
+				</div>
+			</div>
 
 			<div class="text-base font-normal @md:max-w-3xl w-full py-3" class:mt-2={atSelectedModel}>
 				<MessageInput

@@ -7,13 +7,13 @@
 	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
-  import { chatId, showArtifacts, showControls } from '$lib/stores';
-  import XMark from '../icons/XMark.svelte';
-  import { copyToClipboard, createMessagesList } from '$lib/utils';
-  import ArrowsPointingOut from '../icons/ArrowsPointingOut.svelte';
-  import Tooltip from '../common/Tooltip.svelte';
-  import SvgPanZoom from '../common/SVGPanZoom.svelte';
-  import ArrowLeft from '../icons/ArrowLeft.svelte';
+	import { chatId, showArtifacts, showControls } from '$lib/stores';
+	import XMark from '../icons/XMark.svelte';
+	import { copyToClipboard, createMessagesList } from '$lib/utils';
+	import ArrowsPointingOut from '../icons/ArrowsPointingOut.svelte';
+	import Tooltip from '../common/Tooltip.svelte';
+	import SvgPanZoom from '../common/SVGPanZoom.svelte';
+	import ArrowLeft from '../icons/ArrowLeft.svelte';
 
 	interface Props {
 		overlay?: boolean;
@@ -36,55 +36,55 @@
 				const codeBlockContents = message.content.match(/```[\s\S]*?```/g);
 				const codeBlocks = [];
 
-        if (codeBlockContents) {
-          codeBlockContents.forEach((block) => {
-            const lang = block.split('\n')[0].replace('```', '').trim().toLowerCase();
-            const code = block.replace(/```[\s\S]*?\n/, '').replace(/```$/, '');
-            codeBlocks.push({ lang, code });
-          });
-        }
+				if (codeBlockContents) {
+					codeBlockContents.forEach((block) => {
+						const lang = block.split('\n')[0].replace('```', '').trim().toLowerCase();
+						const code = block.replace(/```[\s\S]*?\n/, '').replace(/```$/, '');
+						codeBlocks.push({ lang, code });
+					});
+				}
 
-        let htmlContent = '';
-        let cssContent = '';
-        let jsContent = '';
+				let htmlContent = '';
+				let cssContent = '';
+				let jsContent = '';
 
-        codeBlocks.forEach((block) => {
-          const { lang, code } = block;
+				codeBlocks.forEach((block) => {
+					const { lang, code } = block;
 
-          if (lang === 'html') {
-            htmlContent += code + '\n';
-          } else if (lang === 'css') {
-            cssContent += code + '\n';
-          } else if (lang === 'javascript' || lang === 'js') {
-            jsContent += code + '\n';
-          }
-        });
+					if (lang === 'html') {
+						htmlContent += code + '\n';
+					} else if (lang === 'css') {
+						cssContent += code + '\n';
+					} else if (lang === 'javascript' || lang === 'js') {
+						jsContent += code + '\n';
+					}
+				});
 
-        const inlineHtml = message.content.match(/<html>[\s\S]*?<\/html>/gi);
-        const inlineCss = message.content.match(/<style>[\s\S]*?<\/style>/gi);
-        const inlineJs = message.content.match(/<script>[\s\S]*?<\/script>/gi);
+				const inlineHtml = message.content.match(/<html>[\s\S]*?<\/html>/gi);
+				const inlineCss = message.content.match(/<style>[\s\S]*?<\/style>/gi);
+				const inlineJs = message.content.match(/<script>[\s\S]*?<\/script>/gi);
 
-        if (inlineHtml) {
-          inlineHtml.forEach((block) => {
-            const content = block.replace(/<\/?html>/gi, ''); // Remove <html> tags
-            htmlContent += content + '\n';
-          });
-        }
-        if (inlineCss) {
-          inlineCss.forEach((block) => {
-            const content = block.replace(/<\/?style>/gi, ''); // Remove <style> tags
-            cssContent += content + '\n';
-          });
-        }
-        if (inlineJs) {
-          inlineJs.forEach((block) => {
-            const content = block.replace(/<\/?script>/gi, ''); // Remove <script> tags
-            jsContent += content + '\n';
-          });
-        }
+				if (inlineHtml) {
+					inlineHtml.forEach((block) => {
+						const content = block.replace(/<\/?html>/gi, ''); // Remove <html> tags
+						htmlContent += content + '\n';
+					});
+				}
+				if (inlineCss) {
+					inlineCss.forEach((block) => {
+						const content = block.replace(/<\/?style>/gi, ''); // Remove <style> tags
+						cssContent += content + '\n';
+					});
+				}
+				if (inlineJs) {
+					inlineJs.forEach((block) => {
+						const content = block.replace(/<\/?script>/gi, ''); // Remove <script> tags
+						jsContent += content + '\n';
+					});
+				}
 
-        if (htmlContent || cssContent || jsContent) {
-          const renderedContent = `
+				if (htmlContent || cssContent || jsContent) {
+					const renderedContent = `
                         <!DOCTYPE html>
                         <html lang="en">
                         <head>
@@ -107,77 +107,77 @@
                         </body>
                         </html>
                     `;
-          contents = [...contents, { type: 'iframe', content: renderedContent }];
-        } else {
-          // Check for SVG content
-          for (const block of codeBlocks) {
-            if (block.lang === 'svg' || (block.lang === 'xml' && block.code.includes('<svg'))) {
-              contents = [...contents, { type: 'svg', content: block.code }];
-            }
-          }
-        }
-      }
-    });
+					contents = [...contents, { type: 'iframe', content: renderedContent }];
+				} else {
+					// Check for SVG content
+					for (const block of codeBlocks) {
+						if (block.lang === 'svg' || (block.lang === 'xml' && block.code.includes('<svg'))) {
+							contents = [...contents, { type: 'svg', content: block.code }];
+						}
+					}
+				}
+			}
+		});
 
-    if (contents.length === 0) {
-      showControls.set(false);
-      showArtifacts.set(false);
-    }
+		if (contents.length === 0) {
+			showControls.set(false);
+			showArtifacts.set(false);
+		}
 
-    selectedContentIdx = contents ? contents.length - 1 : 0;
-  };
+		selectedContentIdx = contents ? contents.length - 1 : 0;
+	};
 
-  function navigateContent(direction: 'prev' | 'next') {
-    console.log(selectedContentIdx);
+	function navigateContent(direction: 'prev' | 'next') {
+		console.log(selectedContentIdx);
 
-    selectedContentIdx =
-      direction === 'prev'
-        ? Math.max(selectedContentIdx - 1, 0)
-        : Math.min(selectedContentIdx + 1, contents.length - 1);
+		selectedContentIdx =
+			direction === 'prev'
+				? Math.max(selectedContentIdx - 1, 0)
+				: Math.min(selectedContentIdx + 1, contents.length - 1);
 
-    console.log(selectedContentIdx);
-  }
+		console.log(selectedContentIdx);
+	}
 
-  const iframeLoadHandler = () => {
-    iframeElement.contentWindow.addEventListener(
-      'click',
-      function (e) {
-        const target = e.target.closest('a');
-        if (target && target.href) {
-          e.preventDefault();
-          const url = new URL(target.href, iframeElement.baseURI);
-          if (url.origin === window.location.origin) {
-            iframeElement.contentWindow.history.pushState(
-              null,
-              '',
-              url.pathname + url.search + url.hash
-            );
-          } else {
-            console.log('External navigation blocked:', url.href);
-          }
-        }
-      },
-      true
-    );
+	const iframeLoadHandler = () => {
+		iframeElement.contentWindow.addEventListener(
+			'click',
+			function (e) {
+				const target = e.target.closest('a');
+				if (target && target.href) {
+					e.preventDefault();
+					const url = new URL(target.href, iframeElement.baseURI);
+					if (url.origin === window.location.origin) {
+						iframeElement.contentWindow.history.pushState(
+							null,
+							'',
+							url.pathname + url.search + url.hash
+						);
+					} else {
+						console.log('External navigation blocked:', url.href);
+					}
+				}
+			},
+			true
+		);
 
-    // Cancel drag when hovering over iframe
-    iframeElement.contentWindow.addEventListener('mouseenter', function (e) {
-      e.preventDefault();
-      iframeElement.contentWindow.addEventListener('dragstart', (event) => {
-        event.preventDefault();
-      });
-    });
-  };
+		// Cancel drag when hovering over iframe
+		iframeElement.contentWindow.addEventListener('mouseenter', function (e) {
+			e.preventDefault();
+			iframeElement.contentWindow.addEventListener('dragstart', (event) => {
+				event.preventDefault();
+			});
+		});
+	};
 
-  const showFullScreen = () => {
-    if (iframeElement.requestFullscreen) {
-      iframeElement.requestFullscreen();
-    } else if (iframeElement.webkitRequestFullscreen) {
-      iframeElement.webkitRequestFullscreen();
-    } else if (iframeElement.msRequestFullscreen) {
-      iframeElement.msRequestFullscreen();
-    }
-  };
+	const showFullScreen = () => {
+		if (iframeElement.requestFullscreen) {
+			iframeElement.requestFullscreen();
+		} else if (iframeElement.webkitRequestFullscreen) {
+			iframeElement.webkitRequestFullscreen();
+		} else if (iframeElement.msRequestFullscreen) {
+			iframeElement.msRequestFullscreen();
+		}
+	};
 
 	onMount(() => {});
 	run(() => {
@@ -192,10 +192,10 @@
 </script>
 
 <div class=" w-full h-full relative flex flex-col bg-gray-50 dark:bg-gray-850">
-  <div class="w-full h-full flex-1 relative">
-    {#if overlay}
-      <div class=" absolute top-0 left-0 right-0 bottom-0 z-10" />
-    {/if}
+	<div class="w-full h-full flex-1 relative">
+		{#if overlay}
+			<div class=" absolute top-0 left-0 right-0 bottom-0 z-10" />
+		{/if}
 
 		<div class="absolute pointer-events-none z-50 w-full flex items-center justify-start p-4">
 			<button
@@ -275,12 +275,12 @@
 						</svg>
 					</button>
 
-          <div class="text-xs self-center dark:text-gray-100 min-w-fit">
-            {$i18n.t('Version {{selectedVersion}} of {{totalVersions}}', {
-              selectedVersion: selectedContentIdx + 1,
-              totalVersions: contents.length
-            })}
-          </div>
+					<div class="text-xs self-center dark:text-gray-100 min-w-fit">
+						{$i18n.t('Version {{selectedVersion}} of {{totalVersions}}', {
+							selectedVersion: selectedContentIdx + 1,
+							totalVersions: contents.length
+						})}
+					</div>
 
 					<button
 						class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition disabled:cursor-not-allowed"
@@ -308,11 +308,11 @@
 						copyToClipboard(contents[selectedContentIdx].content);
 						copied = true;
 
-            setTimeout(() => {
-              copied = false;
-            }, 2000);
-          }}
-        >{copied ? $i18n.t('Copied') : $i18n.t('Copy')}</button>
+						setTimeout(() => {
+							copied = false;
+						}, 2000);
+					}}>{copied ? $i18n.t('Copied') : $i18n.t('Copy')}</button
+				>
 
 				{#if contents[selectedContentIdx].type === 'iframe'}
 					<Tooltip content={$i18n.t('Open in full screen')}>

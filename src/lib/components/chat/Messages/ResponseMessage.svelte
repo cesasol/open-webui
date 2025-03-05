@@ -39,7 +39,7 @@
 	import Error from './Error.svelte';
 	import { getI18nContext } from '$lib/contexts';
 
-	const i18n = getI18nContext()
+	const i18n = getI18nContext();
 
 	const dispatch = createEventDispatcher();
 
@@ -575,25 +575,24 @@
 			/>
 		</div>
 
-    <div class="flex-auto w-0 pl-1">
-      <Name>
-        <Tooltip
-          content={model?.name ?? message.model}
-          placement="top-start"
-        >
-          <span class="line-clamp-1">
-            {model?.name ?? message.model}
-          </span>
-        </Tooltip>
+		<div class="flex-auto w-0 pl-1">
+			<Name>
+				<Tooltip content={model?.name ?? message.model} placement="top-start">
+					<span class="line-clamp-1">
+						{model?.name ?? message.model}
+					</span>
+				</Tooltip>
 
-        {#if message.timestamp}
-          <div class=" self-center text-xs invisible group-hover:visible text-gray-400 font-medium first-letter:capitalize ml-0.5 translate-y-[1px]">
-            <Tooltip content={dayjs(message.timestamp * 1000).format('LLLL')}>
-              <span class="line-clamp-1">{formatDate(message.timestamp * 1000)}</span>
-            </Tooltip>
-          </div>
-        {/if}
-      </Name>
+				{#if message.timestamp}
+					<div
+						class=" self-center text-xs invisible group-hover:visible text-gray-400 font-medium first-letter:capitalize ml-0.5 translate-y-[1px]"
+					>
+						<Tooltip content={dayjs(message.timestamp * 1000).format('LLLL')}>
+							<span class="line-clamp-1">{formatDate(message.timestamp * 1000)}</span>
+						</Tooltip>
+					</div>
+				{/if}
+			</Name>
 
 			<div>
 				{#if message?.files && message.files?.filter((f) => f.type === 'image').length > 0}
@@ -608,19 +607,19 @@
 					</div>
 				{/if}
 
-        <div class="chat-{message.role} w-full min-w-full markdown-prose">
-          <div>
-            {#if (message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]).length > 0}
-              {@const status = (
-                message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]
-              ).at(-1)}
-              {#if !status?.hidden}
-                <div class="status-description flex items-center gap-2 py-0.5">
-                  {#if status?.done === false}
-                    <div class="">
-                      <Spinner className="size-4" />
-                    </div>
-                  {/if}
+				<div class="chat-{message.role} w-full min-w-full markdown-prose">
+					<div>
+						{#if (message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]).length > 0}
+							{@const status = (
+								message?.statusHistory ?? [...(message?.status ? [message?.status] : [])]
+							).at(-1)}
+							{#if !status?.hidden}
+								<div class="status-description flex items-center gap-2 py-0.5">
+									{#if status?.done === false}
+										<div class="">
+											<Spinner className="size-4" />
+										</div>
+									{/if}
 
 									{#if status?.action === 'web_search' && status?.urls}
 										<WebSearchResults {status}>
@@ -698,8 +697,8 @@
 											document.getElementById('close-edit-message-button')?.click();
 										}
 
-                    const isCmdOrCtrlPressed = e.metaKey || e.ctrlKey;
-                    const isEnterPressed = e.key === 'Enter';
+										const isCmdOrCtrlPressed = e.metaKey || e.ctrlKey;
+										const isEnterPressed = e.key === 'Enter';
 
 										if (isCmdOrCtrlPressed && isEnterPressed) {
 											document.getElementById('confirm-edit-message-button')?.click();
@@ -765,20 +764,20 @@
 											let sourceButton = document.getElementById(`source-${message.id}-${idx}`);
 											const sourcesCollapsible = document.getElementById(`collapsible-sources`);
 
-                      if (sourceButton) {
-                        sourceButton.click();
-                      } else if (sourcesCollapsible) {
-                        // Open sources collapsible so we can click the source button
-                        sourcesCollapsible
-                          .querySelector('div:first-child')
-                          .dispatchEvent(new PointerEvent('pointerup', {}));
+											if (sourceButton) {
+												sourceButton.click();
+											} else if (sourcesCollapsible) {
+												// Open sources collapsible so we can click the source button
+												sourcesCollapsible
+													.querySelector('div:first-child')
+													.dispatchEvent(new PointerEvent('pointerup', {}));
 
-                        // Wait for next frame to ensure DOM updates
-                        await new Promise((resolve) => {
-                          requestAnimationFrame(() => {
-                            requestAnimationFrame(resolve);
-                          });
-                        });
+												// Wait for next frame to ensure DOM updates
+												await new Promise((resolve) => {
+													requestAnimationFrame(() => {
+														requestAnimationFrame(resolve);
+													});
+												});
 
 												// Try clicking the source button again
 												sourceButton = document.getElementById(`source-${message.id}-${idx}`);
@@ -793,46 +792,43 @@
 										on:update={(e) => {
 											const { raw, oldContent, newContent } = e.detail;
 
-                      history.messages[message.id].content = history.messages[
-                        message.id
-                      ].content.replace(raw, raw.replace(oldContent, newContent));
+											history.messages[message.id].content = history.messages[
+												message.id
+											].content.replace(raw, raw.replace(oldContent, newContent));
 
-                      updateChat();
-                    }}
-                    on:select={(e) => {
-                      const { type, content } = e.detail;
+											updateChat();
+										}}
+										on:select={(e) => {
+											const { type, content } = e.detail;
 
-                      if (type === 'explain') {
-                        submitMessage(
-                          message.id,
-                          `Explain this section to me in more detail\n\n\`\`\`\n${content}\n\`\`\``
-                        );
-                      } else if (type === 'ask') {
-                        const input = e.detail?.input ?? '';
-                        submitMessage(message.id, `\`\`\`\n${content}\n\`\`\`\n${input}`);
-                      }
-                    }}
-                  />
-                {/if}
+											if (type === 'explain') {
+												submitMessage(
+													message.id,
+													`Explain this section to me in more detail\n\n\`\`\`\n${content}\n\`\`\``
+												);
+											} else if (type === 'ask') {
+												const input = e.detail?.input ?? '';
+												submitMessage(message.id, `\`\`\`\n${content}\n\`\`\`\n${input}`);
+											}
+										}}
+									/>
+								{/if}
 
-                {#if message?.error}
-                  <Error content={message?.error?.content ?? message.content} />
-                {/if}
+								{#if message?.error}
+									<Error content={message?.error?.content ?? message.content} />
+								{/if}
 
-                {#if (message?.sources || message?.citations) && (model?.info?.meta?.capabilities?.citations ?? true)}
-                  <Citations
-                    id={message?.id}
-                    sources={message?.sources ?? message?.citations}
-                  />
-                {/if}
+								{#if (message?.sources || message?.citations) && (model?.info?.meta?.capabilities?.citations ?? true)}
+									<Citations id={message?.id} sources={message?.sources ?? message?.citations} />
+								{/if}
 
-                {#if message.code_executions}
-                  <CodeExecutions codeExecutions={message.code_executions} />
-                {/if}
-              </div>
-            {/if}
-          </div>
-        </div>
+								{#if message.code_executions}
+									<CodeExecutions codeExecutions={message.code_executions} />
+								{/if}
+							</div>
+						{/if}
+					</div>
+				</div>
 
 				{#if !edit}
 					<div
@@ -864,9 +860,11 @@
 										</svg>
 									</button>
 
-                  <div class="text-sm tracking-widest font-semibold self-center dark:text-gray-100 min-w-fit">
-                    {siblings.indexOf(message.id) + 1}/{siblings.length}
-                  </div>
+									<div
+										class="text-sm tracking-widest font-semibold self-center dark:text-gray-100 min-w-fit"
+									>
+										{siblings.indexOf(message.id) + 1}/{siblings.length}
+									</div>
 
 									<button
 										class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
@@ -1348,21 +1346,21 @@
 						{/if}
 					</div>
 
-          {#if message.done && showRateComment}
-            <RateComment
-              bind:message
-              bind:show={showRateComment}
-              on:save={async (e) => {
-                await feedbackHandler(null, {
-                  ...e.detail
-                });
-              }}
-            />
-          {/if}
-        {/if}
-      </div>
-    </div>
-  </div>
+					{#if message.done && showRateComment}
+						<RateComment
+							bind:message
+							bind:show={showRateComment}
+							on:save={async (e) => {
+								await feedbackHandler(null, {
+									...e.detail
+								});
+							}}
+						/>
+					{/if}
+				{/if}
+			</div>
+		</div>
+	</div>
 {/key}
 
 <style>

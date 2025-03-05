@@ -5,16 +5,16 @@
 	import { flyAndScale } from '$lib/utils/transitions';
 	import { getContext, onMount, tick } from 'svelte';
 
-  import { config, user, tools as _tools, mobile } from '$lib/stores';
-  import { getTools } from '$lib/apis/tools';
+	import { config, user, tools as _tools, mobile } from '$lib/stores';
+	import { getTools } from '$lib/apis/tools';
 
-  import Dropdown from '$lib/components/common/Dropdown.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import DocumentArrowUpSolid from '$lib/components/icons/DocumentArrowUpSolid.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import GlobeAltSolid from '$lib/components/icons/GlobeAltSolid.svelte';
-  import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
-  import CameraSolid from '$lib/components/icons/CameraSolid.svelte';
+	import Dropdown from '$lib/components/common/Dropdown.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import DocumentArrowUpSolid from '$lib/components/icons/DocumentArrowUpSolid.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import GlobeAltSolid from '$lib/components/icons/GlobeAltSolid.svelte';
+	import WrenchSolid from '$lib/components/icons/WrenchSolid.svelte';
+	import CameraSolid from '$lib/components/icons/CameraSolid.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -39,12 +39,12 @@
 </script>
 
 <Dropdown
-  bind:show
-  on:change={(e) => {
-    if (e.detail === false) {
-      onClose();
-    }
-  }}
+	bind:show
+	on:change={(e) => {
+		if (e.detail === false) {
+			onClose();
+		}
+	}}
 >
 	<Tooltip content={$i18n.t('More')}>
 		{@render children?.()}

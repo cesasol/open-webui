@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
-  import { theme } from '$lib/stores';
-  import { Background, Controls, SvelteFlow, BackgroundVariant } from '@xyflow/svelte';
+	import { theme } from '$lib/stores';
+	import { Background, Controls, SvelteFlow, BackgroundVariant } from '@xyflow/svelte';
 
 	let { nodes, nodeTypes, edges } = $props();
 </script>
@@ -29,6 +29,6 @@
 	}}
 	on:nodeclick={(e) => dispatch('nodeclick', e.detail)}
 >
-  <Controls showLock={false} />
-  <Background variant={BackgroundVariant.Dots} />
+	<Controls showLock={false} />
+	<Background variant={BackgroundVariant.Dots} />
 </SvelteFlow>

@@ -4,55 +4,55 @@
 	import { getContext, onMount } from 'svelte';
 	import { models, config } from '$lib/stores';
 
-  import { toast } from 'svelte-sonner';
-  import { deleteSharedChatById, getChatById, shareChatById } from '$lib/apis/chats';
-  import { copyToClipboard } from '$lib/utils';
+	import { toast } from 'svelte-sonner';
+	import { deleteSharedChatById, getChatById, shareChatById } from '$lib/apis/chats';
+	import { copyToClipboard } from '$lib/utils';
 
-  import Modal from '../common/Modal.svelte';
-  import Link from '../icons/Link.svelte';
+	import Modal from '../common/Modal.svelte';
+	import Link from '../icons/Link.svelte';
 
 	let chat = $state(null);
 	let shareUrl = null;
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  const shareLocalChat = async () => {
-    const _chat = chat;
+	const shareLocalChat = async () => {
+		const _chat = chat;
 
-    const sharedChat = await shareChatById(localStorage.token, chatId);
-    shareUrl = `${window.location.origin}/s/${sharedChat.id}`;
-    console.log(shareUrl);
-    chat = await getChatById(localStorage.token, chatId);
+		const sharedChat = await shareChatById(localStorage.token, chatId);
+		shareUrl = `${window.location.origin}/s/${sharedChat.id}`;
+		console.log(shareUrl);
+		chat = await getChatById(localStorage.token, chatId);
 
-    return shareUrl;
-  };
+		return shareUrl;
+	};
 
-  const shareChat = async () => {
-    const _chat = chat.chat;
-    console.log('share', _chat);
+	const shareChat = async () => {
+		const _chat = chat.chat;
+		console.log('share', _chat);
 
-    toast.success($i18n.t('Redirecting you to Open WebUI Community'));
-    const url = 'https://openwebui.com';
-    // const url = 'http://localhost:5173';
+		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+		const url = 'https://openwebui.com';
+		// const url = 'http://localhost:5173';
 
-    const tab = await window.open(`${url}/chats/upload`, '_blank');
-    window.addEventListener(
-      'message',
-      (event) => {
-        if (event.origin !== url) return;
-        if (event.data === 'loaded') {
-          tab.postMessage(
-            JSON.stringify({
-              chat: _chat,
-              models: $models.filter((m) => _chat.models.includes(m.id))
-            }),
-            '*'
-          );
-        }
-      },
-      false
-    );
-  };
+		const tab = await window.open(`${url}/chats/upload`, '_blank');
+		window.addEventListener(
+			'message',
+			(event) => {
+				if (event.origin !== url) return;
+				if (event.data === 'loaded') {
+					tab.postMessage(
+						JSON.stringify({
+							chat: _chat,
+							models: $models.filter((m) => _chat.models.includes(m.id))
+						}),
+						'*'
+					);
+				}
+			},
+			false
+		);
+	};
 
 	interface Props {
 		chatId: any;
@@ -61,15 +61,15 @@
 
 	let { chatId, show = $bindable(false) }: Props = $props();
 
-  const isDifferentChat = (_chat) => {
-    if (!chat) {
-      return true;
-    }
-    if (!_chat) {
-      return false;
-    }
-    return chat.id !== _chat.id || chat.share_id !== _chat.share_id;
-  };
+	const isDifferentChat = (_chat) => {
+		if (!chat) {
+			return true;
+		}
+		if (!_chat) {
+			return false;
+		}
+		return chat.id !== _chat.id || chat.share_id !== _chat.share_id;
+	};
 
 	run(() => {
 		if (show) {
@@ -125,19 +125,19 @@
 							onclick={async () => {
 								const res = await deleteSharedChatById(localStorage.token, chatId);
 
-                if (res) {
-                  chat = await getChatById(localStorage.token, chatId);
-                }
-              }}
-            >{$i18n.t('delete this link')}
-            </button>
-            {$i18n.t('and create a new shared link.')}
-          {:else}
-            {$i18n.t(
-              "Messages you send after creating your link won't be shared. Users with the URL will be able to view the shared chat."
-            )}
-          {/if}
-        </div>
+								if (res) {
+									chat = await getChatById(localStorage.token, chatId);
+								}
+							}}
+							>{$i18n.t('delete this link')}
+						</button>
+						{$i18n.t('and create a new shared link.')}
+					{:else}
+						{$i18n.t(
+							"Messages you send after creating your link won't be shared. Users with the URL will be able to view the shared chat."
+						)}
+					{/if}
+				</div>
 
 				<div class="flex justify-end">
 					<div class="flex flex-col items-end space-x-1 mt-3">
@@ -161,32 +161,32 @@
 								onclick={async () => {
 									const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 
-                  if (isSafari) {
-                    // Oh, Safari, you're so special, let's give you some extra love and attention
-                    console.log('isSafari');
+									if (isSafari) {
+										// Oh, Safari, you're so special, let's give you some extra love and attention
+										console.log('isSafari');
 
-                    const getUrlPromise = async () => {
-                      const url = await shareLocalChat();
-                      return new Blob([url], { type: 'text/plain' });
-                    };
+										const getUrlPromise = async () => {
+											const url = await shareLocalChat();
+											return new Blob([url], { type: 'text/plain' });
+										};
 
-                    navigator.clipboard
-                      .write([
-                        new ClipboardItem({
-                          'text/plain': getUrlPromise()
-                        })
-                      ])
-                      .then(() => {
-                        console.log('Async: Copying to clipboard was successful!');
-                        return true;
-                      })
-                      .catch((error) => {
-                        console.error('Async: Could not copy text: ', error);
-                        return false;
-                      });
-                  } else {
-                    copyToClipboard(await shareLocalChat());
-                  }
+										navigator.clipboard
+											.write([
+												new ClipboardItem({
+													'text/plain': getUrlPromise()
+												})
+											])
+											.then(() => {
+												console.log('Async: Copying to clipboard was successful!');
+												return true;
+											})
+											.catch((error) => {
+												console.error('Async: Could not copy text: ', error);
+												return false;
+											});
+									} else {
+										copyToClipboard(await shareLocalChat());
+									}
 
 									toast.success($i18n.t('Copied shared chat URL to clipboard!'));
 									show = false;
@@ -195,16 +195,16 @@
 							>
 								<Link />
 
-                {#if chat.share_id}
-                  {$i18n.t('Update and Copy Link')}
-                {:else}
-                  {$i18n.t('Copy Link')}
-                {/if}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    {/if}
-  </div>
+								{#if chat.share_id}
+									{$i18n.t('Update and Copy Link')}
+								{:else}
+									{$i18n.t('Copy Link')}
+								{/if}
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		{/if}
+	</div>
 </Modal>

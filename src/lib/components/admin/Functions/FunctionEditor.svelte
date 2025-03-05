@@ -7,11 +7,11 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import CodeEditor from '$lib/components/common/CodeEditor.svelte';
-  import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-  import Badge from '$lib/components/common/Badge.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
+	import CodeEditor from '$lib/components/common/CodeEditor.svelte';
+	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import Badge from '$lib/components/common/Badge.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
 
 	let formElement = $state(null);
 	let loading = false;
@@ -114,7 +114,7 @@ class Filter:
         return body
 `;
 
-  const _boilerplate = `from pydantic import BaseModel
+	const _boilerplate = `from pydantic import BaseModel
 from typing import Optional, Union, Generator, Iterator
 from open_webui.utils.misc import get_last_user_message
 
@@ -260,29 +260,29 @@ class Pipe:
             return f"Error: {e}"
 `;
 
-  const saveHandler = async () => {
-    loading = true;
-    onSave({
-      id,
-      name,
-      meta,
-      content
-    });
-  };
+	const saveHandler = async () => {
+		loading = true;
+		onSave({
+			id,
+			name,
+			meta,
+			content
+		});
+	};
 
-  const submitHandler = async () => {
-    if (codeEditor) {
-      content = _content;
-      await tick();
+	const submitHandler = async () => {
+		if (codeEditor) {
+			content = _content;
+			await tick();
 
-      const res = await codeEditor.formatPythonCodeHandler();
-      await tick();
+			const res = await codeEditor.formatPythonCodeHandler();
+			await tick();
 
-      content = _content;
-      await tick();
+			content = _content;
+			await tick();
 
-      if (res) {
-        console.log('Code formatted successfully');
+			if (res) {
+				console.log('Code formatted successfully');
 
 				saveHandler();
 			}
@@ -398,47 +398,49 @@ class Pipe:
 					/>
 				</div>
 
-        <div class="pb-3 flex justify-between">
-          <div class="flex-1 pr-3">
-            <div class="text-xs text-gray-500 line-clamp-2">
-              <span class=" font-semibold dark:text-gray-200">{$i18n.t('Warning:')}</span>
-              {$i18n.t('Functions allow arbitrary code execution')} <br />—
-              <span class=" font-medium dark:text-gray-400">{$i18n.t(`don't install random functions from sources you don't trust.`)}</span>
-            </div>
-          </div>
+				<div class="pb-3 flex justify-between">
+					<div class="flex-1 pr-3">
+						<div class="text-xs text-gray-500 line-clamp-2">
+							<span class=" font-semibold dark:text-gray-200">{$i18n.t('Warning:')}</span>
+							{$i18n.t('Functions allow arbitrary code execution')} <br />—
+							<span class=" font-medium dark:text-gray-400"
+								>{$i18n.t(`don't install random functions from sources you don't trust.`)}</span
+							>
+						</div>
+					</div>
 
-          <button
-            class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-            type="submit"
-          >
-            {$i18n.t('Save')}
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
+					<button
+						class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+						type="submit"
+					>
+						{$i18n.t('Save')}
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
 </div>
 
 <ConfirmDialog
-  bind:show={showConfirm}
-  on:confirm={() => {
-    submitHandler();
-  }}
+	bind:show={showConfirm}
+	on:confirm={() => {
+		submitHandler();
+	}}
 >
-  <div class="text-sm text-gray-500">
-    <div class=" bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 rounded-lg px-4 py-3">
-      <div>{$i18n.t('Please carefully review the following warnings:')}</div>
+	<div class="text-sm text-gray-500">
+		<div class=" bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 rounded-lg px-4 py-3">
+			<div>{$i18n.t('Please carefully review the following warnings:')}</div>
 
-      <ul class=" mt-1 list-disc pl-4 text-xs">
-        <li>{$i18n.t('Functions allow arbitrary code execution.')}</li>
-        <li>{$i18n.t('Do not install functions from sources you do not fully trust.')}</li>
-      </ul>
-    </div>
+			<ul class=" mt-1 list-disc pl-4 text-xs">
+				<li>{$i18n.t('Functions allow arbitrary code execution.')}</li>
+				<li>{$i18n.t('Do not install functions from sources you do not fully trust.')}</li>
+			</ul>
+		</div>
 
-    <div class="my-3">
-      {$i18n.t(
-        'I acknowledge that I have read and I understand the implications of my action. I am aware of the risks associated with executing arbitrary code and I have verified the trustworthiness of the source.'
-      )}
-    </div>
-  </div>
+		<div class="my-3">
+			{$i18n.t(
+				'I acknowledge that I have read and I understand the implications of my action. I am aware of the risks associated with executing arbitrary code and I have verified the trustworthiness of the source.'
+			)}
+		</div>
+	</div>
 </ConfirmDialog>

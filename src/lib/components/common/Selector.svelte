@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { Select } from 'bits-ui';
+	import { Select } from 'bits-ui';
 
-  import { flyAndScale } from '$lib/utils/transitions';
+	import { flyAndScale } from '$lib/utils/transitions';
 
-  import { createEventDispatcher } from 'svelte';
-  import ChevronDown from '../icons/ChevronDown.svelte';
-  import Check from '../icons/Check.svelte';
-  import Search from '../icons/Search.svelte';
+	import { createEventDispatcher } from 'svelte';
+	import ChevronDown from '../icons/ChevronDown.svelte';
+	import Check from '../icons/Check.svelte';
+	import Search from '../icons/Search.svelte';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	interface Props {
 		value?: string;
@@ -77,8 +77,8 @@
 					/>
 				</div>
 
-        <hr class="border-gray-100 dark:border-gray-850" />
-      {/if}
+				<hr class="border-gray-100 dark:border-gray-850" />
+			{/if}
 
 			<div class="px-3 my-2 max-h-80 overflow-y-auto">
 				{#each filteredItems as item}

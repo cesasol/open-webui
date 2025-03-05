@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-  const dispatch = createEventDispatcher();
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 
 	export let checked = 'unchecked';
 	export let indeterminate = false;
@@ -67,5 +67,5 @@
 		{/if}
 	</div>
 
-  <!-- {checked} -->
+	<!-- {checked} -->
 </button>

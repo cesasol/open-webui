@@ -21,19 +21,19 @@
 				class="absolute rounded-sm"
 			></div>
 
-      <div class="flex w-full flex-col justify-center">
-        <div class=" py-3">
-          <Spinner className="ml-2" />
-        </div>
+			<div class="flex w-full flex-col justify-center">
+				<div class=" py-3">
+					<Spinner className="ml-2" />
+				</div>
 
-        {#if content !== ''}
-          <div class="text-center text-gray-100 text-xs font-medium z-50">
-            {content}
-          </div>
-        {/if}
-      </div>
-    </div>
-  {/if}
+				{#if content !== ''}
+					<div class="text-center text-gray-100 text-xs font-medium z-50">
+						{content}
+					</div>
+				{/if}
+			</div>
+		</div>
+	{/if}
 
 	{@render children?.()}
 </div>

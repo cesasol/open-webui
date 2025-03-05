@@ -5,11 +5,11 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Plus from '$lib/components/icons/Plus.svelte';
-  import { WEBUI_BASE_URL } from '$lib/constants';
-  import Checkbox from '$lib/components/common/Checkbox.svelte';
-  import Badge from '$lib/components/common/Badge.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Plus from '$lib/components/icons/Plus.svelte';
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import Checkbox from '$lib/components/common/Checkbox.svelte';
+	import Badge from '$lib/components/common/Badge.svelte';
 
 	let { users = [], userIds = $bindable([]) } = $props();
 
@@ -105,9 +105,9 @@
 											: `/user.png`}
 									/>
 
-                  <div class=" font-medium self-center">{user.name}</div>
-                </div>
-              </Tooltip>
+									<div class=" font-medium self-center">{user.name}</div>
+								</div>
+							</Tooltip>
 
 							{#if userIds.includes(user.id)}
 								<Badge content="member" type="success" />

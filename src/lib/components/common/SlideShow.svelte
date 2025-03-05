@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		imageUrls?: any;
@@ -17,11 +17,11 @@
 	}: Props = $props();
 	let selectedImageIdx = $state(0);
 
-  onMount(() => {
-    setInterval(() => {
-      selectedImageIdx = (selectedImageIdx + 1) % (imageUrls.length - 1);
-    }, duration);
-  });
+	onMount(() => {
+		setInterval(() => {
+			selectedImageIdx = (selectedImageIdx + 1) % (imageUrls.length - 1);
+		}, duration);
+	});
 </script>
 
 {#each imageUrls as imageUrl, idx (idx)}

@@ -6,16 +6,16 @@
 	import { onMount, getContext } from 'svelte';
 	import { addUser } from '$lib/apis/auths';
 
-  import Modal from '../../common/Modal.svelte';
-  import {
-    getFunctionValvesById,
-    getFunctionValvesSpecById,
-    updateFunctionValvesById
-  } from '$lib/apis/functions';
-  import { getToolValvesById, getToolValvesSpecById, updateToolValvesById } from '$lib/apis/tools';
-  import Spinner from '../../common/Spinner.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import Valves from '$lib/components/common/Valves.svelte';
+	import Modal from '../../common/Modal.svelte';
+	import {
+		getFunctionValvesById,
+		getFunctionValvesSpecById,
+		updateFunctionValvesById
+	} from '$lib/apis/functions';
+	import { getToolValvesById, getToolValvesSpecById, updateToolValvesById } from '$lib/apis/tools';
+	import Spinner from '../../common/Spinner.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import Valves from '$lib/components/common/Valves.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -35,66 +35,66 @@
 	let valvesSpec = $state(null);
 	let valves = $state({});
 
-  const submitHandler = async () => {
-    saving = true;
+	const submitHandler = async () => {
+		saving = true;
 
-    if (valvesSpec) {
-      // Convert string to array
-      for (const property in valvesSpec.properties) {
-        if (valvesSpec.properties[property]?.type === 'array') {
-          valves[property] = (valves[property] ?? '').split(',').map((v) => v.trim());
-        }
-      }
+		if (valvesSpec) {
+			// Convert string to array
+			for (const property in valvesSpec.properties) {
+				if (valvesSpec.properties[property]?.type === 'array') {
+					valves[property] = (valves[property] ?? '').split(',').map((v) => v.trim());
+				}
+			}
 
-      let res = null;
+			let res = null;
 
-      if (type === 'tool') {
-        res = await updateToolValvesById(localStorage.token, id, valves).catch((error) => {
-          toast.error(`${error}`);
-        });
-      } else if (type === 'function') {
-        res = await updateFunctionValvesById(localStorage.token, id, valves).catch((error) => {
-          toast.error(`${error}`);
-        });
-      }
+			if (type === 'tool') {
+				res = await updateToolValvesById(localStorage.token, id, valves).catch((error) => {
+					toast.error(`${error}`);
+				});
+			} else if (type === 'function') {
+				res = await updateFunctionValvesById(localStorage.token, id, valves).catch((error) => {
+					toast.error(`${error}`);
+				});
+			}
 
-      if (res) {
-        toast.success('Valves updated successfully');
-        dispatch('save');
-      }
-    }
+			if (res) {
+				toast.success('Valves updated successfully');
+				dispatch('save');
+			}
+		}
 
-    saving = false;
-  };
+		saving = false;
+	};
 
-  const initHandler = async () => {
-    loading = true;
-    valves = {};
-    valvesSpec = null;
+	const initHandler = async () => {
+		loading = true;
+		valves = {};
+		valvesSpec = null;
 
-    if (type === 'tool') {
-      valves = await getToolValvesById(localStorage.token, id);
-      valvesSpec = await getToolValvesSpecById(localStorage.token, id);
-    } else if (type === 'function') {
-      valves = await getFunctionValvesById(localStorage.token, id);
-      valvesSpec = await getFunctionValvesSpecById(localStorage.token, id);
-    }
+		if (type === 'tool') {
+			valves = await getToolValvesById(localStorage.token, id);
+			valvesSpec = await getToolValvesSpecById(localStorage.token, id);
+		} else if (type === 'function') {
+			valves = await getFunctionValvesById(localStorage.token, id);
+			valvesSpec = await getFunctionValvesSpecById(localStorage.token, id);
+		}
 
-    if (!valves) {
-      valves = {};
-    }
+		if (!valves) {
+			valves = {};
+		}
 
-    if (valvesSpec) {
-      // Convert array to string
-      for (const property in valvesSpec.properties) {
-        if (valvesSpec.properties[property]?.type === 'array') {
-          valves[property] = (valves[property] ?? []).join(',');
-        }
-      }
-    }
+		if (valvesSpec) {
+			// Convert array to string
+			for (const property in valvesSpec.properties) {
+				if (valvesSpec.properties[property]?.type === 'array') {
+					valves[property] = (valves[property] ?? []).join(',');
+				}
+			}
+		}
 
-    loading = false;
-  };
+		loading = false;
+	};
 
 	run(() => {
 		if (show) {

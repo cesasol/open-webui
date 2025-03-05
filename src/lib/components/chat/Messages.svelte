@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { v4 as uuidv4 } from 'uuid';
 	import {
 		chats,
@@ -24,55 +22,37 @@
 
 	import ChatPlaceholder from './ChatPlaceholder.svelte';
 
-	import { getI18nContext } from '$lib/contexts';
-	const i18n = getI18nContext();
+	const i18n = getContext('i18n');
 
-	let messages = $state([]);
+	export let className = 'h-full flex pt-8';
 
-	interface Props {
-		className?: string;
-		chatId?: string;
-		user?: any;
-		prompt: any;
-		history?: any;
-		selectedModels: any;
-		atSelectedModel: any;
-		sendPrompt: Function;
-		continueResponse: Function;
-		regenerateResponse: Function;
-		mergeResponses: Function;
-		chatActionHandler: Function;
-		showMessage?: Function;
-		submitMessage?: Function;
-		addMessages?: Function;
-		readOnly?: boolean;
-		bottomPadding?: boolean;
-		autoScroll: any;
-	}
+	export let chatId = '';
+	export let user = $_user;
 
-	let {
-		className = 'h-full flex pt-8',
-		chatId = '',
-		user = $_user,
-		prompt = $bindable(),
-		history = $bindable({}),
-		selectedModels,
-		atSelectedModel,
-		sendPrompt,
-		continueResponse,
-		regenerateResponse,
-		mergeResponses,
-		chatActionHandler,
-		showMessage = () => {},
-		submitMessage = () => {},
-		addMessages = () => {},
-		readOnly = false,
-		bottomPadding = false,
-		autoScroll = $bindable()
-	}: Props = $props();
+	export let prompt;
+	export let history = {};
+	export let selectedModels;
+	export let atSelectedModel;
 
-	let messagesCount = $state(20);
-	let messagesLoading = $state(false);
+	let messages = [];
+
+	export let sendPrompt: Function;
+	export let continueResponse: Function;
+	export let regenerateResponse: Function;
+	export let mergeResponses: Function;
+
+	export let chatActionHandler: Function;
+	export let showMessage: Function = () => {};
+	export let submitMessage: Function = () => {};
+	export let addMessages: Function = () => {};
+
+	export let readOnly = false;
+
+	export let bottomPadding = false;
+	export let autoScroll;
+
+	let messagesCount = 20;
+	let messagesLoading = false;
 
 	const loadMoreMessages = async () => {
 		// scroll slightly down to disable continuous loading
@@ -86,6 +66,27 @@
 
 		messagesLoading = false;
 	};
+
+	$: if (history.currentId) {
+		const _messages = [];
+
+		let message = history.messages[history.currentId];
+		while (message && _messages.length <= messagesCount) {
+			_messages.unshift({ ...message });
+			message = message.parentId !== null ? history.messages[message.parentId] : null;
+		}
+
+		messages = _messages;
+	} else {
+		messages = [];
+	}
+
+	$: if (autoScroll && bottomPadding) {
+		(async () => {
+			await tick();
+			scrollToBottom();
+		})();
+	}
 
 	const scrollToBottom = () => {
 		const element = document.getElementById('messages-container');
@@ -344,29 +345,6 @@
 			}, 100);
 		}
 	};
-	run(() => {
-		if (history.currentId) {
-			const _messages = [];
-
-			let message = history.messages[history.currentId];
-			while (message && _messages.length <= messagesCount) {
-				_messages.unshift({ ...message });
-				message = message.parentId !== null ? history.messages[message.parentId] : null;
-			}
-
-			messages = _messages;
-		} else {
-			messages = [];
-		}
-	});
-	run(() => {
-		if (autoScroll && bottomPadding) {
-			(async () => {
-				await tick();
-				scrollToBottom();
-			})();
-		}
-	});
 </script>
 
 <div class={className}>
@@ -377,51 +355,51 @@
 			submitPrompt={async (p) => {
 				let text = p;
 
-        if (p.includes('{{CLIPBOARD}}')) {
-          const clipboardText = await navigator.clipboard.readText().catch((err) => {
-            toast.error($i18n.t('Failed to read clipboard contents'));
-            return '{{CLIPBOARD}}';
-          });
+				if (p.includes('{{CLIPBOARD}}')) {
+					const clipboardText = await navigator.clipboard.readText().catch((err) => {
+						toast.error($i18n.t('Failed to read clipboard contents'));
+						return '{{CLIPBOARD}}';
+					});
 
-          text = p.replaceAll('{{CLIPBOARD}}', clipboardText);
-        }
+					text = p.replaceAll('{{CLIPBOARD}}', clipboardText);
+				}
 
-        prompt = text;
+				prompt = text;
 
-        await tick();
+				await tick();
 
-        const chatInputContainerElement = document.getElementById('chat-input-container');
-        if (chatInputContainerElement) {
-          prompt = p;
+				const chatInputContainerElement = document.getElementById('chat-input-container');
+				if (chatInputContainerElement) {
+					prompt = p;
 
-          chatInputContainerElement.style.height = '';
-          chatInputContainerElement.style.height =
-            Math.min(chatInputContainerElement.scrollHeight, 200) + 'px';
-          chatInputContainerElement.focus();
-        }
+					chatInputContainerElement.style.height = '';
+					chatInputContainerElement.style.height =
+						Math.min(chatInputContainerElement.scrollHeight, 200) + 'px';
+					chatInputContainerElement.focus();
+				}
 
-        await tick();
-      }}
-    />
-  {:else}
-    <div class="w-full pt-2">
-      {#key chatId}
-        <div class="w-full">
-          {#if messages.at(0)?.parentId !== null}
-            <Loader
-              on:visible={(e) => {
-                console.log('visible');
-                if (!messagesLoading) {
-                  loadMoreMessages();
-                }
-              }}
-            >
-              <div class="w-full flex justify-center py-1 text-xs animate-pulse items-center gap-2">
-                <Spinner className=" size-4" />
-                <div class=" ">Loading...</div>
-              </div>
-            </Loader>
-          {/if}
+				await tick();
+			}}
+		/>
+	{:else}
+		<div class="w-full pt-2">
+			{#key chatId}
+				<div class="w-full">
+					{#if messages.at(0)?.parentId !== null}
+						<Loader
+							on:visible={(e) => {
+								console.log('visible');
+								if (!messagesLoading) {
+									loadMoreMessages();
+								}
+							}}
+						>
+							<div class="w-full flex justify-center py-1 text-xs animate-pulse items-center gap-2">
+								<Spinner className=" size-4" />
+								<div class=" ">Loading...</div>
+							</div>
+						</Loader>
+					{/if}
 
 					{#each messages as message, messageIdx (message.id)}
 						<Message
@@ -434,23 +412,23 @@
 							idx={messageIdx}
 							{mergeResponses}
 							messageId={message.id}
-							{rateMessage}
-							{readOnly}
-							{regenerateResponse}
-							{saveMessage}
-							{showNextMessage}
 							{showPreviousMessage}
-							{submitMessage}
-							{triggerScroll}
-							{updateChat}
 							{user}
 							bind:history
+							{showNextMessage}
+							{updateChat}
+							{rateMessage}
+							{saveMessage}
+							{submitMessage}
+							{regenerateResponse}
+							{triggerScroll}
+							{readOnly}
 						/>
 					{/each}
 				</div>
-				<div class="pb-12"></div>
+				<div class="pb-12" />
 				{#if bottomPadding}
-					<div class="  pb-6"></div>
+					<div class="  pb-6" />
 				{/if}
 			{/key}
 		</div>

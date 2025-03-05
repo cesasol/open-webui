@@ -4,8 +4,8 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import ManageOllama from '../Models/Manage/ManageOllama.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import ManageOllama from '../Models/Manage/ManageOllama.svelte';
 
 	interface Props {
 		show?: boolean;
@@ -44,8 +44,8 @@
 			</button>
 		</div>
 
-    <div class="flex flex-col md:flex-row w-full px-5 pb-4 md:space-x-4 dark:text-gray-200">
-      <ManageOllama {urlIdx} />
-    </div>
-  </div>
+		<div class="flex flex-col md:flex-row w-full px-5 pb-4 md:space-x-4 dark:text-gray-200">
+			<ManageOllama {urlIdx} />
+		</div>
+	</div>
 </Modal>

@@ -4,21 +4,21 @@
 	import { v4 as uuidv4 } from 'uuid';
 	import { toast } from 'svelte-sonner';
 
-  import { getBackendConfig, getTaskConfig, updateTaskConfig } from '$lib/apis';
-  import { setDefaultPromptSuggestions } from '$lib/apis/configs';
-  import { config, models, settings, user } from '$lib/stores';
-  import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { getBackendConfig, getTaskConfig, updateTaskConfig } from '$lib/apis';
+	import { setDefaultPromptSuggestions } from '$lib/apis/configs';
+	import { config, models, settings, user } from '$lib/stores';
+	import { createEventDispatcher, onMount, getContext } from 'svelte';
 
-  import { banners as _banners } from '$lib/stores';
-  import type { Banner } from '$lib/types';
+	import { banners as _banners } from '$lib/stores';
+	import type { Banner } from '$lib/types';
 
-  import { getBanners, setBanners } from '$lib/apis/configs';
+	import { getBanners, setBanners } from '$lib/apis/configs';
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import Textarea from '$lib/components/common/Textarea.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import Textarea from '$lib/components/common/Textarea.svelte';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -42,25 +42,25 @@
 	let promptSuggestions = $state([]);
 	let banners: Banner[] = $state([]);
 
-  const updateInterfaceHandler = async () => {
-    taskConfig = await updateTaskConfig(localStorage.token, taskConfig);
+	const updateInterfaceHandler = async () => {
+		taskConfig = await updateTaskConfig(localStorage.token, taskConfig);
 
-    promptSuggestions = await setDefaultPromptSuggestions(localStorage.token, promptSuggestions);
-    await updateBanners();
+		promptSuggestions = await setDefaultPromptSuggestions(localStorage.token, promptSuggestions);
+		await updateBanners();
 
-    await config.set(await getBackendConfig());
-  };
+		await config.set(await getBackendConfig());
+	};
 
-  onMount(async () => {
-    taskConfig = await getTaskConfig(localStorage.token);
+	onMount(async () => {
+		taskConfig = await getTaskConfig(localStorage.token);
 
-    promptSuggestions = $config?.default_prompt_suggestions ?? [];
-    banners = await getBanners(localStorage.token);
-  });
+		promptSuggestions = $config?.default_prompt_suggestions ?? [];
+		banners = await getBanners(localStorage.token);
+	});
 
-  const updateBanners = async () => {
-    _banners.set(await setBanners(localStorage.token, banners));
-  };
+	const updateBanners = async () => {
+		_banners.set(await setBanners(localStorage.token, banners));
+	};
 </script>
 
 {#if taskConfig}
@@ -75,7 +75,7 @@
 			<div class="mb-3.5">
 				<div class=" mb-2.5 text-base font-medium">{$i18n.t('Tasks')}</div>
 
-        <hr class=" border-gray-100 dark:border-gray-850 my-2" />
+				<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 				<div class=" mb-1 font-medium flex items-center">
 					<div class=" text-xs mr-1">{$i18n.t('Set Task Model')}</div>
@@ -135,17 +135,17 @@
 					</div>
 				</div>
 
-        <div class="mb-2.5 flex w-full items-center justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Title Generation')}
-          </div>
+				<div class="mb-2.5 flex w-full items-center justify-between">
+					<div class=" self-center text-xs font-medium">
+						{$i18n.t('Title Generation')}
+					</div>
 
-          <Switch bind:state={taskConfig.ENABLE_TITLE_GENERATION} />
-        </div>
+					<Switch bind:state={taskConfig.ENABLE_TITLE_GENERATION} />
+				</div>
 
-        {#if taskConfig.ENABLE_TITLE_GENERATION}
-          <div class="mb-2.5">
-            <div class=" mb-1 text-xs font-medium">{$i18n.t('Title Generation Prompt')}</div>
+				{#if taskConfig.ENABLE_TITLE_GENERATION}
+					<div class="mb-2.5">
+						<div class=" mb-1 text-xs font-medium">{$i18n.t('Title Generation Prompt')}</div>
 
 						<Tooltip
 							content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
@@ -161,17 +161,17 @@
 					</div>
 				{/if}
 
-        <div class="mb-2.5 flex w-full items-center justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Tags Generation')}
-          </div>
+				<div class="mb-2.5 flex w-full items-center justify-between">
+					<div class=" self-center text-xs font-medium">
+						{$i18n.t('Tags Generation')}
+					</div>
 
-          <Switch bind:state={taskConfig.ENABLE_TAGS_GENERATION} />
-        </div>
+					<Switch bind:state={taskConfig.ENABLE_TAGS_GENERATION} />
+				</div>
 
-        {#if taskConfig.ENABLE_TAGS_GENERATION}
-          <div class="mb-2.5">
-            <div class=" mb-1 text-xs font-medium">{$i18n.t('Tags Generation Prompt')}</div>
+				{#if taskConfig.ENABLE_TAGS_GENERATION}
+					<div class="mb-2.5">
+						<div class=" mb-1 text-xs font-medium">{$i18n.t('Tags Generation Prompt')}</div>
 
 						<Tooltip
 							content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
@@ -187,24 +187,24 @@
 					</div>
 				{/if}
 
-        <div class="mb-2.5 flex w-full items-center justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Retrieval Query Generation')}
-          </div>
+				<div class="mb-2.5 flex w-full items-center justify-between">
+					<div class=" self-center text-xs font-medium">
+						{$i18n.t('Retrieval Query Generation')}
+					</div>
 
-          <Switch bind:state={taskConfig.ENABLE_RETRIEVAL_QUERY_GENERATION} />
-        </div>
+					<Switch bind:state={taskConfig.ENABLE_RETRIEVAL_QUERY_GENERATION} />
+				</div>
 
-        <div class="mb-2.5 flex w-full items-center justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Web Search Query Generation')}
-          </div>
+				<div class="mb-2.5 flex w-full items-center justify-between">
+					<div class=" self-center text-xs font-medium">
+						{$i18n.t('Web Search Query Generation')}
+					</div>
 
-          <Switch bind:state={taskConfig.ENABLE_SEARCH_QUERY_GENERATION} />
-        </div>
+					<Switch bind:state={taskConfig.ENABLE_SEARCH_QUERY_GENERATION} />
+				</div>
 
-        <div class="mb-2.5">
-          <div class=" mb-1 text-xs font-medium">{$i18n.t('Query Generation Prompt')}</div>
+				<div class="mb-2.5">
+					<div class=" mb-1 text-xs font-medium">{$i18n.t('Query Generation Prompt')}</div>
 
 					<Tooltip
 						content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
@@ -219,21 +219,21 @@
 					</Tooltip>
 				</div>
 
-        <div class="mb-2.5 flex w-full items-center justify-between">
-          <div class=" self-center text-xs font-medium">
-            {$i18n.t('Autocomplete Generation')}
-          </div>
+				<div class="mb-2.5 flex w-full items-center justify-between">
+					<div class=" self-center text-xs font-medium">
+						{$i18n.t('Autocomplete Generation')}
+					</div>
 
-          <Tooltip content={$i18n.t('Enable autocomplete generation for chat messages')}>
-            <Switch bind:state={taskConfig.ENABLE_AUTOCOMPLETE_GENERATION} />
-          </Tooltip>
-        </div>
+					<Tooltip content={$i18n.t('Enable autocomplete generation for chat messages')}>
+						<Switch bind:state={taskConfig.ENABLE_AUTOCOMPLETE_GENERATION} />
+					</Tooltip>
+				</div>
 
-        {#if taskConfig.ENABLE_AUTOCOMPLETE_GENERATION}
-          <div class="mb-2.5">
-            <div class=" mb-1 text-xs font-medium">
-              {$i18n.t('Autocomplete Generation Input Max Length')}
-            </div>
+				{#if taskConfig.ENABLE_AUTOCOMPLETE_GENERATION}
+					<div class="mb-2.5">
+						<div class=" mb-1 text-xs font-medium">
+							{$i18n.t('Autocomplete Generation Input Max Length')}
+						</div>
 
 						<Tooltip
 							content={$i18n.t('Character limit for autocomplete generation input')}
@@ -248,8 +248,8 @@
 					</div>
 				{/if}
 
-        <div class="mb-2.5">
-          <div class=" mb-1 text-xs font-medium">{$i18n.t('Image Prompt Generation Prompt')}</div>
+				<div class="mb-2.5">
+					<div class=" mb-1 text-xs font-medium">{$i18n.t('Image Prompt Generation Prompt')}</div>
 
 					<Tooltip
 						content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
@@ -264,8 +264,8 @@
 					</Tooltip>
 				</div>
 
-        <div class="mb-2.5">
-          <div class=" mb-1 text-xs font-medium">{$i18n.t('Tools Function Calling Prompt')}</div>
+				<div class="mb-2.5">
+					<div class=" mb-1 text-xs font-medium">{$i18n.t('Tools Function Calling Prompt')}</div>
 
 					<Tooltip
 						content={$i18n.t('Leave empty to use the default prompt, or enter a custom prompt')}
@@ -281,10 +281,10 @@
 				</div>
 			</div>
 
-      <div class="mb-3.5">
-        <div class=" mb-2.5 text-base font-medium">{$i18n.t('UI')}</div>
+			<div class="mb-3.5">
+				<div class=" mb-2.5 text-base font-medium">{$i18n.t('UI')}</div>
 
-        <hr class=" border-gray-100 dark:border-gray-850 my-2" />
+				<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 				<div class:mb-3={banners.length > 0}>
 					<div class="mb-2.5 flex w-full justify-between">
@@ -346,11 +346,11 @@
 										<option class="text-gray-900" value="success">{$i18n.t('Success')}</option>
 									</select>
 
-                  <input
-                    class="pr-5 py-1.5 text-xs w-full bg-transparent outline-hidden"
-                    placeholder={$i18n.t('Content')}
-                    bind:value={banner.content}
-                  />
+									<input
+										class="pr-5 py-1.5 text-xs w-full bg-transparent outline-hidden"
+										placeholder={$i18n.t('Content')}
+										bind:value={banner.content}
+									/>
 
 									<div class="relative top-1.5 -left-2">
 										<Tooltip className="flex h-fit items-center" content={$i18n.t('Dismissible')}>
@@ -383,12 +383,12 @@
 					</div>
 				</div>
 
-        {#if $user.role === 'admin'}
-          <div class=" space-y-3">
-            <div class="flex w-full justify-between mb-2">
-              <div class=" self-center text-sm font-semibold">
-                {$i18n.t('Default Prompt Suggestions')}
-              </div>
+				{#if $user.role === 'admin'}
+					<div class=" space-y-3">
+						<div class="flex w-full justify-between mb-2">
+							<div class=" self-center text-sm font-semibold">
+								{$i18n.t('Default Prompt Suggestions')}
+							</div>
 
 							<button
 								class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -424,12 +424,12 @@
 												bind:value={prompt.title[0]}
 											/>
 
-                      <input
-                        class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850"
-                        placeholder={$i18n.t('Subtitle (e.g. about the Roman Empire)')}
-                        bind:value={prompt.title[1]}
-                      />
-                    </div>
+											<input
+												class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850"
+												placeholder={$i18n.t('Subtitle (e.g. about the Roman Empire)')}
+												bind:value={prompt.title[1]}
+											/>
+										</div>
 
 										<textarea
 											class="px-3 py-1.5 text-xs w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850 resize-none"
@@ -464,23 +464,23 @@
 							{/each}
 						</div>
 
-            {#if promptSuggestions.length > 0}
-              <div class="text-xs text-left w-full mt-2">
-                {$i18n.t('Adjusting these settings will apply changes universally to all users.')}
-              </div>
-            {/if}
-          </div>
-        {/if}
-      </div>
-    </div>
+						{#if promptSuggestions.length > 0}
+							<div class="text-xs text-left w-full mt-2">
+								{$i18n.t('Adjusting these settings will apply changes universally to all users.')}
+							</div>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		</div>
 
-    <div class="flex justify-end text-sm font-medium">
-      <button
-        class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-        type="submit"
-      >
-        {$i18n.t('Save')}
-      </button>
-    </div>
-  </form>
+		<div class="flex justify-end text-sm font-medium">
+			<button
+				class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+				type="submit"
+			>
+				{$i18n.t('Save')}
+			</button>
+		</div>
+	</form>
 {/if}

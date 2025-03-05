@@ -6,10 +6,10 @@
 	import { createEventDispatcher } from 'svelte';
 	import { onMount, getContext } from 'svelte';
 
-  import { updateUserById } from '$lib/apis/users';
+	import { updateUserById } from '$lib/apis/users';
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import localizedFormat from 'dayjs/plugin/localizedFormat';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -31,23 +31,23 @@
 		password: ''
 	});
 
-  const submitHandler = async () => {
-    const res = await updateUserById(localStorage.token, selectedUser.id, _user).catch((error) => {
-      toast.error(`${error}`);
-    });
+	const submitHandler = async () => {
+		const res = await updateUserById(localStorage.token, selectedUser.id, _user).catch((error) => {
+			toast.error(`${error}`);
+		});
 
-    if (res) {
-      dispatch('save');
-      show = false;
-    }
-  };
+		if (res) {
+			dispatch('save');
+			show = false;
+		}
+	};
 
-  onMount(() => {
-    if (selectedUser) {
-      _user = selectedUser;
-      _user.password = '';
-    }
-  });
+	onMount(() => {
+		if (selectedUser) {
+			_user = selectedUser;
+			_user.password = '';
+		}
+	});
 </script>
 
 <Modal size="sm" bind:show>
@@ -91,21 +91,21 @@
 							/>
 						</div>
 
-            <div>
-              <div class=" self-center capitalize font-semibold">{selectedUser.name}</div>
+						<div>
+							<div class=" self-center capitalize font-semibold">{selectedUser.name}</div>
 
-              <div class="text-xs text-gray-500">
-                {$i18n.t('Created at')}
-                {dayjs(selectedUser.created_at * 1000).format('LL')}
-              </div>
-            </div>
-          </div>
+							<div class="text-xs text-gray-500">
+								{$i18n.t('Created at')}
+								{dayjs(selectedUser.created_at * 1000).format('LL')}
+							</div>
+						</div>
+					</div>
 
-          <hr class="border-gray-100 dark:border-gray-850 my-3 w-full" />
+					<hr class="border-gray-100 dark:border-gray-850 my-3 w-full" />
 
-          <div class=" flex flex-col space-y-1.5">
-            <div class="flex flex-col w-full">
-              <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
+					<div class=" flex flex-col space-y-1.5">
+						<div class="flex flex-col w-full">
+							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Email')}</div>
 
 							<div class="flex-1">
 								<input
@@ -119,8 +119,8 @@
 							</div>
 						</div>
 
-            <div class="flex flex-col w-full">
-              <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Name')}</div>
+						<div class="flex flex-col w-full">
+							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Name')}</div>
 
 							<div class="flex-1">
 								<input
@@ -133,8 +133,8 @@
 							</div>
 						</div>
 
-            <div class="flex flex-col w-full">
-              <div class=" mb-1 text-xs text-gray-500">{$i18n.t('New Password')}</div>
+						<div class="flex flex-col w-full">
+							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('New Password')}</div>
 
 							<div class="flex-1">
 								<input
@@ -147,18 +147,18 @@
 						</div>
 					</div>
 
-          <div class="flex justify-end pt-3 text-sm font-medium">
-            <button
-              class=" px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
-              type="submit"
-            >
-              {$i18n.t('Save')}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+					<div class="flex justify-end pt-3 text-sm font-medium">
+						<button
+							class=" px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
+							type="submit"
+						>
+							{$i18n.t('Save')}
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </Modal>
 
 <style>

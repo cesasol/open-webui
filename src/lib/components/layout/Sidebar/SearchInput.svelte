@@ -66,31 +66,31 @@
 			: [];
 	});
 
-  const initTags = async () => {
-    loading = true;
-    await tags.set(await getAllTags(localStorage.token));
-    loading = false;
-  };
+	const initTags = async () => {
+		loading = true;
+		await tags.set(await getAllTags(localStorage.token));
+		loading = false;
+	};
 
-  const documentClickHandler = (e) => {
-    const searchContainer = document.getElementById('search-container');
-    const chatSearch = document.getElementById('chat-search');
+	const documentClickHandler = (e) => {
+		const searchContainer = document.getElementById('search-container');
+		const chatSearch = document.getElementById('chat-search');
 
-    if (!searchContainer.contains(e.target) && !chatSearch.contains(e.target)) {
-      if (e.target.id.startsWith('search-tag-') || e.target.id.startsWith('search-option-')) {
-        return;
-      }
-      focused = false;
-    }
-  };
+		if (!searchContainer.contains(e.target) && !chatSearch.contains(e.target)) {
+			if (e.target.id.startsWith('search-tag-') || e.target.id.startsWith('search-option-')) {
+				return;
+			}
+			focused = false;
+		}
+	};
 
-  onMount(() => {
-    document.addEventListener('click', documentClickHandler);
-  });
+	onMount(() => {
+		document.addEventListener('click', documentClickHandler);
+	});
 
-  onDestroy(() => {
-    document.removeEventListener('click', documentClickHandler);
-  });
+	onDestroy(() => {
+		document.removeEventListener('click', documentClickHandler);
+	});
 </script>
 
 <div id="search-container" class="px-1 mb-1 flex justify-center space-x-2 relative z-10">
@@ -127,18 +127,18 @@
 						return;
 					}
 
-          if (filteredOptions.length > 0) {
-            const optionElement = document.getElementById(`search-option-${selectedIdx}`);
-            optionElement.click();
-            return;
-          }
-        }
+					if (filteredOptions.length > 0) {
+						const optionElement = document.getElementById(`search-option-${selectedIdx}`);
+						optionElement.click();
+						return;
+					}
+				}
 
-        if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          selectedIdx = Math.max(0, selectedIdx - 1);
-        } else if (e.key === 'ArrowDown') {
-          e.preventDefault();
+				if (e.key === 'ArrowUp') {
+					e.preventDefault();
+					selectedIdx = Math.max(0, selectedIdx - 1);
+				} else if (e.key === 'ArrowDown') {
+					e.preventDefault();
 
 					if (filteredTags.length > 0) {
 						selectedIdx = Math.min(selectedIdx + 1, filteredTags.length - 1);
@@ -182,10 +182,10 @@
 								onclick={stopPropagation(async () => {
 									const words = value.split(' ');
 
-                  words.pop();
-                  words.push(`tag:${tag.id} `);
+									words.pop();
+									words.push(`tag:${tag.id} `);
 
-                  value = words.join(' ');
+									value = words.join(' ');
 
 									dispatch('input');
 								})}
@@ -194,16 +194,16 @@
 									{tag.name}
 								</div>
 
-                <div class=" text-gray-500 line-clamp-1">
-                  {tag.id}
-                </div>
-              </button>
-            {/each}
-          </div>
-        {:else if filteredOptions.length > 0}
-          <div class="px-1 font-medium dark:text-gray-300 text-gray-700 mb-1">
-            {$i18n.t('Search options')}
-          </div>
+								<div class=" text-gray-500 line-clamp-1">
+									{tag.id}
+								</div>
+							</button>
+						{/each}
+					</div>
+				{:else if filteredOptions.length > 0}
+					<div class="px-1 font-medium dark:text-gray-300 text-gray-700 mb-1">
+						{$i18n.t('Search options')}
+					</div>
 
 					<div class=" max-h-60 overflow-auto">
 						{#each filteredOptions as option, optionIdx}
@@ -216,24 +216,24 @@
 								onclick={stopPropagation(async () => {
 									const words = value.split(' ');
 
-                  words.pop();
-                  words.push('tag:');
+									words.pop();
+									words.push('tag:');
 
-                  value = words.join(' ');
+									value = words.join(' ');
 
 									dispatch('input');
 								})}
 							>
 								<div class="dark:text-gray-300 text-gray-700 font-medium">{option.name}</div>
 
-                <div class=" text-gray-500 line-clamp-1">
-                  {option.description}
-                </div>
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
-    </div>
-  {/if}
+								<div class=" text-gray-500 line-clamp-1">
+									{option.description}
+								</div>
+							</button>
+						{/each}
+					</div>
+				{/if}
+			</div>
+		</div>
+	{/if}
 </div>

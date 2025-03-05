@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher, getContext } from 'svelte';
-  import { tags } from '$lib/stores';
-  import { toast } from 'svelte-sonner';
-  const dispatch = createEventDispatcher();
+	import { createEventDispatcher, getContext } from 'svelte';
+	import { tags } from '$lib/stores';
+	import { toast } from 'svelte-sonner';
+	const dispatch = createEventDispatcher();
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -15,16 +15,16 @@
 	let showTagInput = $state(false);
 	let tagName = $state('');
 
-  const addTagHandler = async () => {
-    tagName = tagName.trim();
-    if (tagName !== '') {
-      dispatch('add', tagName);
-      tagName = '';
-      showTagInput = false;
-    } else {
-      toast.error($i18n.t(`Invalid Tag`));
-    }
-  };
+	const addTagHandler = async () => {
+		tagName = tagName.trim();
+		if (tagName !== '') {
+			dispatch('add', tagName);
+			tagName = '';
+			showTagInput = false;
+		} else {
+			toast.error($i18n.t(`Invalid Tag`));
+		}
+	};
 </script>
 
 <div class="px-0.5 flex" class:flex-row-reverse={showTagInput}>
@@ -88,7 +88,7 @@
 		</div>
 	</button>
 
-  {#if label && !showTagInput}
-    <span class="text-xs pl-2 self-center">{label}</span>
-  {/if}
+	{#if label && !showTagInput}
+		<span class="text-xs pl-2 self-center">{label}</span>
+	{/if}
 </div>

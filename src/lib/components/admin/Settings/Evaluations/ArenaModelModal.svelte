@@ -6,13 +6,13 @@
 	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import { models } from '$lib/stores';
-  import Plus from '$lib/components/icons/Plus.svelte';
-  import Minus from '$lib/components/icons/Minus.svelte';
-  import PencilSolid from '$lib/components/icons/PencilSolid.svelte';
-  import { toast } from 'svelte-sonner';
-  import AccessControl from '$lib/components/workspace/common/AccessControl.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import { models } from '$lib/stores';
+	import Plus from '$lib/components/icons/Plus.svelte';
+	import Minus from '$lib/components/icons/Minus.svelte';
+	import PencilSolid from '$lib/components/icons/PencilSolid.svelte';
+	import { toast } from 'svelte-sonner';
+	import AccessControl from '$lib/components/workspace/common/AccessControl.svelte';
 
 	interface Props {
 		show?: boolean;
@@ -47,66 +47,66 @@
 	let imageInputElement = $state();
 	let loading = $state(false);
 
-  const addModelHandler = () => {
-    if (selectedModelId) {
-      modelIds = [...modelIds, selectedModelId];
-      selectedModelId = '';
-    }
-  };
+	const addModelHandler = () => {
+		if (selectedModelId) {
+			modelIds = [...modelIds, selectedModelId];
+			selectedModelId = '';
+		}
+	};
 
-  const submitHandler = () => {
-    loading = true;
+	const submitHandler = () => {
+		loading = true;
 
-    if (!name || !id) {
-      loading = false;
-      toast.error('Name and ID are required, please fill them out');
-      return;
-    }
+		if (!name || !id) {
+			loading = false;
+			toast.error('Name and ID are required, please fill them out');
+			return;
+		}
 
-    if (!edit) {
-      if ($models.find((model) => model.name === name)) {
-        loading = false;
-        name = '';
-        toast.error('Model name already exists, please choose a different one');
-        return;
-      }
-    }
+		if (!edit) {
+			if ($models.find((model) => model.name === name)) {
+				loading = false;
+				name = '';
+				toast.error('Model name already exists, please choose a different one');
+				return;
+			}
+		}
 
-    const model = {
-      id: id,
-      name: name,
-      meta: {
-        profile_image_url: profileImageUrl,
-        description: description || null,
-        model_ids: modelIds.length > 0 ? modelIds : null,
-        filter_mode: modelIds.length > 0 ? (filterMode ? filterMode : null) : null,
-        access_control: accessControl
-      }
-    };
+		const model = {
+			id: id,
+			name: name,
+			meta: {
+				profile_image_url: profileImageUrl,
+				description: description || null,
+				model_ids: modelIds.length > 0 ? modelIds : null,
+				filter_mode: modelIds.length > 0 ? (filterMode ? filterMode : null) : null,
+				access_control: accessControl
+			}
+		};
 
-    dispatch('submit', model);
-    loading = false;
-    show = false;
+		dispatch('submit', model);
+		loading = false;
+		show = false;
 
-    name = '';
-    id = '';
-    profileImageUrl = '/favicon.png';
-    description = '';
-    modelIds = [];
-    selectedModelId = '';
-  };
+		name = '';
+		id = '';
+		profileImageUrl = '/favicon.png';
+		description = '';
+		modelIds = [];
+		selectedModelId = '';
+	};
 
-  const initModel = () => {
-    if (model) {
-      name = model.name;
-      id = model.id;
-      profileImageUrl = model.meta.profile_image_url;
-      description = model.meta.description;
-      modelIds = model.meta.model_ids || [];
-      filterMode = model.meta?.filter_mode ?? 'include';
-      accessControl = 'access_control' in model.meta ? model.meta.access_control : {};
-    }
-  };
+	const initModel = () => {
+		if (model) {
+			name = model.name;
+			id = model.id;
+			profileImageUrl = model.meta.profile_image_url;
+			description = model.meta.description;
+			modelIds = model.meta.model_ids || [];
+			filterMode = model.meta?.filter_mode ?? 'include';
+			accessControl = 'access_control' in model.meta ? model.meta.access_control : {};
+		}
+	};
 
 	onMount(() => {
 		initModel();
@@ -172,46 +172,46 @@
 									reader.onload = (event) => {
 										const originalImageUrl = `${event.target.result}`;
 
-                    const img = new Image();
-                    img.src = originalImageUrl;
+										const img = new Image();
+										img.src = originalImageUrl;
 
-                    img.onload = function () {
-                      const canvas = document.createElement('canvas');
-                      const ctx = canvas.getContext('2d');
+										img.onload = function () {
+											const canvas = document.createElement('canvas');
+											const ctx = canvas.getContext('2d');
 
-                      // Calculate the aspect ratio of the image
-                      const aspectRatio = img.width / img.height;
+											// Calculate the aspect ratio of the image
+											const aspectRatio = img.width / img.height;
 
-                      // Calculate the new width and height to fit within 250x250
-                      let newWidth, newHeight;
-                      if (aspectRatio > 1) {
-                        newWidth = 250 * aspectRatio;
-                        newHeight = 250;
-                      } else {
-                        newWidth = 250;
-                        newHeight = 250 / aspectRatio;
-                      }
+											// Calculate the new width and height to fit within 250x250
+											let newWidth, newHeight;
+											if (aspectRatio > 1) {
+												newWidth = 250 * aspectRatio;
+												newHeight = 250;
+											} else {
+												newWidth = 250;
+												newHeight = 250 / aspectRatio;
+											}
 
-                      // Set the canvas size
-                      canvas.width = 250;
-                      canvas.height = 250;
+											// Set the canvas size
+											canvas.width = 250;
+											canvas.height = 250;
 
-                      // Calculate the position to center the image
-                      const offsetX = (250 - newWidth) / 2;
-                      const offsetY = (250 - newHeight) / 2;
+											// Calculate the position to center the image
+											const offsetX = (250 - newWidth) / 2;
+											const offsetY = (250 - newHeight) / 2;
 
-                      // Draw the image on the canvas
-                      ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+											// Draw the image on the canvas
+											ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
 
-                      // Get the base64 representation of the compressed image
-                      const compressedSrc = canvas.toDataURL('image/jpeg');
+											// Get the base64 representation of the compressed image
+											const compressedSrc = canvas.toDataURL('image/jpeg');
 
-                      // Display the compressed image
-                      profileImageUrl = compressedSrc;
+											// Display the compressed image
+											profileImageUrl = compressedSrc;
 
-                      e.target.files = null;
-                    };
-                  };
+											e.target.files = null;
+										};
+									};
 
 									if (
 										files.length > 0 &&
@@ -238,16 +238,18 @@
 									src={profileImageUrl}
 								/>
 
-                <div class="absolute flex justify-center rounded-full bottom-0 left-0 right-0 top-0 h-full w-full overflow-hidden bg-gray-700 bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-50">
-                  <div class="my-auto text-white">
-                    <PencilSolid className="size-4" />
-                  </div>
-                </div>
-              </button>
-            </div>
-            <div class="flex gap-2">
-              <div class="flex flex-col w-full">
-                <div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('Name')}</div>
+								<div
+									class="absolute flex justify-center rounded-full bottom-0 left-0 right-0 top-0 h-full w-full overflow-hidden bg-gray-700 bg-fixed opacity-0 transition duration-300 ease-in-out hover:opacity-50"
+								>
+									<div class="my-auto text-white">
+										<PencilSolid className="size-4" />
+									</div>
+								</div>
+							</button>
+						</div>
+						<div class="flex gap-2">
+							<div class="flex flex-col w-full">
+								<div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('Name')}</div>
 
 								<div class="flex-1">
 									<input
@@ -261,8 +263,8 @@
 								</div>
 							</div>
 
-              <div class="flex flex-col w-full">
-                <div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('ID')}</div>
+							<div class="flex flex-col w-full">
+								<div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('ID')}</div>
 
 								<div class="flex-1">
 									<input
@@ -278,8 +280,8 @@
 							</div>
 						</div>
 
-            <div class="flex flex-col w-full mt-2">
-              <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Description')}</div>
+						<div class="flex flex-col w-full mt-2">
+							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Description')}</div>
 
 							<div class="flex-1">
 								<input
@@ -292,19 +294,19 @@
 							</div>
 						</div>
 
-            <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
+						<hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
 
-            <div class="my-2 -mx-2">
-              <div class="px-3 py-2 bg-gray-50 dark:bg-gray-950 rounded-lg">
-                <AccessControl bind:accessControl />
-              </div>
-            </div>
+						<div class="my-2 -mx-2">
+							<div class="px-3 py-2 bg-gray-50 dark:bg-gray-950 rounded-lg">
+								<AccessControl bind:accessControl />
+							</div>
+						</div>
 
-            <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
+						<hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
 
-            <div class="flex flex-col w-full">
-              <div class="mb-1 flex justify-between">
-                <div class="text-xs text-gray-500">{$i18n.t('Models')}</div>
+						<div class="flex flex-col w-full">
+							<div class="mb-1 flex justify-between">
+								<div class="text-xs text-gray-500">{$i18n.t('Models')}</div>
 
 								<div>
 									<button
@@ -350,7 +352,7 @@
 							{/if}
 						</div>
 
-            <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
+						<hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
 
 						<div class="flex items-center">
 							<select

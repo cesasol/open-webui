@@ -55,63 +55,63 @@
 		ciphers: ''
 	});
 
-  const checkForVersionUpdates = async () => {
-    updateAvailable = null;
-    version = await getVersionUpdates(localStorage.token).catch((error) => {
-      return {
-        current: WEBUI_VERSION,
-        latest: WEBUI_VERSION
-      };
-    });
+	const checkForVersionUpdates = async () => {
+		updateAvailable = null;
+		version = await getVersionUpdates(localStorage.token).catch((error) => {
+			return {
+				current: WEBUI_VERSION,
+				latest: WEBUI_VERSION
+			};
+		});
 
-    console.log(version);
+		console.log(version);
 
-    updateAvailable = compareVersion(version.latest, version.current);
-    console.log(updateAvailable);
-  };
+		updateAvailable = compareVersion(version.latest, version.current);
+		console.log(updateAvailable);
+	};
 
-  const updateLdapServerHandler = async () => {
-    if (!ENABLE_LDAP) return;
-    const res = await updateLdapServer(localStorage.token, LDAP_SERVER).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
-    if (res) {
-      toast.success($i18n.t('LDAP server updated'));
-    }
-  };
+	const updateLdapServerHandler = async () => {
+		if (!ENABLE_LDAP) return;
+		const res = await updateLdapServer(localStorage.token, LDAP_SERVER).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
+		if (res) {
+			toast.success($i18n.t('LDAP server updated'));
+		}
+	};
 
-  const updateHandler = async () => {
-    webhookUrl = await updateWebhookUrl(localStorage.token, webhookUrl);
-    const res = await updateAdminConfig(localStorage.token, adminConfig);
-    await updateLdapServerHandler();
+	const updateHandler = async () => {
+		webhookUrl = await updateWebhookUrl(localStorage.token, webhookUrl);
+		const res = await updateAdminConfig(localStorage.token, adminConfig);
+		await updateLdapServerHandler();
 
-    if (res) {
-      saveHandler();
-    } else {
-      toast.error(i18n.t('Failed to update settings'));
-    }
-  };
+		if (res) {
+			saveHandler();
+		} else {
+			toast.error(i18n.t('Failed to update settings'));
+		}
+	};
 
-  onMount(async () => {
-    checkForVersionUpdates();
+	onMount(async () => {
+		checkForVersionUpdates();
 
-    await Promise.all([
-      (async () => {
-        adminConfig = await getAdminConfig(localStorage.token);
-      })(),
+		await Promise.all([
+			(async () => {
+				adminConfig = await getAdminConfig(localStorage.token);
+			})(),
 
-      (async () => {
-        webhookUrl = await getWebhookUrl(localStorage.token);
-      })(),
-      (async () => {
-        LDAP_SERVER = await getLdapServer(localStorage.token);
-      })()
-    ]);
+			(async () => {
+				webhookUrl = await getWebhookUrl(localStorage.token);
+			})(),
+			(async () => {
+				LDAP_SERVER = await getLdapServer(localStorage.token);
+			})()
+		]);
 
-    const ldapConfig = await getLdapConfig(localStorage.token);
-    ENABLE_LDAP = ldapConfig.ENABLE_LDAP;
-  });
+		const ldapConfig = await getLdapConfig(localStorage.token);
+		ENABLE_LDAP = ldapConfig.ENABLE_LDAP;
+	});
 </script>
 
 <form
@@ -120,38 +120,38 @@
 		updateHandler();
 	})}
 >
-  <div class="mt-0.5 space-y-3 overflow-y-scroll scrollbar-hidden h-full">
-    {#if adminConfig !== null}
-      <div class="">
-        <div class="mb-3.5">
-          <div class=" mb-2.5 text-base font-medium">{$i18n.t('General')}</div>
+	<div class="mt-0.5 space-y-3 overflow-y-scroll scrollbar-hidden h-full">
+		{#if adminConfig !== null}
+			<div class="">
+				<div class="mb-3.5">
+					<div class=" mb-2.5 text-base font-medium">{$i18n.t('General')}</div>
 
-          <hr class=" border-gray-100 dark:border-gray-850 my-2" />
+					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-          <div class="mb-2.5">
-            <div class=" mb-1 text-xs font-medium flex space-x-2 items-center">
-              <div>
-                {$i18n.t('Version')}
-              </div>
-            </div>
-            <div class="flex w-full justify-between items-center">
-              <div class="flex flex-col text-xs text-gray-700 dark:text-gray-200">
-                <div class="flex gap-1">
-                  <Tooltip content={WEBUI_BUILD_HASH}>
-                    v{WEBUI_VERSION}
-                  </Tooltip>
+					<div class="mb-2.5">
+						<div class=" mb-1 text-xs font-medium flex space-x-2 items-center">
+							<div>
+								{$i18n.t('Version')}
+							</div>
+						</div>
+						<div class="flex w-full justify-between items-center">
+							<div class="flex flex-col text-xs text-gray-700 dark:text-gray-200">
+								<div class="flex gap-1">
+									<Tooltip content={WEBUI_BUILD_HASH}>
+										v{WEBUI_VERSION}
+									</Tooltip>
 
-                  <a
-                    href="https://github.com/open-webui/open-webui/releases/tag/v{version.latest}"
-                    target="_blank"
-                  >
-                    {updateAvailable === null
-                      ? $i18n.t('Checking for updates...')
-                      : updateAvailable
-                      ? `(v${version.latest} ${$i18n.t('available!')})`
-                      : $i18n.t('(latest)')}
-                  </a>
-                </div>
+									<a
+										href="https://github.com/open-webui/open-webui/releases/tag/v{version.latest}"
+										target="_blank"
+									>
+										{updateAvailable === null
+											? $i18n.t('Checking for updates...')
+											: updateAvailable
+												? `(v${version.latest} ${$i18n.t('available!')})`
+												: $i18n.t('(latest)')}
+									</a>
+								</div>
 
 								<button
 									class=" underline flex items-center space-x-1 text-xs text-gray-500 dark:text-gray-500"
@@ -176,60 +176,51 @@
 						</div>
 					</div>
 
-          <div class="mb-2.5">
-            <div class="flex w-full justify-between items-center">
-              <div class="text-xs pr-2">
-                <div class="">
-                  {$i18n.t('Help')}
-                </div>
-                <div class=" text-xs text-gray-500">
-                  {$i18n.t('Discover how to use Open WebUI and seek support from the community.')}
-                </div>
-              </div>
+					<div class="mb-2.5">
+						<div class="flex w-full justify-between items-center">
+							<div class="text-xs pr-2">
+								<div class="">
+									{$i18n.t('Help')}
+								</div>
+								<div class=" text-xs text-gray-500">
+									{$i18n.t('Discover how to use Open WebUI and seek support from the community.')}
+								</div>
+							</div>
 
-              <a
-                class="flex-shrink-0 text-xs font-medium underline"
-                href="https://docs.openwebui.com/"
-                target="_blank"
-              >
-                {$i18n.t('Documentation')}
-              </a>
-            </div>
+							<a
+								class="flex-shrink-0 text-xs font-medium underline"
+								href="https://docs.openwebui.com/"
+								target="_blank"
+							>
+								{$i18n.t('Documentation')}
+							</a>
+						</div>
 
-            <div class="mt-1">
-              <div class="flex space-x-1">
-                <a
-                  href="https://discord.gg/5rJgQTnV4s"
-                  target="_blank"
-                >
-                  <img
-                    alt="Discord"
-                    src="https://img.shields.io/badge/Discord-Open_WebUI-blue?logo=discord&logoColor=white"
-                  />
-                </a>
+						<div class="mt-1">
+							<div class="flex space-x-1">
+								<a href="https://discord.gg/5rJgQTnV4s" target="_blank">
+									<img
+										alt="Discord"
+										src="https://img.shields.io/badge/Discord-Open_WebUI-blue?logo=discord&logoColor=white"
+									/>
+								</a>
 
-                <a
-                  href="https://twitter.com/OpenWebUI"
-                  target="_blank"
-                >
-                  <img
-                    alt="X (formerly Twitter) Follow"
-                    src="https://img.shields.io/twitter/follow/OpenWebUI"
-                  />
-                </a>
+								<a href="https://twitter.com/OpenWebUI" target="_blank">
+									<img
+										alt="X (formerly Twitter) Follow"
+										src="https://img.shields.io/twitter/follow/OpenWebUI"
+									/>
+								</a>
 
-                <a
-                  href="https://github.com/open-webui/open-webui"
-                  target="_blank"
-                >
-                  <img
-                    alt="Github Repo"
-                    src="https://img.shields.io/github/stars/open-webui/open-webui?style=social&label=Star us on Github"
-                  />
-                </a>
-              </div>
-            </div>
-          </div>
+								<a href="https://github.com/open-webui/open-webui" target="_blank">
+									<img
+										alt="Github Repo"
+										src="https://img.shields.io/github/stars/open-webui/open-webui?style=social&label=Star us on Github"
+									/>
+								</a>
+							</div>
+						</div>
+					</div>
 
 					<div class="mb-2.5">
 						<div class="flex w-full justify-between items-center">
@@ -240,9 +231,9 @@
 
 								{#if $config?.license_metadata}
 									<a
+										class="text-gray-500 mt-0.5"
 										href="https://docs.openwebui.com/enterprise"
 										target="_blank"
-										class="text-gray-500 mt-0.5"
 									>
 										<span class=" capitalize text-black dark:text-white"
 											>{$config?.license_metadata?.type}
@@ -277,19 +268,19 @@
 								{/if}
 							</div>
 
-              <!-- <button
+							<!-- <button
 								class="flex-shrink-0 text-xs px-3 py-1.5 bg-gray-50 hover:bg-gray-100 dark:bg-gray-850 dark:hover:bg-gray-800 transition rounded-lg font-medium"
 							>
 								{$i18n.t('Activate')}
 							</button> -->
-            </div>
-          </div>
-        </div>
+						</div>
+					</div>
+				</div>
 
-        <div class="mb-3">
-          <div class=" mb-2.5 text-base font-medium">{$i18n.t('Authentication')}</div>
+				<div class="mb-3">
+					<div class=" mb-2.5 text-base font-medium">{$i18n.t('Authentication')}</div>
 
-          <hr class=" border-gray-100 dark:border-gray-850 my-2" />
+					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 					<div class="  mb-2.5 flex w-full justify-between">
 						<div class=" self-center text-xs font-medium">{$i18n.t('Default User Role')}</div>
@@ -306,40 +297,40 @@
 						</div>
 					</div>
 
-          <div class=" mb-2.5 flex w-full justify-between pr-2">
-            <div class=" self-center text-xs font-medium">{$i18n.t('Enable New Sign Ups')}</div>
+					<div class=" mb-2.5 flex w-full justify-between pr-2">
+						<div class=" self-center text-xs font-medium">{$i18n.t('Enable New Sign Ups')}</div>
 
-            <Switch bind:state={adminConfig.ENABLE_SIGNUP} />
-          </div>
+						<Switch bind:state={adminConfig.ENABLE_SIGNUP} />
+					</div>
 
-          <div class="mb-2.5 flex w-full items-center justify-between pr-2">
-            <div class=" self-center text-xs font-medium">
-              {$i18n.t('Show Admin Details in Account Pending Overlay')}
-            </div>
+					<div class="mb-2.5 flex w-full items-center justify-between pr-2">
+						<div class=" self-center text-xs font-medium">
+							{$i18n.t('Show Admin Details in Account Pending Overlay')}
+						</div>
 
-            <Switch bind:state={adminConfig.SHOW_ADMIN_DETAILS} />
-          </div>
+						<Switch bind:state={adminConfig.SHOW_ADMIN_DETAILS} />
+					</div>
 
-          <div class="mb-2.5 flex w-full justify-between pr-2">
-            <div class=" self-center text-xs font-medium">{$i18n.t('Enable API Key')}</div>
+					<div class="mb-2.5 flex w-full justify-between pr-2">
+						<div class=" self-center text-xs font-medium">{$i18n.t('Enable API Key')}</div>
 
-            <Switch bind:state={adminConfig.ENABLE_API_KEY} />
-          </div>
+						<Switch bind:state={adminConfig.ENABLE_API_KEY} />
+					</div>
 
-          {#if adminConfig?.ENABLE_API_KEY}
-            <div class="mb-2.5 flex w-full justify-between pr-2">
-              <div class=" self-center text-xs font-medium">
-                {$i18n.t('API Key Endpoint Restrictions')}
-              </div>
+					{#if adminConfig?.ENABLE_API_KEY}
+						<div class="mb-2.5 flex w-full justify-between pr-2">
+							<div class=" self-center text-xs font-medium">
+								{$i18n.t('API Key Endpoint Restrictions')}
+							</div>
 
-              <Switch bind:state={adminConfig.ENABLE_API_KEY_ENDPOINT_RESTRICTIONS} />
-            </div>
+							<Switch bind:state={adminConfig.ENABLE_API_KEY_ENDPOINT_RESTRICTIONS} />
+						</div>
 
-            {#if adminConfig?.ENABLE_API_KEY_ENDPOINT_RESTRICTIONS}
-              <div class=" flex w-full flex-col pr-2">
-                <div class=" text-xs font-medium">
-                  {$i18n.t('Allowed Endpoints')}
-                </div>
+						{#if adminConfig?.ENABLE_API_KEY_ENDPOINT_RESTRICTIONS}
+							<div class=" flex w-full flex-col pr-2">
+								<div class=" text-xs font-medium">
+									{$i18n.t('Allowed Endpoints')}
+								</div>
 
 								<input
 									class="w-full mt-1 rounded-lg text-sm dark:text-gray-300 bg-transparent outline-hidden"
@@ -362,10 +353,10 @@
 						{/if}
 					{/if}
 
-          <div class=" mb-2.5 w-full justify-between">
-            <div class="flex w-full justify-between">
-              <div class=" self-center text-xs font-medium">{$i18n.t('JWT Expiration')}</div>
-            </div>
+					<div class=" mb-2.5 w-full justify-between">
+						<div class="flex w-full justify-between">
+							<div class=" self-center text-xs font-medium">{$i18n.t('JWT Expiration')}</div>
+						</div>
 
 						<div class="flex mt-2 space-x-2">
 							<input
@@ -376,26 +367,28 @@
 							/>
 						</div>
 
-            <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-              {$i18n.t('Valid time units:')}
-              <span class=" text-gray-300 font-medium">{$i18n.t("'s', 'm', 'h', 'd', 'w' or '-1' for no expiration.")}</span>
-            </div>
-          </div>
+						<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+							{$i18n.t('Valid time units:')}
+							<span class=" text-gray-300 font-medium"
+								>{$i18n.t("'s', 'm', 'h', 'd', 'w' or '-1' for no expiration.")}</span
+							>
+						</div>
+					</div>
 
-          <div class=" space-y-3">
-            <div class="mt-2 space-y-2 pr-1.5">
-              <div class="flex justify-between items-center text-sm">
-                <div class="  font-medium">{$i18n.t('LDAP')}</div>
+					<div class=" space-y-3">
+						<div class="mt-2 space-y-2 pr-1.5">
+							<div class="flex justify-between items-center text-sm">
+								<div class="  font-medium">{$i18n.t('LDAP')}</div>
 
-                <div class="mt-1">
-                  <Switch
-                    bind:state={ENABLE_LDAP}
-                    on:change={async () => {
-                      updateLdapConfig(localStorage.token, ENABLE_LDAP);
-                    }}
-                  />
-                </div>
-              </div>
+								<div class="mt-1">
+									<Switch
+										bind:state={ENABLE_LDAP}
+										on:change={async () => {
+											updateLdapConfig(localStorage.token, ENABLE_LDAP);
+										}}
+									/>
+								</div>
+							</div>
 
 							{#if ENABLE_LDAP}
 								<div class="flex flex-col gap-1">
@@ -596,37 +589,37 @@
 					</div>
 				</div>
 
-        <div class="mb-3">
-          <div class=" mb-2.5 text-base font-medium">{$i18n.t('Features')}</div>
+				<div class="mb-3">
+					<div class=" mb-2.5 text-base font-medium">{$i18n.t('Features')}</div>
 
-          <hr class=" border-gray-100 dark:border-gray-850 my-2" />
+					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-          <div class="mb-2.5 flex w-full items-center justify-between pr-2">
-            <div class=" self-center text-xs font-medium">
-              {$i18n.t('Enable Community Sharing')}
-            </div>
+					<div class="mb-2.5 flex w-full items-center justify-between pr-2">
+						<div class=" self-center text-xs font-medium">
+							{$i18n.t('Enable Community Sharing')}
+						</div>
 
-            <Switch bind:state={adminConfig.ENABLE_COMMUNITY_SHARING} />
-          </div>
+						<Switch bind:state={adminConfig.ENABLE_COMMUNITY_SHARING} />
+					</div>
 
-          <div class="mb-2.5 flex w-full items-center justify-between pr-2">
-            <div class=" self-center text-xs font-medium">{$i18n.t('Enable Message Rating')}</div>
+					<div class="mb-2.5 flex w-full items-center justify-between pr-2">
+						<div class=" self-center text-xs font-medium">{$i18n.t('Enable Message Rating')}</div>
 
-            <Switch bind:state={adminConfig.ENABLE_MESSAGE_RATING} />
-          </div>
+						<Switch bind:state={adminConfig.ENABLE_MESSAGE_RATING} />
+					</div>
 
-          <div class="mb-2.5 flex w-full items-center justify-between pr-2">
-            <div class=" self-center text-xs font-medium">
-              {$i18n.t('Channels')} ({$i18n.t('Beta')})
-            </div>
+					<div class="mb-2.5 flex w-full items-center justify-between pr-2">
+						<div class=" self-center text-xs font-medium">
+							{$i18n.t('Channels')} ({$i18n.t('Beta')})
+						</div>
 
-            <Switch bind:state={adminConfig.ENABLE_CHANNELS} />
-          </div>
+						<Switch bind:state={adminConfig.ENABLE_CHANNELS} />
+					</div>
 
-          <div class="mb-2.5 w-full justify-between">
-            <div class="flex w-full justify-between">
-              <div class=" self-center text-xs font-medium">{$i18n.t('WebUI URL')}</div>
-            </div>
+					<div class="mb-2.5 w-full justify-between">
+						<div class="flex w-full justify-between">
+							<div class=" self-center text-xs font-medium">{$i18n.t('WebUI URL')}</div>
+						</div>
 
 						<div class="flex mt-2 space-x-2">
 							<input
@@ -637,17 +630,17 @@
 							/>
 						</div>
 
-            <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-              {$i18n.t(
-                'Enter the public URL of your WebUI. This URL will be used to generate links in the notifications.'
-              )}
-            </div>
-          </div>
+						<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+							{$i18n.t(
+								'Enter the public URL of your WebUI. This URL will be used to generate links in the notifications.'
+							)}
+						</div>
+					</div>
 
-          <div class=" w-full justify-between">
-            <div class="flex w-full justify-between">
-              <div class=" self-center text-xs font-medium">{$i18n.t('Webhook URL')}</div>
-            </div>
+					<div class=" w-full justify-between">
+						<div class="flex w-full justify-between">
+							<div class=" self-center text-xs font-medium">{$i18n.t('Webhook URL')}</div>
+						</div>
 
 						<div class="flex mt-2 space-x-2">
 							<input
@@ -663,12 +656,12 @@
 		{/if}
 	</div>
 
-  <div class="flex justify-end pt-3 text-sm font-medium">
-    <button
-      class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-      type="submit"
-    >
-      {$i18n.t('Save')}
-    </button>
-  </div>
+	<div class="flex justify-end pt-3 text-sm font-medium">
+		<button
+			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+			type="submit"
+		>
+			{$i18n.t('Save')}
+		</button>
+	</div>
 </form>

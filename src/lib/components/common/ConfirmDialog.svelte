@@ -6,8 +6,8 @@
 	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
-  import { fade } from 'svelte/transition';
-  import { flyAndScale } from '$lib/utils/transitions';
+	import { fade } from 'svelte/transition';
+	import { flyAndScale } from '$lib/utils/transitions';
 
 	interface Props {
 		title?: string;
@@ -38,27 +38,27 @@
 	let modalElement = $state(null);
 	let mounted = $state(false);
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      console.log('Escape');
-      show = false;
-    }
+	const handleKeyDown = (event: KeyboardEvent) => {
+		if (event.key === 'Escape') {
+			console.log('Escape');
+			show = false;
+		}
 
-    if (event.key === 'Enter') {
-      console.log('Enter');
-      confirmHandler();
-    }
-  };
+		if (event.key === 'Enter') {
+			console.log('Enter');
+			confirmHandler();
+		}
+	};
 
-  const confirmHandler = async () => {
-    show = false;
-    await onConfirm();
-    dispatch('confirm', inputValue);
-  };
+	const confirmHandler = async () => {
+		show = false;
+		await onConfirm();
+		dispatch('confirm', inputValue);
+	};
 
-  onMount(() => {
-    mounted = true;
-  });
+	onMount(() => {
+		mounted = true;
+	});
 
 	run(() => {
 		if (mounted) {

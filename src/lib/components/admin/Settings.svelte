@@ -1,43 +1,43 @@
 <script>
-  import { getContext, tick, onMount } from 'svelte';
-  import { toast } from 'svelte-sonner';
+	import { getContext, tick, onMount } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
-  import { config } from '$lib/stores';
-  import { getBackendConfig } from '$lib/apis';
-  import Database from './Settings/Database.svelte';
+	import { config } from '$lib/stores';
+	import { getBackendConfig } from '$lib/apis';
+	import Database from './Settings/Database.svelte';
 
-  import General from './Settings/General.svelte';
-  import Pipelines from './Settings/Pipelines.svelte';
-  import Audio from './Settings/Audio.svelte';
-  import Images from './Settings/Images.svelte';
-  import Interface from './Settings/Interface.svelte';
-  import Models from './Settings/Models.svelte';
-  import Connections from './Settings/Connections.svelte';
-  import Documents from './Settings/Documents.svelte';
-  import WebSearch from './Settings/WebSearch.svelte';
+	import General from './Settings/General.svelte';
+	import Pipelines from './Settings/Pipelines.svelte';
+	import Audio from './Settings/Audio.svelte';
+	import Images from './Settings/Images.svelte';
+	import Interface from './Settings/Interface.svelte';
+	import Models from './Settings/Models.svelte';
+	import Connections from './Settings/Connections.svelte';
+	import Documents from './Settings/Documents.svelte';
+	import WebSearch from './Settings/WebSearch.svelte';
 
-  import ChartBar from '../icons/ChartBar.svelte';
-  import DocumentChartBar from '../icons/DocumentChartBar.svelte';
-  import Evaluations from './Settings/Evaluations.svelte';
-  import CodeExecution from './Settings/CodeExecution.svelte';
+	import ChartBar from '../icons/ChartBar.svelte';
+	import DocumentChartBar from '../icons/DocumentChartBar.svelte';
+	import Evaluations from './Settings/Evaluations.svelte';
+	import CodeExecution from './Settings/CodeExecution.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
 	let selectedTab = $state('general');
 
-  onMount(() => {
-    const containerElement = document.getElementById('admin-settings-tabs-container');
+	onMount(() => {
+		const containerElement = document.getElementById('admin-settings-tabs-container');
 
-    if (containerElement) {
-      containerElement.addEventListener('wheel', function (event) {
-        if (event.deltaY !== 0) {
-          // Adjust horizontal scroll position based on vertical scroll
-          containerElement.scrollLeft += event.deltaY;
-        }
-      });
-    }
-  });
+		if (containerElement) {
+			containerElement.addEventListener('wheel', function (event) {
+				if (event.deltaY !== 0) {
+					// Adjust horizontal scroll position based on vertical scroll
+					containerElement.scrollLeft += event.deltaY;
+				}
+			});
+		}
+	});
 </script>
 
 <div class="flex flex-col lg:flex-row w-full h-full pb-2 lg:space-x-4">
@@ -354,83 +354,83 @@
 		</button>
 	</div>
 
-  <div class="flex-1 mt-3 lg:mt-0 overflow-y-scroll pr-1 scrollbar-hidden">
-    {#if selectedTab === 'general'}
-      <General
-        saveHandler={async () => {
-          toast.success($i18n.t('Settings saved successfully!'));
+	<div class="flex-1 mt-3 lg:mt-0 overflow-y-scroll pr-1 scrollbar-hidden">
+		{#if selectedTab === 'general'}
+			<General
+				saveHandler={async () => {
+					toast.success($i18n.t('Settings saved successfully!'));
 
-          await tick();
-          await config.set(await getBackendConfig());
-        }}
-      />
-    {:else if selectedTab === 'connections'}
-      <Connections
-        on:save={() => {
-          toast.success($i18n.t('Settings saved successfully!'));
-        }}
-      />
-    {:else if selectedTab === 'models'}
-      <Models />
-    {:else if selectedTab === 'evaluations'}
-      <Evaluations />
-    {:else if selectedTab === 'documents'}
-      <Documents
-        on:save={async () => {
-          toast.success($i18n.t('Settings saved successfully!'));
+					await tick();
+					await config.set(await getBackendConfig());
+				}}
+			/>
+		{:else if selectedTab === 'connections'}
+			<Connections
+				on:save={() => {
+					toast.success($i18n.t('Settings saved successfully!'));
+				}}
+			/>
+		{:else if selectedTab === 'models'}
+			<Models />
+		{:else if selectedTab === 'evaluations'}
+			<Evaluations />
+		{:else if selectedTab === 'documents'}
+			<Documents
+				on:save={async () => {
+					toast.success($i18n.t('Settings saved successfully!'));
 
-          await tick();
-          await config.set(await getBackendConfig());
-        }}
-      />
-    {:else if selectedTab === 'web'}
-      <WebSearch
-        saveHandler={async () => {
-          toast.success($i18n.t('Settings saved successfully!'));
+					await tick();
+					await config.set(await getBackendConfig());
+				}}
+			/>
+		{:else if selectedTab === 'web'}
+			<WebSearch
+				saveHandler={async () => {
+					toast.success($i18n.t('Settings saved successfully!'));
 
-          await tick();
-          await config.set(await getBackendConfig());
-        }}
-      />
-    {:else if selectedTab === 'code-execution'}
-      <CodeExecution
-        saveHandler={async () => {
-          toast.success($i18n.t('Settings saved successfully!'));
+					await tick();
+					await config.set(await getBackendConfig());
+				}}
+			/>
+		{:else if selectedTab === 'code-execution'}
+			<CodeExecution
+				saveHandler={async () => {
+					toast.success($i18n.t('Settings saved successfully!'));
 
-          await tick();
-          await config.set(await getBackendConfig());
-        }}
-      />
-    {:else if selectedTab === 'interface'}
-      <Interface
-        on:save={() => {
-          toast.success($i18n.t('Settings saved successfully!'));
-        }}
-      />
-    {:else if selectedTab === 'audio'}
-      <Audio
-        saveHandler={() => {
-          toast.success($i18n.t('Settings saved successfully!'));
-        }}
-      />
-    {:else if selectedTab === 'images'}
-      <Images
-        on:save={() => {
-          toast.success($i18n.t('Settings saved successfully!'));
-        }}
-      />
-    {:else if selectedTab === 'db'}
-      <Database
-        saveHandler={() => {
-          toast.success($i18n.t('Settings saved successfully!'));
-        }}
-      />
-    {:else if selectedTab === 'pipelines'}
-      <Pipelines
-        saveHandler={() => {
-          toast.success($i18n.t('Settings saved successfully!'));
-        }}
-      />
-    {/if}
-  </div>
+					await tick();
+					await config.set(await getBackendConfig());
+				}}
+			/>
+		{:else if selectedTab === 'interface'}
+			<Interface
+				on:save={() => {
+					toast.success($i18n.t('Settings saved successfully!'));
+				}}
+			/>
+		{:else if selectedTab === 'audio'}
+			<Audio
+				saveHandler={() => {
+					toast.success($i18n.t('Settings saved successfully!'));
+				}}
+			/>
+		{:else if selectedTab === 'images'}
+			<Images
+				on:save={() => {
+					toast.success($i18n.t('Settings saved successfully!'));
+				}}
+			/>
+		{:else if selectedTab === 'db'}
+			<Database
+				saveHandler={() => {
+					toast.success($i18n.t('Settings saved successfully!'));
+				}}
+			/>
+		{:else if selectedTab === 'pipelines'}
+			<Pipelines
+				saveHandler={() => {
+					toast.success($i18n.t('Settings saved successfully!'));
+				}}
+			/>
+		{/if}
+	</div>
 </div>

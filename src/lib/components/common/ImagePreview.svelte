@@ -11,36 +11,36 @@
 
 	let { show = $bindable(false), src = '', alt = '' }: Props = $props();
 
-  let mounted = false;
+	let mounted = false;
 
 	let previewElement = $state(null);
 
-  const downloadImage = (url, filename, prefixName = '') => {
-    fetch(url)
-      .then((response) => response.blob())
-      .then((blob) => {
-        const objectUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = objectUrl;
-        link.download = `${prefixName}${filename}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(objectUrl);
-      })
-      .catch((error) => console.error('Error downloading image:', error));
-  };
+	const downloadImage = (url, filename, prefixName = '') => {
+		fetch(url)
+			.then((response) => response.blob())
+			.then((blob) => {
+				const objectUrl = window.URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = objectUrl;
+				link.download = `${prefixName}${filename}`;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				window.URL.revokeObjectURL(objectUrl);
+			})
+			.catch((error) => console.error('Error downloading image:', error));
+	};
 
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape') {
-      console.log('Escape');
-      show = false;
-    }
-  };
+	const handleKeyDown = (event: KeyboardEvent) => {
+		if (event.key === 'Escape') {
+			console.log('Escape');
+			show = false;
+		}
+	};
 
-  onMount(() => {
-    mounted = true;
-  });
+	onMount(() => {
+		mounted = true;
+	});
 
 	run(() => {
 		if (show && previewElement) {
@@ -54,13 +54,13 @@
 		}
 	});
 
-  onDestroy(() => {
-    show = false;
+	onDestroy(() => {
+		show = false;
 
-    if (previewElement) {
-      document.body.removeChild(previewElement);
-    }
-  });
+		if (previewElement) {
+			document.body.removeChild(previewElement);
+		}
+	});
 </script>
 
 {#if show}

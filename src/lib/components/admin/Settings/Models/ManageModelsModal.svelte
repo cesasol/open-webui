@@ -6,13 +6,13 @@
 	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
-  import { user } from '$lib/stores';
+	import { user } from '$lib/stores';
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import ManageOllama from './Manage/ManageOllama.svelte';
-  import { getOllamaConfig } from '$lib/apis/ollama';
-  import Spinner from '$lib/components/common/Spinner.svelte';
-  import ManageMultipleOllama from './Manage/ManageMultipleOllama.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import ManageOllama from './Manage/ManageOllama.svelte';
+	import { getOllamaConfig } from '$lib/apis/ollama';
+	import Spinner from '$lib/components/common/Spinner.svelte';
+	import ManageMultipleOllama from './Manage/ManageMultipleOllama.svelte';
 
 	interface Props {
 		show?: boolean;
@@ -23,22 +23,22 @@
 	let selected = $state(null);
 	let ollamaConfig = $state(null);
 
-  onMount(async () => {
-    if ($user.role === 'admin') {
-      await Promise.all([
-        (async () => {
-          ollamaConfig = await getOllamaConfig(localStorage.token);
-        })()
-      ]);
+	onMount(async () => {
+		if ($user.role === 'admin') {
+			await Promise.all([
+				(async () => {
+					ollamaConfig = await getOllamaConfig(localStorage.token);
+				})()
+			]);
 
-      if (ollamaConfig) {
-        selected = 'ollama';
-        return;
-      }
+			if (ollamaConfig) {
+				selected = 'ollama';
+				return;
+			}
 
-      selected = '';
-    }
-  });
+			selected = '';
+		}
+	});
 </script>
 
 <Modal size="sm" bind:show>
@@ -88,7 +88,7 @@
 								}}>{$i18n.t('Ollama')}</button
 							>
 
-              <!-- <button
+							<!-- <button
 								class="min-w-fit rounded-full p-1.5 {selected === 'llamacpp'
 									? ''
 									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition"
@@ -96,20 +96,20 @@
 									selected = 'llamacpp';
 								}}>{$i18n.t('Llama.cpp')}</button
 							> -->
-            </div>
+						</div>
 
-            <div class=" px-1.5 py-1">
-              {#if selected === 'ollama'}
-                <ManageMultipleOllama {ollamaConfig} />
-              {/if}
-            </div>
-          </div>
-        {:else}
-          <div class=" py-5">
-            <Spinner />
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
+						<div class=" px-1.5 py-1">
+							{#if selected === 'ollama'}
+								<ManageMultipleOllama {ollamaConfig} />
+							{/if}
+						</div>
+					</div>
+				{:else}
+					<div class=" py-5">
+						<Spinner />
+					</div>
+				{/if}
+			</div>
+		</div>
+	</div>
 </Modal>

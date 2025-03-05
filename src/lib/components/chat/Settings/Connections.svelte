@@ -18,7 +18,7 @@
 	import Plus from '$lib/components/icons/Plus.svelte';
 	import Connection from './Connections/Connection.svelte';
 
-  import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
+	import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
 
 	interface Props {
 		saveSettings: Function;
@@ -45,8 +45,8 @@
 		config.OPENAI_API_KEYS.push(connection.key);
 		config.OPENAI_API_CONFIGS[config.OPENAI_API_BASE_URLS.length - 1] = connection.config;
 
-    await updateHandler();
-  };
+		await updateHandler();
+	};
 
 	const updateHandler = async () => {
 		if (!config) {
@@ -55,29 +55,29 @@
 		// Remove trailing slashes
 		config.OPENAI_API_BASE_URLS = config.OPENAI_API_BASE_URLS.map((url) => url.replace(/\/$/, ''));
 
-    // Check if API KEYS length is same than API URLS length
-    if (config.OPENAI_API_KEYS.length !== config.OPENAI_API_BASE_URLS.length) {
-      // if there are more keys than urls, remove the extra keys
-      if (config.OPENAI_API_KEYS.length > config.OPENAI_API_BASE_URLS.length) {
-        config.OPENAI_API_KEYS = config.OPENAI_API_KEYS.slice(
-          0,
-          config.OPENAI_API_BASE_URLS.length
-        );
-      }
+		// Check if API KEYS length is same than API URLS length
+		if (config.OPENAI_API_KEYS.length !== config.OPENAI_API_BASE_URLS.length) {
+			// if there are more keys than urls, remove the extra keys
+			if (config.OPENAI_API_KEYS.length > config.OPENAI_API_BASE_URLS.length) {
+				config.OPENAI_API_KEYS = config.OPENAI_API_KEYS.slice(
+					0,
+					config.OPENAI_API_BASE_URLS.length
+				);
+			}
 
-      // if there are more urls than keys, add empty keys
-      if (config.OPENAI_API_KEYS.length < config.OPENAI_API_BASE_URLS.length) {
-        const diff = config.OPENAI_API_BASE_URLS.length - config.OPENAI_API_KEYS.length;
-        for (let i = 0; i < diff; i++) {
-          config.OPENAI_API_KEYS.push('');
-        }
-      }
-    }
+			// if there are more urls than keys, add empty keys
+			if (config.OPENAI_API_KEYS.length < config.OPENAI_API_BASE_URLS.length) {
+				const diff = config.OPENAI_API_BASE_URLS.length - config.OPENAI_API_KEYS.length;
+				for (let i = 0; i < diff; i++) {
+					config.OPENAI_API_KEYS.push('');
+				}
+			}
+		}
 
-    await saveSettings({
-      directConnections: config
-    });
-  };
+		await saveSettings({
+			directConnections: config
+		});
+	};
 
 	onMount(async () => {
 		if ($settings.directConnections) {
@@ -95,13 +95,13 @@
 		updateHandler();
 	}}
 >
-  <div class=" overflow-y-scroll scrollbar-hidden h-full">
-    {#if config !== null}
-      <div class="">
-        <div class="pr-1.5">
-          <div class="">
-            <div class="flex justify-between items-center mb-0.5">
-              <div class="font-medium">{$i18n.t('Manage Direct Connections')}</div>
+	<div class=" overflow-y-scroll scrollbar-hidden h-full">
+		{#if config !== null}
+			<div class="">
+				<div class="pr-1.5">
+					<div class="">
+						<div class="flex justify-between items-center mb-0.5">
+							<div class="font-medium">{$i18n.t('Manage Direct Connections')}</div>
 
 							<Tooltip content={$i18n.t(`Add Connection`)}>
 								<button
@@ -145,32 +145,32 @@
 						</div>
 					</div>
 
-          <div class="my-1.5">
-            <div class="text-xs text-gray-500">
-              {$i18n.t('Connect to your own OpenAI compatible API endpoints.')}
-              <br />
-              {$i18n.t(
-                'CORS must be properly configured by the provider to allow requests from Open WebUI.'
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    {:else}
-      <div class="flex h-full justify-center">
-        <div class="my-auto">
-          <Spinner className="size-6" />
-        </div>
-      </div>
-    {/if}
-  </div>
+					<div class="my-1.5">
+						<div class="text-xs text-gray-500">
+							{$i18n.t('Connect to your own OpenAI compatible API endpoints.')}
+							<br />
+							{$i18n.t(
+								'CORS must be properly configured by the provider to allow requests from Open WebUI.'
+							)}
+						</div>
+					</div>
+				</div>
+			</div>
+		{:else}
+			<div class="flex h-full justify-center">
+				<div class="my-auto">
+					<Spinner className="size-6" />
+				</div>
+			</div>
+		{/if}
+	</div>
 
-  <div class="flex justify-end pt-3 text-sm font-medium">
-    <button
-      class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-      type="submit"
-    >
-      {$i18n.t('Save')}
-    </button>
-  </div>
+	<div class="flex justify-end pt-3 text-sm font-medium">
+		<button
+			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+			type="submit"
+		>
+			{$i18n.t('Save')}
+		</button>
+	</div>
 </form>

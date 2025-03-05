@@ -3,14 +3,14 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
-  import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
+	import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
 
-  import Cog6 from '$lib/components/icons/Cog6.svelte';
-  import Wrench from '$lib/components/icons/Wrench.svelte';
-  import ManageOllamaModal from './ManageOllamaModal.svelte';
-  import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
+	import Cog6 from '$lib/components/icons/Cog6.svelte';
+	import Wrench from '$lib/components/icons/Wrench.svelte';
+	import ManageOllamaModal from './ManageOllamaModal.svelte';
+	import ArrowDownTray from '$lib/components/icons/ArrowDownTray.svelte';
 
 	interface Props {
 		onDelete?: any;
@@ -52,23 +52,25 @@
 <ManageOllamaModal urlIdx={idx} bind:show={showManageModal} />
 
 <div class="flex gap-1.5">
-  <Tooltip
-    className="w-full relative"
-    content={$i18n.t(`WebUI will make requests to "{{url}}/api/chat"`, {
-      url
-    })}
-    placement="top-start"
-  >
-    {#if !(config?.enable ?? true)}
-      <div class="absolute top-0 bottom-0 left-0 right-0 opacity-60 bg-white dark:bg-gray-900 z-10" />
-    {/if}
+	<Tooltip
+		className="w-full relative"
+		content={$i18n.t(`WebUI will make requests to "{{url}}/api/chat"`, {
+			url
+		})}
+		placement="top-start"
+	>
+		{#if !(config?.enable ?? true)}
+			<div
+				class="absolute top-0 bottom-0 left-0 right-0 opacity-60 bg-white dark:bg-gray-900 z-10"
+			/>
+		{/if}
 
-    <input
-      class="w-full text-sm bg-transparent outline-hidden"
-      placeholder={$i18n.t('Enter URL (e.g. http://localhost:11434)')}
-      bind:value={url}
-    />
-  </Tooltip>
+		<input
+			class="w-full text-sm bg-transparent outline-hidden"
+			placeholder={$i18n.t('Enter URL (e.g. http://localhost:11434)')}
+			bind:value={url}
+		/>
+	</Tooltip>
 
 	<div class="flex gap-1">
 		<Tooltip className="self-start" content={$i18n.t('Manage')}>

@@ -565,21 +565,21 @@
 </script>
 
 <ModelDeleteConfirmDialog
-  bind:show={showModelDeleteConfirm}
-  on:confirm={() => {
-    deleteModelHandler();
-  }}
+	bind:show={showModelDeleteConfirm}
+	on:confirm={() => {
+		deleteModelHandler();
+	}}
 />
 
 {#if !loading}
-  <div class=" flex flex-col w-full">
-    <div>
-      <div class="space-y-2">
-        <div>
-          <div class=" mb-2 text-sm font-medium flex items-center gap-1.5">
-            <div>
-              {$i18n.t('Pull a model from Ollama.com')}
-            </div>
+	<div class=" flex flex-col w-full">
+		<div>
+			<div class="space-y-2">
+				<div>
+					<div class=" mb-2 text-sm font-medium flex items-center gap-1.5">
+						<div>
+							{$i18n.t('Pull a model from Ollama.com')}
+						</div>
 
 						<div>
 							<Tooltip content="Update All Models" placement="top">
@@ -674,20 +674,20 @@
 						</button>
 					</div>
 
-          <div class="mt-2 mb-1 text-xs text-gray-400 dark:text-gray-500">
-            {$i18n.t('To access the available model names for downloading,')}
-            <a
-              class=" text-gray-500 dark:text-gray-300 font-medium underline"
-              href="https://ollama.com/library"
-              target="_blank"
-            >{$i18n.t('click here.')}</a>
-          </div>
+					<div class="mt-2 mb-1 text-xs text-gray-400 dark:text-gray-500">
+						{$i18n.t('To access the available model names for downloading,')}
+						<a
+							class=" text-gray-500 dark:text-gray-300 font-medium underline"
+							href="https://ollama.com/library"
+							target="_blank">{$i18n.t('click here.')}</a
+						>
+					</div>
 
-          {#if updateModelId}
-            <div class="text-xs">
-              Updating "{updateModelId}" {updateProgress ? `(${updateProgress}%)` : ''}
-            </div>
-          {/if}
+					{#if updateModelId}
+						<div class="text-xs">
+							Updating "{updateModelId}" {updateProgress ? `(${updateProgress}%)` : ''}
+						</div>
+					{/if}
 
 					{#if Object.keys($MODEL_DOWNLOAD_POOL).length > 0}
 						{#each Object.keys($MODEL_DOWNLOAD_POOL) as model (model)}
@@ -1033,9 +1033,9 @@
 							>
 						</div>
 
-            {#if uploadMessage}
-              <div class="mt-2">
-                <div class=" mb-2 text-xs">{$i18n.t('Upload Progress')}</div>
+						{#if uploadMessage}
+							<div class="mt-2">
+								<div class=" mb-2 text-xs">{$i18n.t('Upload Progress')}</div>
 
 								<div class="w-full rounded-full dark:bg-gray-800">
 									<div
@@ -1072,12 +1072,11 @@
 		</div>
 	</div>
 {:else if ollamaModels === null}
-  <div class="flex justify-center items-center w-full h-full text-xs py-3">
-    {$i18n.t('Failed to fetch models')}
-  </div>
+	<div class="flex justify-center items-center w-full h-full text-xs py-3">
+		{$i18n.t('Failed to fetch models')}
+	</div>
 {:else}
-  <div class="flex justify-center items-center w-full h-full py-3">
-    <Spinner />
-  </div>
+	<div class="flex justify-center items-center w-full h-full py-3">
+		<Spinner />
+	</div>
 {/if}
-

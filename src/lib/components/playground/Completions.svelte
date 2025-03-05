@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 
-  import { goto } from '$app/navigation';
-  import { onMount, tick, getContext } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { onMount, tick, getContext } from 'svelte';
 
-  import { WEBUI_BASE_URL } from '$lib/constants';
-  import { WEBUI_NAME, config, user, models, settings, showSidebar } from '$lib/stores';
-  import { chatCompletion } from '$lib/apis/openai';
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_NAME, config, user, models, settings, showSidebar } from '$lib/stores';
+	import { chatCompletion } from '$lib/apis/openai';
 
-  import { splitStream } from '$lib/utils';
-  import Selector from '$lib/components/chat/ModelSelector/Selector.svelte';
-  import MenuLines from '../icons/MenuLines.svelte';
+	import { splitStream } from '$lib/utils';
+	import Selector from '$lib/components/chat/ModelSelector/Selector.svelte';
+	import MenuLines from '../icons/MenuLines.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -25,51 +25,51 @@
 
 	let textCompletionAreaElement: HTMLTextAreaElement = $state();
 
-  const scrollToBottom = () => {
-    const element = textCompletionAreaElement;
+	const scrollToBottom = () => {
+		const element = textCompletionAreaElement;
 
-    if (element) {
-      element.scrollTop = element?.scrollHeight;
-    }
-  };
+		if (element) {
+			element.scrollTop = element?.scrollHeight;
+		}
+	};
 
-  const stopResponse = () => {
-    stopResponseFlag = true;
-    console.log('stopResponse');
-  };
+	const stopResponse = () => {
+		stopResponseFlag = true;
+		console.log('stopResponse');
+	};
 
-  const textCompletionHandler = async () => {
-    const model = $models.find((model) => model.id === selectedModelId);
+	const textCompletionHandler = async () => {
+		const model = $models.find((model) => model.id === selectedModelId);
 
-    const [res, controller] = await chatCompletion(
-      localStorage.token,
-      {
-        model: model.id,
-        stream: true,
-        messages: [
-          {
-            role: 'assistant',
-            content: text
-          }
-        ]
-      },
-      `${WEBUI_BASE_URL}/api`
-    );
+		const [res, controller] = await chatCompletion(
+			localStorage.token,
+			{
+				model: model.id,
+				stream: true,
+				messages: [
+					{
+						role: 'assistant',
+						content: text
+					}
+				]
+			},
+			`${WEBUI_BASE_URL}/api`
+		);
 
-    if (res && res.ok) {
-      const reader = res.body
-        .pipeThrough(new TextDecoderStream())
-        .pipeThrough(splitStream('\n'))
-        .getReader();
+		if (res && res.ok) {
+			const reader = res.body
+				.pipeThrough(new TextDecoderStream())
+				.pipeThrough(splitStream('\n'))
+				.getReader();
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done || stopResponseFlag) {
-          if (stopResponseFlag) {
-            controller.abort('User: Stop Response');
-          }
-          break;
-        }
+			while (true) {
+				const { value, done } = await reader.read();
+				if (done || stopResponseFlag) {
+					if (stopResponseFlag) {
+						controller.abort('User: Stop Response');
+					}
+					break;
+				}
 
 				try {
 					const lines = value.split('\n');
@@ -82,43 +82,43 @@
 								const data = JSON.parse(line.replace(/^data: /, ''));
 								console.log(data);
 
-                text += data.choices[0].delta.content ?? '';
-              }
-            }
-          }
-        } catch (error) {
-          console.log(error);
-        }
+								text += data.choices[0].delta.content ?? '';
+							}
+						}
+					}
+				} catch (error) {
+					console.log(error);
+				}
 
-        scrollToBottom();
-      }
-    }
-  };
+				scrollToBottom();
+			}
+		}
+	};
 
-  const submitHandler = async () => {
-    if (selectedModelId) {
-      loading = true;
-      await textCompletionHandler();
+	const submitHandler = async () => {
+		if (selectedModelId) {
+			loading = true;
+			await textCompletionHandler();
 
-      loading = false;
-      stopResponseFlag = false;
-    }
-  };
+			loading = false;
+			stopResponseFlag = false;
+		}
+	};
 
-  onMount(async () => {
-    if ($user?.role !== 'admin') {
-      await goto('/');
-    }
+	onMount(async () => {
+		if ($user?.role !== 'admin') {
+			await goto('/');
+		}
 
-    if ($settings?.models) {
-      selectedModelId = $settings?.models[0];
-    } else if ($config?.default_models) {
-      selectedModelId = $config?.default_models.split(',')[0];
-    } else {
-      selectedModelId = '';
-    }
-    loaded = true;
-  });
+		if ($settings?.models) {
+			selectedModelId = $settings?.models[0];
+		} else if ($config?.default_models) {
+			selectedModelId = $config?.default_models.split(',')[0];
+		} else {
+			selectedModelId = '';
+		}
+		loaded = true;
+	});
 </script>
 
 <div class=" flex flex-col justify-between w-full overflow-y-auto h-full">

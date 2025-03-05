@@ -4,7 +4,7 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import Switch from './Switch.svelte';
+	import Switch from './Switch.svelte';
 
 	interface Props {
 		valvesSpec?: any;
@@ -15,16 +15,16 @@
 </script>
 
 {#if valvesSpec && Object.keys(valvesSpec?.properties ?? {}).length}
-  {#each Object.keys(valvesSpec.properties) as property, idx}
-    <div class=" py-0.5 w-full justify-between">
-      <div class="flex w-full justify-between">
-        <div class=" self-center text-xs font-medium">
-          {valvesSpec.properties[property].title}
+	{#each Object.keys(valvesSpec.properties) as property, idx}
+		<div class=" py-0.5 w-full justify-between">
+			<div class="flex w-full justify-between">
+				<div class=" self-center text-xs font-medium">
+					{valvesSpec.properties[property].title}
 
-          {#if (valvesSpec?.required ?? []).includes(property)}
-            <span class=" text-gray-500">*required</span>
-          {/if}
-        </div>
+					{#if (valvesSpec?.required ?? []).includes(property)}
+						<span class=" text-gray-500">*required</span>
+					{/if}
+				</div>
 
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -102,13 +102,13 @@
 				</div>
 			{/if}
 
-      {#if (valvesSpec.properties[property]?.description ?? null) !== null}
-        <div class="text-xs text-gray-500">
-          {valvesSpec.properties[property].description}
-        </div>
-      {/if}
-    </div>
-  {/each}
+			{#if (valvesSpec.properties[property]?.description ?? null) !== null}
+				<div class="text-xs text-gray-500">
+					{valvesSpec.properties[property].description}
+				</div>
+			{/if}
+		</div>
+	{/each}
 {:else}
-  <div class="text-xs">No valves</div>
+	<div class="text-xs">No valves</div>
 {/if}

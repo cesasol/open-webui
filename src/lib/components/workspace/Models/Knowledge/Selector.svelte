@@ -3,11 +3,11 @@
 
 	import Fuse from 'fuse.js';
 
-  import { DropdownMenu } from 'bits-ui';
-  import { onMount, getContext, createEventDispatcher } from 'svelte';
-  import { flyAndScale } from '$lib/utils/transitions';
-  import { knowledge } from '$lib/stores';
-  import Dropdown from '$lib/components/common/Dropdown.svelte';
+	import { DropdownMenu } from 'bits-ui';
+	import { onMount, getContext, createEventDispatcher } from 'svelte';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { knowledge } from '$lib/stores';
+	import Dropdown from '$lib/components/common/Dropdown.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -47,48 +47,48 @@
 							type: 'collection',
 							description: 'Deprecated (legacy collection), please create a new knowledge base.',
 
-            title: $i18n.t('All Documents'),
-            collection_names: legacy_documents.map((item) => item.id)
-          },
+							title: $i18n.t('All Documents'),
+							collection_names: legacy_documents.map((item) => item.id)
+						},
 
-          ...legacy_documents
-            .reduce((a, item) => {
-              return [...new Set([...a, ...(item?.meta?.tags ?? []).map((tag) => tag.name)])];
-            }, [])
-            .map((tag) => ({
-              name: tag,
-              legacy: true,
-              type: 'collection',
-              description: 'Deprecated (legacy collection), please create a new knowledge base.',
+						...legacy_documents
+							.reduce((a, item) => {
+								return [...new Set([...a, ...(item?.meta?.tags ?? []).map((tag) => tag.name)])];
+							}, [])
+							.map((tag) => ({
+								name: tag,
+								legacy: true,
+								type: 'collection',
+								description: 'Deprecated (legacy collection), please create a new knowledge base.',
 
-              collection_names: legacy_documents
-                .filter((item) => (item?.meta?.tags ?? []).map((tag) => tag.name).includes(tag))
-                .map((item) => item.id)
-            }))
-        ]
-        : [];
+								collection_names: legacy_documents
+									.filter((item) => (item?.meta?.tags ?? []).map((tag) => tag.name).includes(tag))
+									.map((item) => item.id)
+							}))
+					]
+				: [];
 
-    items = [...$knowledge, ...legacy_collections].map((item) => {
-      return {
-        ...item,
-        ...(item?.legacy || item?.meta?.legacy || item?.meta?.document ? { legacy: true } : {}),
-        type: item?.meta?.document ? 'document' : 'collection'
-      };
-    });
+		items = [...$knowledge, ...legacy_collections].map((item) => {
+			return {
+				...item,
+				...(item?.legacy || item?.meta?.legacy || item?.meta?.document ? { legacy: true } : {}),
+				type: item?.meta?.document ? 'document' : 'collection'
+			};
+		});
 
-    fuse = new Fuse(items, {
-      keys: ['name', 'description']
-    });
-  });
+		fuse = new Fuse(items, {
+			keys: ['name', 'description']
+		});
+	});
 </script>
 
 <Dropdown
-  on:change={(e) => {
-    if (e.detail === false) {
-      onClose();
-      query = '';
-    }
-  }}
+	on:change={(e) => {
+		if (e.detail === false) {
+			onClose();
+			query = '';
+		}
+	}}
 >
 	{@render children?.()}
 

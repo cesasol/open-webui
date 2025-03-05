@@ -1,30 +1,30 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { DropdownMenu } from 'bits-ui';
-  import { getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { DropdownMenu } from 'bits-ui';
+	import { getContext } from 'svelte';
 
-  import fileSaver from 'file-saver';
-  const { saveAs } = fileSaver;
+	import fileSaver from 'file-saver';
+	const { saveAs } = fileSaver;
 
-  import { downloadChatAsPDF } from '$lib/apis/utils';
-  import { copyToClipboard, createMessagesList } from '$lib/utils';
+	import { downloadChatAsPDF } from '$lib/apis/utils';
+	import { copyToClipboard, createMessagesList } from '$lib/utils';
 
-  import {
-    showOverview,
-    showControls,
-    showArtifacts,
-    mobile,
-    temporaryChatEnabled
-  } from '$lib/stores';
-  import { flyAndScale } from '$lib/utils/transitions';
+	import {
+		showOverview,
+		showControls,
+		showArtifacts,
+		mobile,
+		temporaryChatEnabled
+	} from '$lib/stores';
+	import { flyAndScale } from '$lib/utils/transitions';
 
-  import Dropdown from '$lib/components/common/Dropdown.svelte';
-  import Tags from '$lib/components/chat/Tags.svelte';
-  import Map from '$lib/components/icons/Map.svelte';
-  import Clipboard from '$lib/components/icons/Clipboard.svelte';
-  import AdjustmentsHorizontal from '$lib/components/icons/AdjustmentsHorizontal.svelte';
-  import Cube from '$lib/components/icons/Cube.svelte';
-  import { getChatById } from '$lib/apis/chats';
+	import Dropdown from '$lib/components/common/Dropdown.svelte';
+	import Tags from '$lib/components/chat/Tags.svelte';
+	import Map from '$lib/components/icons/Map.svelte';
+	import Clipboard from '$lib/components/icons/Clipboard.svelte';
+	import AdjustmentsHorizontal from '$lib/components/icons/AdjustmentsHorizontal.svelte';
+	import Cube from '$lib/components/icons/Cube.svelte';
+	import { getChatById } from '$lib/apis/chats';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -48,59 +48,59 @@
 		children
 	}: Props = $props();
 
-  const getChatAsText = async () => {
-    const history = chat.chat.history;
-    const messages = createMessagesList(history, history.currentId);
-    const chatText = messages.reduce((a, message, i, arr) => {
-      return `${a}### ${message.role.toUpperCase()}\n${message.content}\n\n`;
-    }, '');
+	const getChatAsText = async () => {
+		const history = chat.chat.history;
+		const messages = createMessagesList(history, history.currentId);
+		const chatText = messages.reduce((a, message, i, arr) => {
+			return `${a}### ${message.role.toUpperCase()}\n${message.content}\n\n`;
+		}, '');
 
-    return chatText.trim();
-  };
+		return chatText.trim();
+	};
 
-  const downloadTxt = async () => {
-    const chatText = await getChatAsText();
+	const downloadTxt = async () => {
+		const chatText = await getChatAsText();
 
 		const blob = new Blob([chatText], {
 			type: 'text/plain'
 		});
 
-    saveAs(blob, `chat-${chat.chat.title}.txt`);
-  };
+		saveAs(blob, `chat-${chat.chat.title}.txt`);
+	};
 
-  const downloadPdf = async () => {
-    const history = chat.chat.history;
-    const messages = createMessagesList(history, history.currentId);
-    const blob = await downloadChatAsPDF(localStorage.token, chat.chat.title, messages);
+	const downloadPdf = async () => {
+		const history = chat.chat.history;
+		const messages = createMessagesList(history, history.currentId);
+		const blob = await downloadChatAsPDF(localStorage.token, chat.chat.title, messages);
 
-    // Create a URL for the blob
-    const url = window.URL.createObjectURL(blob);
+		// Create a URL for the blob
+		const url = window.URL.createObjectURL(blob);
 
-    // Create a link element to trigger the download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `chat-${chat.chat.title}.pdf`;
+		// Create a link element to trigger the download
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `chat-${chat.chat.title}.pdf`;
 
-    // Append the link to the body and click it programmatically
-    document.body.appendChild(a);
-    a.click();
+		// Append the link to the body and click it programmatically
+		document.body.appendChild(a);
+		a.click();
 
-    // Remove the link from the body
-    document.body.removeChild(a);
+		// Remove the link from the body
+		document.body.removeChild(a);
 
-    // Revoke the URL to release memory
-    window.URL.revokeObjectURL(url);
-  };
+		// Revoke the URL to release memory
+		window.URL.revokeObjectURL(url);
+	};
 
-  const downloadJSONExport = async () => {
-    if (chat.id) {
-      let chatObj = null;
+	const downloadJSONExport = async () => {
+		if (chat.id) {
+			let chatObj = null;
 
-      if (chat.id === 'local' || $temporaryChatEnabled) {
-        chatObj = chat;
-      } else {
-        chatObj = await getChatById(localStorage.token, chat.id);
-      }
+			if (chat.id === 'local' || $temporaryChatEnabled) {
+				chatObj = chat;
+			} else {
+				chatObj = await getChatById(localStorage.token, chat.id);
+			}
 
 			const blob = new Blob([JSON.stringify([chatObj])], {
 				type: 'application/json'
@@ -111,11 +111,11 @@
 </script>
 
 <Dropdown
-  on:change={(e) => {
-    if (e.detail === false) {
-      onClose();
-    }
-  }}
+	on:change={(e) => {
+		if (e.detail === false) {
+			onClose();
+		}
+	}}
 >
 	{@render children?.()}
 

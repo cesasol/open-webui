@@ -5,26 +5,26 @@
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-  import { goto } from '$app/navigation';
-  import { onMount, getContext } from 'svelte';
-  import { WEBUI_NAME, config, prompts as _prompts, user } from '$lib/stores';
+	import { goto } from '$app/navigation';
+	import { onMount, getContext } from 'svelte';
+	import { WEBUI_NAME, config, prompts as _prompts, user } from '$lib/stores';
 
-  import {
-    createNewPrompt,
-    deletePromptByCommand,
-    getPrompts,
-    getPromptList
-  } from '$lib/apis/prompts';
+	import {
+		createNewPrompt,
+		deletePromptByCommand,
+		getPrompts,
+		getPromptList
+	} from '$lib/apis/prompts';
 
-  import PromptMenu from './Prompts/PromptMenu.svelte';
-  import EllipsisHorizontal from '../icons/EllipsisHorizontal.svelte';
-  import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-  import Search from '../icons/Search.svelte';
-  import Plus from '../icons/Plus.svelte';
-  import ChevronRight from '../icons/ChevronRight.svelte';
-  import Spinner from '../common/Spinner.svelte';
-  import Tooltip from '../common/Tooltip.svelte';
-  import { capitalizeFirstLetter } from '$lib/utils';
+	import PromptMenu from './Prompts/PromptMenu.svelte';
+	import EllipsisHorizontal from '../icons/EllipsisHorizontal.svelte';
+	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import Search from '../icons/Search.svelte';
+	import Plus from '../icons/Plus.svelte';
+	import ChevronRight from '../icons/ChevronRight.svelte';
+	import Spinner from '../common/Spinner.svelte';
+	import Tooltip from '../common/Tooltip.svelte';
+	import { capitalizeFirstLetter } from '$lib/utils';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -44,28 +44,28 @@
 		filteredItems = prompts.filter((p) => query === '' || p.command.includes(query));
 	});
 
-  const shareHandler = async (prompt) => {
-    toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+	const shareHandler = async (prompt) => {
+		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
 
-    const url = 'https://openwebui.com';
+		const url = 'https://openwebui.com';
 
-    const tab = await window.open(`${url}/prompts/create`, '_blank');
-    window.addEventListener(
-      'message',
-      (event) => {
-        if (event.origin !== url) return;
-        if (event.data === 'loaded') {
-          tab.postMessage(JSON.stringify(prompt), '*');
-        }
-      },
-      false
-    );
-  };
+		const tab = await window.open(`${url}/prompts/create`, '_blank');
+		window.addEventListener(
+			'message',
+			(event) => {
+				if (event.origin !== url) return;
+				if (event.data === 'loaded') {
+					tab.postMessage(JSON.stringify(prompt), '*');
+				}
+			},
+			false
+		);
+	};
 
-  const cloneHandler = async (prompt) => {
-    sessionStorage.prompt = JSON.stringify(prompt);
-    goto('/workspace/prompts/create');
-  };
+	const cloneHandler = async (prompt) => {
+		sessionStorage.prompt = JSON.stringify(prompt);
+		goto('/workspace/prompts/create');
+	};
 
 	const exportHandler = async (prompt) => {
 		const blob = new Blob([JSON.stringify([prompt])], {
@@ -74,27 +74,27 @@
 		saveAs(blob, `prompt-export-${Date.now()}.json`);
 	};
 
-  const deleteHandler = async (prompt) => {
-    const command = prompt.command;
-    await deletePromptByCommand(localStorage.token, command);
-    await init();
-  };
+	const deleteHandler = async (prompt) => {
+		const command = prompt.command;
+		await deletePromptByCommand(localStorage.token, command);
+		await init();
+	};
 
-  const init = async () => {
-    prompts = await getPromptList(localStorage.token);
-    await _prompts.set(await getPrompts(localStorage.token));
-  };
+	const init = async () => {
+		prompts = await getPromptList(localStorage.token);
+		await _prompts.set(await getPrompts(localStorage.token));
+	};
 
-  onMount(async () => {
-    await init();
-    loaded = true;
-  });
+	onMount(async () => {
+		await init();
+		loaded = true;
+	});
 </script>
 
 <svelte:head>
-  <title>
-    {$i18n.t('Prompts')} | {$WEBUI_NAME}
-  </title>
+	<title>
+		{$i18n.t('Prompts')} | {$WEBUI_NAME}
+	</title>
 </svelte:head>
 
 {#if loaded}
@@ -133,28 +133,30 @@
 				/>
 			</div>
 
-      <div>
-        <a
-          class=" px-2 py-2 rounded-xl hover:bg-gray-700/10 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition font-medium text-sm flex items-center space-x-1"
-          href="/workspace/prompts/create"
-        >
-          <Plus className="size-3.5" />
-        </a>
-      </div>
-    </div>
-  </div>
+			<div>
+				<a
+					class=" px-2 py-2 rounded-xl hover:bg-gray-700/10 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition font-medium text-sm flex items-center space-x-1"
+					href="/workspace/prompts/create"
+				>
+					<Plus className="size-3.5" />
+				</a>
+			</div>
+		</div>
+	</div>
 
-  <div class="mb-5 gap-2 grid lg:grid-cols-2 xl:grid-cols-3">
-    {#each filteredItems as prompt}
-      <div class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl transition">
-        <div class=" flex flex-1 space-x-4 cursor-pointer w-full">
-          <a href={`/workspace/prompts/edit?command=${encodeURIComponent(prompt.command)}`}>
-            <div class=" flex-1 flex items-center gap-2 self-center">
-              <div class=" font-semibold line-clamp-1 capitalize">{prompt.title}</div>
-              <div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
-                {prompt.command}
-              </div>
-            </div>
+	<div class="mb-5 gap-2 grid lg:grid-cols-2 xl:grid-cols-3">
+		{#each filteredItems as prompt}
+			<div
+				class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl transition"
+			>
+				<div class=" flex flex-1 space-x-4 cursor-pointer w-full">
+					<a href={`/workspace/prompts/edit?command=${encodeURIComponent(prompt.command)}`}>
+						<div class=" flex-1 flex items-center gap-2 self-center">
+							<div class=" font-semibold line-clamp-1 capitalize">{prompt.title}</div>
+							<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
+								{prompt.command}
+							</div>
+						</div>
 
 						<div class=" text-xs px-0.5">
 							<Tooltip
@@ -234,29 +236,29 @@
 					onchange={() => {
 						console.log(importFiles);
 
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-              const savedPrompts = JSON.parse(event.target.result);
-              console.log(savedPrompts);
+						const reader = new FileReader();
+						reader.onload = async (event) => {
+							const savedPrompts = JSON.parse(event.target.result);
+							console.log(savedPrompts);
 
-              for (const prompt of savedPrompts) {
-                await createNewPrompt(localStorage.token, {
-                  command:
-                    prompt.command.charAt(0) === '/' ? prompt.command.slice(1) : prompt.command,
-                  title: prompt.title,
-                  content: prompt.content
-                }).catch((error) => {
-                  toast.error(`${error}`);
-                  return null;
-                });
-              }
+							for (const prompt of savedPrompts) {
+								await createNewPrompt(localStorage.token, {
+									command:
+										prompt.command.charAt(0) === '/' ? prompt.command.slice(1) : prompt.command,
+									title: prompt.title,
+									content: prompt.content
+								}).catch((error) => {
+									toast.error(`${error}`);
+									return null;
+								});
+							}
 
-              prompts = await getPromptList(localStorage.token);
-              await _prompts.set(await getPrompts(localStorage.token));
+							prompts = await getPromptList(localStorage.token);
+							await _prompts.set(await getPrompts(localStorage.token));
 
-              importFiles = [];
-              promptsImportInputElement.value = '';
-            };
+							importFiles = [];
+							promptsImportInputElement.value = '';
+						};
 
 						reader.readAsText(importFiles[0]);
 					}}
@@ -319,34 +321,34 @@
 		</div>
 	{/if}
 
-  {#if $config?.features.enable_community_sharing}
-    <div class=" my-16">
-      <div class=" text-xl font-medium mb-1 line-clamp-1">
-        {$i18n.t('Made by Open WebUI Community')}
-      </div>
+	{#if $config?.features.enable_community_sharing}
+		<div class=" my-16">
+			<div class=" text-xl font-medium mb-1 line-clamp-1">
+				{$i18n.t('Made by Open WebUI Community')}
+			</div>
 
-      <a
-        class=" flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full mb-2 px-3.5 py-1.5 rounded-xl transition"
-        href="https://openwebui.com/#open-webui-community"
-        target="_blank"
-      >
-        <div class=" self-center">
-          <div class=" font-semibold line-clamp-1">{$i18n.t('Discover a prompt')}</div>
-          <div class=" text-sm line-clamp-1">
-            {$i18n.t('Discover, download, and explore custom prompts')}
-          </div>
-        </div>
+			<a
+				class=" flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full mb-2 px-3.5 py-1.5 rounded-xl transition"
+				href="https://openwebui.com/#open-webui-community"
+				target="_blank"
+			>
+				<div class=" self-center">
+					<div class=" font-semibold line-clamp-1">{$i18n.t('Discover a prompt')}</div>
+					<div class=" text-sm line-clamp-1">
+						{$i18n.t('Discover, download, and explore custom prompts')}
+					</div>
+				</div>
 
-        <div>
-          <div>
-            <ChevronRight />
-          </div>
-        </div>
-      </a>
-    </div>
-  {/if}
+				<div>
+					<div>
+						<ChevronRight />
+					</div>
+				</div>
+			</a>
+		</div>
+	{/if}
 {:else}
-  <div class="w-full h-full flex justify-center items-center">
-    <Spinner />
-  </div>
+	<div class="w-full h-full flex justify-center items-center">
+		<Spinner />
+	</div>
 {/if}

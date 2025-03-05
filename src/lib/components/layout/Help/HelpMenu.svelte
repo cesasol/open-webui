@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { DropdownMenu } from 'bits-ui';
-  import { getContext } from 'svelte';
+	import { DropdownMenu } from 'bits-ui';
+	import { getContext } from 'svelte';
 
-  import { showSettings } from '$lib/stores';
-  import { flyAndScale } from '$lib/utils/transitions';
+	import { showSettings } from '$lib/stores';
+	import { flyAndScale } from '$lib/utils/transitions';
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import QuestionMarkCircle from '$lib/components/icons/QuestionMarkCircle.svelte';
@@ -23,11 +23,11 @@
 </script>
 
 <Dropdown
-  on:change={(e) => {
-    if (e.detail === false) {
-      onClose();
-    }
-  }}
+	on:change={(e) => {
+		if (e.detail === false) {
+			onClose();
+		}
+	}}
 >
 	{@render children?.()}
 

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-  const dispatch = createEventDispatcher();
+	import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 
-  import FileItem from '$lib/components/common/FileItem.svelte';
+	import FileItem from '$lib/components/common/FileItem.svelte';
 
 	interface Props {
 		selectedFileId?: any;
@@ -33,16 +33,16 @@
 						return;
 					}
 
-          dispatch('click', file.id);
-        }}
-        on:dismiss={() => {
-          if (file.status === 'uploading') {
-            return;
-          }
+					dispatch('click', file.id);
+				}}
+				on:dismiss={() => {
+					if (file.status === 'uploading') {
+						return;
+					}
 
-          dispatch('delete', file.id);
-        }}
-      />
-    </div>
-  {/each}
+					dispatch('delete', file.id);
+				}}
+			/>
+		</div>
+	{/each}
 </div>

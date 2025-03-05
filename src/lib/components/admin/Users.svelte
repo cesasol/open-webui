@@ -4,13 +4,13 @@
 	import { getContext, tick, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-  import { goto } from '$app/navigation';
-  import { user } from '$lib/stores';
+	import { goto } from '$app/navigation';
+	import { user } from '$lib/stores';
 
-  import { getUsers } from '$lib/apis/users';
+	import { getUsers } from '$lib/apis/users';
 
-  import UserList from './Users/UserList.svelte';
-  import Groups from './Users/Groups.svelte';
+	import UserList from './Users/UserList.svelte';
+	import Groups from './Users/Groups.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -24,15 +24,15 @@
 		users = await getUsers(localStorage.token);
 	};
 
-  onMount(async () => {
-    if ($user?.role !== 'admin') {
-      await goto('/');
-    } else {
-      users = await getUsers(localStorage.token);
-    }
-    loaded = true;
+	onMount(async () => {
+		if ($user?.role !== 'admin') {
+			await goto('/');
+		} else {
+			users = await getUsers(localStorage.token);
+		}
+		loaded = true;
 
-    const containerElement = document.getElementById('users-tabs-container');
+		const containerElement = document.getElementById('users-tabs-container');
 
 		if (containerElement) {
 			containerElement.addEventListener('wheel', function (event) {
@@ -104,11 +104,11 @@
 		</button>
 	</div>
 
-  <div class="flex-1 mt-1 lg:mt-0 overflow-y-scroll">
-    {#if selectedTab === 'overview'}
-      <UserList {users} />
-    {:else if selectedTab === 'groups'}
-      <Groups {users} />
-    {/if}
-  </div>
+	<div class="flex-1 mt-1 lg:mt-0 overflow-y-scroll">
+		{#if selectedTab === 'overview'}
+			<UserList {users} />
+		{:else if selectedTab === 'groups'}
+			<Groups {users} />
+		{/if}
+	</div>
 </div>

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte';
-  import { goto } from '$app/navigation';
+	import { onMount, getContext } from 'svelte';
+	import { goto } from '$app/navigation';
 
 	import { WEBUI_NAME, showSidebar, user } from '$lib/stores';
 	import MenuLines from '$lib/components/icons/MenuLines.svelte';
@@ -16,18 +16,18 @@
 
 	let loaded = $state(false);
 
-  onMount(async () => {
-    if ($user?.role !== 'admin') {
-      await goto('/');
-    }
-    loaded = true;
-  });
+	onMount(async () => {
+		if ($user?.role !== 'admin') {
+			await goto('/');
+		}
+		loaded = true;
+	});
 </script>
 
 <svelte:head>
-  <title>
-    {$i18n.t('Admin Panel')} | {$WEBUI_NAME}
-  </title>
+	<title>
+		{$i18n.t('Admin Panel')} | {$WEBUI_NAME}
+	</title>
 </svelte:head>
 
 {#if loaded}

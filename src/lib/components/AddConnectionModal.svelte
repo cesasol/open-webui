@@ -6,17 +6,17 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { models } from '$lib/stores';
-  import { verifyOpenAIConnection } from '$lib/apis/openai';
-  import { verifyOllamaConnection } from '$lib/apis/ollama';
+	import { models } from '$lib/stores';
+	import { verifyOpenAIConnection } from '$lib/apis/openai';
+	import { verifyOllamaConnection } from '$lib/apis/ollama';
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import Plus from '$lib/components/icons/Plus.svelte';
-  import Minus from '$lib/components/icons/Minus.svelte';
-  import PencilSolid from '$lib/components/icons/PencilSolid.svelte';
-  import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import Plus from '$lib/components/icons/Plus.svelte';
+	import Minus from '$lib/components/icons/Minus.svelte';
+	import PencilSolid from '$lib/components/icons/PencilSolid.svelte';
+	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
 
 	interface Props {
 		onSubmit?: Function;
@@ -49,83 +49,83 @@
 
 	let loading = $state(false);
 
-  const verifyOllamaHandler = async () => {
-    const res = await verifyOllamaConnection(localStorage.token, url, key).catch((error) => {
-      toast.error(`${error}`);
-    });
+	const verifyOllamaHandler = async () => {
+		const res = await verifyOllamaConnection(localStorage.token, url, key).catch((error) => {
+			toast.error(`${error}`);
+		});
 
-    if (res) {
-      toast.success($i18n.t('Server connection verified'));
-    }
-  };
+		if (res) {
+			toast.success($i18n.t('Server connection verified'));
+		}
+	};
 
-  const verifyOpenAIHandler = async () => {
-    const res = await verifyOpenAIConnection(localStorage.token, url, key, direct).catch(
-      (error) => {
-        toast.error(`${error}`);
-      }
-    );
+	const verifyOpenAIHandler = async () => {
+		const res = await verifyOpenAIConnection(localStorage.token, url, key, direct).catch(
+			(error) => {
+				toast.error(`${error}`);
+			}
+		);
 
-    if (res) {
-      toast.success($i18n.t('Server connection verified'));
-    }
-  };
+		if (res) {
+			toast.success($i18n.t('Server connection verified'));
+		}
+	};
 
-  const verifyHandler = () => {
-    if (ollama) {
-      verifyOllamaHandler();
-    } else {
-      verifyOpenAIHandler();
-    }
-  };
+	const verifyHandler = () => {
+		if (ollama) {
+			verifyOllamaHandler();
+		} else {
+			verifyOpenAIHandler();
+		}
+	};
 
-  const addModelHandler = () => {
-    if (modelId) {
-      modelIds = [...modelIds, modelId];
-      modelId = '';
-    }
-  };
+	const addModelHandler = () => {
+		if (modelId) {
+			modelIds = [...modelIds, modelId];
+			modelId = '';
+		}
+	};
 
-  const submitHandler = async () => {
-    loading = true;
+	const submitHandler = async () => {
+		loading = true;
 
-    if (!ollama && (!url || !key)) {
-      loading = false;
-      toast.error('URL and Key are required');
-      return;
-    }
+		if (!ollama && (!url || !key)) {
+			loading = false;
+			toast.error('URL and Key are required');
+			return;
+		}
 
-    const connection = {
-      url,
-      key,
-      config: {
-        enable: enable,
-        prefix_id: prefixId,
-        model_ids: modelIds
-      }
-    };
+		const connection = {
+			url,
+			key,
+			config: {
+				enable: enable,
+				prefix_id: prefixId,
+				model_ids: modelIds
+			}
+		};
 
-    await onSubmit(connection);
+		await onSubmit(connection);
 
-    loading = false;
-    show = false;
+		loading = false;
+		show = false;
 
-    url = '';
-    key = '';
-    prefixId = '';
-    modelIds = [];
-  };
+		url = '';
+		key = '';
+		prefixId = '';
+		modelIds = [];
+	};
 
-  const init = () => {
-    if (connection) {
-      url = connection.url;
-      key = connection.key;
+	const init = () => {
+		if (connection) {
+			url = connection.url;
+			key = connection.key;
 
-      enable = connection.config?.enable ?? true;
-      prefixId = connection.config?.prefix_id ?? '';
-      modelIds = connection.config?.model_ids ?? [];
-    }
-  };
+			enable = connection.config?.enable ?? true;
+			prefixId = connection.config?.prefix_id ?? '';
+			modelIds = connection.config?.model_ids ?? [];
+		}
+	};
 
 	run(() => {
 		if (show) {
@@ -133,9 +133,9 @@
 		}
 	});
 
-  onMount(() => {
-    init();
-  });
+	onMount(() => {
+		init();
+	});
 </script>
 
 <Modal size="sm" bind:show>
@@ -217,16 +217,16 @@
 								</button>
 							</Tooltip>
 
-              <div class="flex flex-col shrink-0 self-end">
-                <Tooltip content={enable ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
-                  <Switch bind:state={enable} />
-                </Tooltip>
-              </div>
-            </div>
+							<div class="flex flex-col shrink-0 self-end">
+								<Tooltip content={enable ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
+									<Switch bind:state={enable} />
+								</Tooltip>
+							</div>
+						</div>
 
-            <div class="flex gap-2 mt-2">
-              <div class="flex flex-col w-full">
-                <div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('Key')}</div>
+						<div class="flex gap-2 mt-2">
+							<div class="flex flex-col w-full">
+								<div class=" mb-0.5 text-xs text-gray-500">{$i18n.t('Key')}</div>
 
 								<div class="flex-1">
 									<SensitiveInput
@@ -238,8 +238,8 @@
 								</div>
 							</div>
 
-              <div class="flex flex-col w-full">
-                <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Prefix ID')}</div>
+							<div class="flex flex-col w-full">
+								<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Prefix ID')}</div>
 
 								<div class="flex-1">
 									<Tooltip
@@ -259,12 +259,12 @@
 							</div>
 						</div>
 
-            <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
+						<hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
 
-            <div class="flex flex-col w-full">
-              <div class="mb-1 flex justify-between">
-                <div class="text-xs text-gray-500">{$i18n.t('Model IDs')}</div>
-              </div>
+						<div class="flex flex-col w-full">
+							<div class="mb-1 flex justify-between">
+								<div class="text-xs text-gray-500">{$i18n.t('Model IDs')}</div>
+							</div>
 
 							{#if modelIds.length > 0}
 								<div class="flex flex-col">
@@ -301,7 +301,7 @@
 							{/if}
 						</div>
 
-            <hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
+						<hr class=" border-gray-100 dark:border-gray-700/10 my-2.5 w-full" />
 
 						<div class="flex items-center">
 							<input

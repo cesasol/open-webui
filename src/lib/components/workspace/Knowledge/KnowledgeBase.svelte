@@ -574,11 +574,11 @@
 />
 
 <AddTextContentModal
-  bind:show={showAddTextContentModal}
-  on:submit={(e) => {
-    const file = createFileFromText(e.detail.name, e.detail.content);
-    uploadFileHandler(file);
-  }}
+	bind:show={showAddTextContentModal}
+	on:submit={(e) => {
+		const file = createFileFromText(e.detail.name, e.detail.content);
+		uploadFileHandler(file);
+	}}
 />
 
 <input
@@ -591,8 +591,8 @@
 				await uploadFileHandler(file);
 			}
 
-      inputFiles = null;
-      const fileInputElement = document.getElementById('files-input');
+			inputFiles = null;
+			const fileInputElement = document.getElementById('files-input');
 
 			if (fileInputElement) {
 				fileInputElement.value = '';
@@ -641,12 +641,12 @@
 							>
 								<LockClosed className="size-3.5" strokeWidth="2.5" />
 
-                <div class="text-sm font-medium shrink-0">
-                  {$i18n.t('Access')}
-                </div>
-              </button>
-            </div>
-          </div>
+								<div class="text-sm font-medium shrink-0">
+									{$i18n.t('Access')}
+								</div>
+							</button>
+						</div>
+					</div>
 
 					<div class="flex w-full px-1">
 						<input
@@ -682,15 +682,15 @@
 									</div>
 								{/if}
 
-                <div class=" flex-1 text-xl font-medium">
-                  <a
-                    class="hover:text-gray-500 dark:hover:text-gray-100 hover:underline grow line-clamp-1"
-                    href={selectedFile.id ? `/api/v1/files/${selectedFile.id}/content` : '#'}
-                    target="_blank"
-                  >
-                    {selectedFile?.meta?.name}
-                  </a>
-                </div>
+								<div class=" flex-1 text-xl font-medium">
+									<a
+										class="hover:text-gray-500 dark:hover:text-gray-100 hover:underline grow line-clamp-1"
+										href={selectedFile.id ? `/api/v1/files/${selectedFile.id}/content` : '#'}
+										target="_blank"
+									>
+										{selectedFile?.meta?.name}
+									</a>
+								</div>
 
 								<div>
 									<button
@@ -816,24 +816,24 @@
 									bind:value={query}
 								/>
 
-                <div>
-                  <AddContentMenu
-                    on:upload={(e) => {
-                      if (e.detail.type === 'directory') {
-                        uploadDirectoryHandler();
-                      } else if (e.detail.type === 'text') {
-                        showAddTextContentModal = true;
-                      } else {
-                        document.getElementById('files-input').click();
-                      }
-                    }}
-                    on:sync={(e) => {
-                      showSyncConfirmModal = true;
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
+								<div>
+									<AddContentMenu
+										on:upload={(e) => {
+											if (e.detail.type === 'directory') {
+												uploadDirectoryHandler();
+											} else if (e.detail.type === 'text') {
+												showAddTextContentModal = true;
+											} else {
+												document.getElementById('files-input').click();
+											}
+										}}
+										on:sync={(e) => {
+											showSyncConfirmModal = true;
+										}}
+									/>
+								</div>
+							</div>
+						</div>
 
 						{#if filteredItems.length > 0}
 							<div class=" flex overflow-y-auto h-full w-full scrollbar-hidden text-xs">
@@ -847,23 +847,23 @@
 									on:delete={(e) => {
 										console.log(e.detail);
 
-                    selectedFileId = null;
-                    deleteFileHandler(e.detail);
-                  }}
-                />
-              </div>
-            {:else}
-              <div class="my-3 flex flex-col justify-center text-center text-gray-500 text-xs">
-                <div>
-                  {$i18n.t('No content found')}
-                </div>
-              </div>
-            {/if}
-          </div>
-        </div>
-      </div>
-    </div>
-  {:else}
-    <Spinner />
-  {/if}
+										selectedFileId = null;
+										deleteFileHandler(e.detail);
+									}}
+								/>
+							</div>
+						{:else}
+							<div class="my-3 flex flex-col justify-center text-center text-gray-500 text-xs">
+								<div>
+									{$i18n.t('No content found')}
+								</div>
+							</div>
+						{/if}
+					</div>
+				</div>
+			</div>
+		</div>
+	{:else}
+		<Spinner />
+	{/if}
 </div>

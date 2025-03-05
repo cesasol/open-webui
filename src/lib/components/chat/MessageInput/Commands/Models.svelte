@@ -3,15 +3,15 @@
 
 	import Fuse from 'fuse.js';
 
-  import { createEventDispatcher, onMount } from 'svelte';
-  import { tick, getContext } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
+	import { tick, getContext } from 'svelte';
 
-  import { models } from '$lib/stores';
+	import { models } from '$lib/stores';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	interface Props {
 		command?: string;
@@ -54,26 +54,26 @@
 		}
 	});
 
-  export const selectUp = () => {
-    selectedIdx = Math.max(0, selectedIdx - 1);
-  };
+	export const selectUp = () => {
+		selectedIdx = Math.max(0, selectedIdx - 1);
+	};
 
-  export const selectDown = () => {
-    selectedIdx = Math.min(selectedIdx + 1, filteredItems.length - 1);
-  };
+	export const selectDown = () => {
+		selectedIdx = Math.min(selectedIdx + 1, filteredItems.length - 1);
+	};
 
-  const confirmSelect = async (model) => {
-    command = '';
-    dispatch('select', model);
-  };
+	const confirmSelect = async (model) => {
+		command = '';
+		dispatch('select', model);
+	};
 
-  onMount(async () => {
-    await tick();
-    const chatInputElement = document.getElementById('chat-input');
-    await tick();
-    chatInputElement?.focus();
-    await tick();
-  });
+	onMount(async () => {
+		await tick();
+		const chatInputElement = document.getElementById('chat-input');
+		await tick();
+		chatInputElement?.focus();
+		await tick();
+	});
 </script>
 
 {#if filteredItems.length > 0}

@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 
 	import { tick, getContext, onMount, createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { settings } from '$lib/stores';
-  import { copyToClipboard } from '$lib/utils';
+	import { settings } from '$lib/stores';
+	import { copyToClipboard } from '$lib/utils';
 
-  import MultiResponseMessages from './MultiResponseMessages.svelte';
-  import ResponseMessage from './ResponseMessage.svelte';
-  import UserMessage from './UserMessage.svelte';
+	import MultiResponseMessages from './MultiResponseMessages.svelte';
+	import ResponseMessage from './ResponseMessage.svelte';
+	import UserMessage from './UserMessage.svelte';
 
 	interface Props {
 		chatId: any;
@@ -61,9 +61,9 @@
 </script>
 
 <div
-  class="flex flex-col justify-between px-5 mb-3 w-full {($settings?.widescreenMode ?? null)
-    ? 'max-w-full'
-    : 'max-w-5xl'} mx-auto rounded-lg group"
+	class="flex flex-col justify-between px-5 mb-3 w-full {($settings?.widescreenMode ?? null)
+		? 'max-w-full'
+		: 'max-w-5xl'} mx-auto rounded-lg group"
 >
 	{#if history.messages[messageId]}
 		{#if history.messages[messageId].role === 'user'}

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte';
-  import Message from './Message.svelte';
+	import { onMount, getContext } from 'svelte';
+	import Message from './Message.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte';
+	import { onMount, getContext } from 'svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -8,18 +8,20 @@
 
 	let textAreaElement: HTMLTextAreaElement = $state();
 
-  onMount(() => {
-    textAreaElement.style.height = '';
-    textAreaElement.style.height = textAreaElement.scrollHeight + 'px';
-  });
+	onMount(() => {
+		textAreaElement.style.height = '';
+		textAreaElement.style.height = textAreaElement.scrollHeight + 'px';
+	});
 </script>
 
 <div class="flex gap-2 group">
-  <div class="flex items-start pt-1">
-    <div class="px-2 py-1 text-sm font-semibold uppercase min-w-[6rem] text-left rounded-lg transition">
-      {$i18n.t(message.role)}
-    </div>
-  </div>
+	<div class="flex items-start pt-1">
+		<div
+			class="px-2 py-1 text-sm font-semibold uppercase min-w-[6rem] text-left rounded-lg transition"
+		>
+			{$i18n.t(message.role)}
+		</div>
+	</div>
 
 	<div class="flex-1">
 		<!-- $i18n.t('a user') -->

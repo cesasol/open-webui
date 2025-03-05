@@ -25,29 +25,29 @@
 	let selectedCitation: any = $state(null);
 	let isCollapsibleOpen = $state(false);
 
-  function calculateShowRelevance(sources: any[]) {
-    const distances = sources.flatMap((citation) => citation.distances ?? []);
-    const inRange = distances.filter((d) => d !== undefined && d >= -1 && d <= 1).length;
-    const outOfRange = distances.filter((d) => d !== undefined && (d < -1 || d > 1)).length;
+	function calculateShowRelevance(sources: any[]) {
+		const distances = sources.flatMap((citation) => citation.distances ?? []);
+		const inRange = distances.filter((d) => d !== undefined && d >= -1 && d <= 1).length;
+		const outOfRange = distances.filter((d) => d !== undefined && (d < -1 || d > 1)).length;
 
-    if (distances.length === 0) {
-      return false;
-    }
+		if (distances.length === 0) {
+			return false;
+		}
 
-    if (
-      (inRange === distances.length - 1 && outOfRange === 1) ||
-      (outOfRange === distances.length - 1 && inRange === 1)
-    ) {
-      return false;
-    }
+		if (
+			(inRange === distances.length - 1 && outOfRange === 1) ||
+			(outOfRange === distances.length - 1 && inRange === 1)
+		) {
+			return false;
+		}
 
-    return true;
-  }
+		return true;
+	}
 
-  function shouldShowPercentage(sources: any[]) {
-    const distances = sources.flatMap((citation) => citation.distances ?? []);
-    return distances.every((d) => d !== undefined && d >= -1 && d <= 1);
-  }
+	function shouldShowPercentage(sources: any[]) {
+		const distances = sources.flatMap((citation) => citation.distances ?? []);
+		return distances.every((d) => d !== undefined && d >= -1 && d <= 1);
+	}
 
 	run(() => {
 		console.log('sources', sources);
@@ -56,40 +56,40 @@
 				return acc;
 			}
 
-      source.document.forEach((document, index) => {
-        const metadata = source.metadata?.[index];
-        const distance = source.distances?.[index];
+			source.document.forEach((document, index) => {
+				const metadata = source.metadata?.[index];
+				const distance = source.distances?.[index];
 
-        // Within the same citation there could be multiple documents
-        const id = metadata?.source ?? source?.source?.id ?? 'N/A';
-        let _source = source?.source;
+				// Within the same citation there could be multiple documents
+				const id = metadata?.source ?? source?.source?.id ?? 'N/A';
+				let _source = source?.source;
 
-        if (metadata?.name) {
-          _source = { ..._source, name: metadata.name };
-        }
+				if (metadata?.name) {
+					_source = { ..._source, name: metadata.name };
+				}
 
-        if (id.startsWith('http://') || id.startsWith('https://')) {
-          _source = { ..._source, name: id, url: id };
-        }
+				if (id.startsWith('http://') || id.startsWith('https://')) {
+					_source = { ..._source, name: id, url: id };
+				}
 
-        const existingSource = acc.find((item) => item.id === id);
+				const existingSource = acc.find((item) => item.id === id);
 
-        if (existingSource) {
-          existingSource.document.push(document);
-          existingSource.metadata.push(metadata);
-          if (distance !== undefined) existingSource.distances.push(distance);
-        } else {
-          acc.push({
-            id: id,
-            source: _source,
-            document: [document],
-            metadata: metadata ? [metadata] : [],
-            distances: distance !== undefined ? [distance] : undefined
-          });
-        }
-      });
-      return acc;
-    }, []);
+				if (existingSource) {
+					existingSource.document.push(document);
+					existingSource.metadata.push(metadata);
+					if (distance !== undefined) existingSource.distances.push(distance);
+				} else {
+					acc.push({
+						id: id,
+						source: _source,
+						document: [document],
+						metadata: metadata ? [metadata] : [],
+						distances: distance !== undefined ? [distance] : undefined
+					});
+				}
+			});
+			return acc;
+		}, []);
 
 		showRelevance = calculateShowRelevance(citations);
 		showPercentage = shouldShowPercentage(citations);

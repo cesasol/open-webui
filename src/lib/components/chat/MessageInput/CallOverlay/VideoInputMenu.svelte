@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { DropdownMenu } from 'bits-ui';
-  import { flyAndScale } from '$lib/utils/transitions';
-  import { getContext, createEventDispatcher } from 'svelte';
+	import { DropdownMenu } from 'bits-ui';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { getContext, createEventDispatcher } from 'svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
-  import Dropdown from '$lib/components/common/Dropdown.svelte';
+	import Dropdown from '$lib/components/common/Dropdown.svelte';
 
 	interface Props {
 		onClose?: Function;
@@ -21,12 +21,12 @@
 </script>
 
 <Dropdown
-  bind:show
-  on:change={(e) => {
-    if (e.detail === false) {
-      onClose();
-    }
-  }}
+	bind:show
+	on:change={(e) => {
+		if (e.detail === false) {
+			onClose();
+		}
+	}}
 >
 	{@render children?.()}
 

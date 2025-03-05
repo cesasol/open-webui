@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	interface Props {
 		value?: string;
@@ -19,28 +19,28 @@
 
 	let textareaElement = $state();
 
-  // Adjust height on mount and after setting the element.
-  onMount(async () => {
-    await tick();
-    resize();
+	// Adjust height on mount and after setting the element.
+	onMount(async () => {
+		await tick();
+		resize();
 
-    requestAnimationFrame(() => {
-      // setInterveal to cehck until textareaElement is set
-      const interval = setInterval(() => {
-        if (textareaElement) {
-          clearInterval(interval);
-          resize();
-        }
-      }, 100);
-    });
-  });
+		requestAnimationFrame(() => {
+			// setInterveal to cehck until textareaElement is set
+			const interval = setInterval(() => {
+				if (textareaElement) {
+					clearInterval(interval);
+					resize();
+				}
+			}, 100);
+		});
+	});
 
-  const resize = () => {
-    if (textareaElement) {
-      textareaElement.style.height = '';
-      textareaElement.style.height = `${textareaElement.scrollHeight}px`;
-    }
-  };
+	const resize = () => {
+		if (textareaElement) {
+			textareaElement.style.height = '';
+			textareaElement.style.height = `${textareaElement.scrollHeight}px`;
+		}
+	};
 </script>
 
 <textarea

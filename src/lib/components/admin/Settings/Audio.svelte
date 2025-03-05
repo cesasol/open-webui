@@ -13,9 +13,9 @@
 	} from '$lib/apis/audio';
 	import { config, settings } from '$lib/stores';
 
-  import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
+	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 
-  import { TTS_RESPONSE_SPLIT } from '$lib/types';
+	import { TTS_RESPONSE_SPLIT } from '$lib/types';
 
 	import { getI18nContext } from '$lib/contexts';
 
@@ -51,116 +51,113 @@
 	let voices: SpeechSynthesisVoice[] = $state([]);
 	let models: Awaited<ReturnType<typeof _getModels>>['models'] = $state([]);
 
-  let voices: SpeechSynthesisVoice[] = [];
-  let models: Awaited<ReturnType<typeof _getModels>>['models'] = [];
+	const getModels = async () => {
+		if (TTS_ENGINE === '') {
+			models = [];
+		} else {
+			const res = await _getModels(
+				localStorage.token,
+				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+			).catch((e) => {
+				toast.error(`${e}`);
+			});
 
-  const getModels = async () => {
-    if (TTS_ENGINE === '') {
-      models = [];
-    } else {
-      const res = await _getModels(
-        localStorage.token,
-        $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-      ).catch((e) => {
-        toast.error(`${e}`);
-      });
+			if (res) {
+				console.log(res);
+				models = res.models;
+			}
+		}
+	};
 
-      if (res) {
-        console.log(res);
-        models = res.models;
-      }
-    }
-  };
+	const getVoices = async () => {
+		if (TTS_ENGINE === '') {
+			const getVoicesLoop = setInterval(() => {
+				voices = speechSynthesis.getVoices();
 
-  const getVoices = async () => {
-    if (TTS_ENGINE === '') {
-      const getVoicesLoop = setInterval(() => {
-        voices = speechSynthesis.getVoices();
+				// do your loop
+				if (voices.length > 0) {
+					clearInterval(getVoicesLoop);
+					voices.sort((a, b) => a.name.localeCompare(b.name, $i18n.resolvedLanguage));
+				}
+			}, 100);
+		} else {
+			const res = await _getVoices(localStorage.token).catch((e) => {
+				toast.error(`${e}`);
+			});
 
-        // do your loop
-        if (voices.length > 0) {
-          clearInterval(getVoicesLoop);
-          voices.sort((a, b) => a.name.localeCompare(b.name, $i18n.resolvedLanguage));
-        }
-      }, 100);
-    } else {
-      const res = await _getVoices(localStorage.token).catch((e) => {
-        toast.error(`${e}`);
-      });
+			if (res) {
+				console.log(res);
+				voices = res.voices;
+				voices.sort((a, b) => a.name.localeCompare(b.name, $i18n.resolvedLanguage));
+			}
+		}
+	};
 
-      if (res) {
-        console.log(res);
-        voices = res.voices;
-        voices.sort((a, b) => a.name.localeCompare(b.name, $i18n.resolvedLanguage));
-      }
-    }
-  };
+	const updateConfigHandler = async () => {
+		const res = await updateAudioConfig(localStorage.token, {
+			tts: {
+				OPENAI_API_BASE_URL: TTS_OPENAI_API_BASE_URL,
+				OPENAI_API_KEY: TTS_OPENAI_API_KEY,
+				API_KEY: TTS_API_KEY,
+				ENGINE: TTS_ENGINE,
+				MODEL: TTS_MODEL,
+				VOICE: TTS_VOICE,
+				SPLIT_ON: TTS_SPLIT_ON,
+				AZURE_SPEECH_REGION: TTS_AZURE_SPEECH_REGION,
+				AZURE_SPEECH_OUTPUT_FORMAT: TTS_AZURE_SPEECH_OUTPUT_FORMAT
+			},
+			stt: {
+				OPENAI_API_BASE_URL: STT_OPENAI_API_BASE_URL,
+				OPENAI_API_KEY: STT_OPENAI_API_KEY,
+				ENGINE: STT_ENGINE,
+				MODEL: STT_MODEL,
+				WHISPER_MODEL: STT_WHISPER_MODEL,
+				DEEPGRAM_API_KEY: STT_DEEPGRAM_API_KEY
+			}
+		});
 
-  const updateConfigHandler = async () => {
-    const res = await updateAudioConfig(localStorage.token, {
-      tts: {
-        OPENAI_API_BASE_URL: TTS_OPENAI_API_BASE_URL,
-        OPENAI_API_KEY: TTS_OPENAI_API_KEY,
-        API_KEY: TTS_API_KEY,
-        ENGINE: TTS_ENGINE,
-        MODEL: TTS_MODEL,
-        VOICE: TTS_VOICE,
-        SPLIT_ON: TTS_SPLIT_ON,
-        AZURE_SPEECH_REGION: TTS_AZURE_SPEECH_REGION,
-        AZURE_SPEECH_OUTPUT_FORMAT: TTS_AZURE_SPEECH_OUTPUT_FORMAT
-      },
-      stt: {
-        OPENAI_API_BASE_URL: STT_OPENAI_API_BASE_URL,
-        OPENAI_API_KEY: STT_OPENAI_API_KEY,
-        ENGINE: STT_ENGINE,
-        MODEL: STT_MODEL,
-        WHISPER_MODEL: STT_WHISPER_MODEL,
-        DEEPGRAM_API_KEY: STT_DEEPGRAM_API_KEY
-      }
-    });
+		if (res) {
+			saveHandler();
+			config.set(await getBackendConfig());
+		}
+	};
 
-    if (res) {
-      saveHandler();
-      config.set(await getBackendConfig());
-    }
-  };
+	const sttModelUpdateHandler = async () => {
+		STT_WHISPER_MODEL_LOADING = true;
+		await updateConfigHandler();
+		STT_WHISPER_MODEL_LOADING = false;
+	};
 
-  const sttModelUpdateHandler = async () => {
-    STT_WHISPER_MODEL_LOADING = true;
-    await updateConfigHandler();
-    STT_WHISPER_MODEL_LOADING = false;
-  };
+	onMount(async () => {
+		const res = await getAudioConfig(localStorage.token);
 
-  onMount(async () => {
-    const res = await getAudioConfig(localStorage.token);
+		if (res) {
+			console.log(res);
+			TTS_OPENAI_API_BASE_URL = res.tts.OPENAI_API_BASE_URL;
+			TTS_OPENAI_API_KEY = res.tts.OPENAI_API_KEY;
+			TTS_API_KEY = res.tts.API_KEY;
 
-    if (res) {
-      console.log(res);
-      TTS_OPENAI_API_BASE_URL = res.tts.OPENAI_API_BASE_URL;
-      TTS_OPENAI_API_KEY = res.tts.OPENAI_API_KEY;
-      TTS_API_KEY = res.tts.API_KEY;
+			TTS_ENGINE = res.tts.ENGINE;
+			TTS_MODEL = res.tts.MODEL;
+			TTS_VOICE = res.tts.VOICE;
 
-      TTS_ENGINE = res.tts.ENGINE;
-      TTS_MODEL = res.tts.MODEL;
-      TTS_VOICE = res.tts.VOICE;
+			TTS_SPLIT_ON = res.tts.SPLIT_ON || TTS_RESPONSE_SPLIT.PUNCTUATION;
 
-      TTS_SPLIT_ON = res.tts.SPLIT_ON || TTS_RESPONSE_SPLIT.PUNCTUATION;
+			TTS_AZURE_SPEECH_OUTPUT_FORMAT = res.tts.AZURE_SPEECH_OUTPUT_FORMAT;
+			TTS_AZURE_SPEECH_REGION = res.tts.AZURE_SPEECH_REGION;
 
-      TTS_AZURE_SPEECH_OUTPUT_FORMAT = res.tts.AZURE_SPEECH_OUTPUT_FORMAT;
-      TTS_AZURE_SPEECH_REGION = res.tts.AZURE_SPEECH_REGION;
+			STT_OPENAI_API_BASE_URL = res.stt.OPENAI_API_BASE_URL;
+			STT_OPENAI_API_KEY = res.stt.OPENAI_API_KEY;
 
-      STT_OPENAI_API_BASE_URL = res.stt.OPENAI_API_BASE_URL;
-      STT_OPENAI_API_KEY = res.stt.OPENAI_API_KEY;
+			STT_ENGINE = res.stt.ENGINE;
+			STT_MODEL = res.stt.MODEL;
+			STT_WHISPER_MODEL = res.stt.WHISPER_MODEL;
+			STT_DEEPGRAM_API_KEY = res.stt.DEEPGRAM_API_KEY;
+		}
 
-      STT_ENGINE = res.stt.ENGINE;
-      STT_MODEL = res.stt.MODEL;
-      STT_WHISPER_MODEL = res.stt.WHISPER_MODEL;
-      STT_DEEPGRAM_API_KEY = res.stt.DEEPGRAM_API_KEY;
-    }
-
-    await getVoices();
-    await getModels();
-  });
+		await getVoices();
+		await getModels();
+	});
 </script>
 
 <form
@@ -170,10 +167,10 @@
 		dispatch('save');
 	})}
 >
-  <div class=" space-y-3 overflow-y-scroll scrollbar-hidden h-full">
-    <div class="flex flex-col gap-3">
-      <div>
-        <div class=" mb-1 text-sm font-medium">{$i18n.t('STT Settings')}</div>
+	<div class=" space-y-3 overflow-y-scroll scrollbar-hidden h-full">
+		<div class="flex flex-col gap-3">
+			<div>
+				<div class=" mb-1 text-sm font-medium">{$i18n.t('STT Settings')}</div>
 
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs font-medium">{$i18n.t('Speech-to-Text Engine')}</div>
@@ -201,14 +198,11 @@
 								bind:value={STT_OPENAI_API_BASE_URL}
 							/>
 
-              <SensitiveInput
-                placeholder={$i18n.t('API Key')}
-                bind:value={STT_OPENAI_API_KEY}
-              />
-            </div>
-          </div>
+							<SensitiveInput placeholder={$i18n.t('API Key')} bind:value={STT_OPENAI_API_KEY} />
+						</div>
+					</div>
 
-          <hr class="border-gray-100 dark:border-gray-850 my-2" />
+					<hr class="border-gray-100 dark:border-gray-850 my-2" />
 
 					<div>
 						<div class=" mb-1.5 text-sm font-medium">{$i18n.t('STT Model')}</div>
@@ -234,7 +228,7 @@
 						</div>
 					</div>
 
-          <hr class="border-gray-100 dark:border-gray-850 my-2" />
+					<hr class="border-gray-100 dark:border-gray-850 my-2" />
 
 					<div>
 						<div class=" mb-1.5 text-sm font-medium">{$i18n.t('STT Model')}</div>
@@ -262,14 +256,14 @@
 					<div>
 						<div class=" mb-1.5 text-sm font-medium">{$i18n.t('STT Model')}</div>
 
-            <div class="flex w-full">
-              <div class="flex-1 mr-2">
-                <input
-                  class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
-                  placeholder={$i18n.t('Set whisper model')}
-                  bind:value={STT_WHISPER_MODEL}
-                />
-              </div>
+						<div class="flex w-full">
+							<div class="flex-1 mr-2">
+								<input
+									class="w-full rounded-lg py-2 px-4 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden"
+									placeholder={$i18n.t('Set whisper model')}
+									bind:value={STT_WHISPER_MODEL}
+								/>
+							</div>
 
 							<button
 								class="px-2.5 bg-gray-50 hover:bg-gray-200 text-gray-800 dark:bg-gray-850 dark:hover:bg-gray-800 dark:text-gray-100 rounded-lg transition"
@@ -326,27 +320,27 @@
 							</button>
 						</div>
 
-            <div class="mt-2 mb-1 text-xs text-gray-400 dark:text-gray-500">
-              {$i18n.t(`Open WebUI uses faster-whisper internally.`)}
+						<div class="mt-2 mb-1 text-xs text-gray-400 dark:text-gray-500">
+							{$i18n.t(`Open WebUI uses faster-whisper internally.`)}
 
-              <a
-                class=" hover:underline dark:text-gray-200 text-gray-800"
-                href="https://github.com/SYSTRAN/faster-whisper"
-                target="_blank"
-              >
-                {$i18n.t(
-                  `Click here to learn more about faster-whisper and see the available models.`
-                )}
-              </a>
-            </div>
-          </div>
-        {/if}
-      </div>
+							<a
+								class=" hover:underline dark:text-gray-200 text-gray-800"
+								href="https://github.com/SYSTRAN/faster-whisper"
+								target="_blank"
+							>
+								{$i18n.t(
+									`Click here to learn more about faster-whisper and see the available models.`
+								)}
+							</a>
+						</div>
+					</div>
+				{/if}
+			</div>
 
-      <hr class="border-gray-100 dark:border-gray-850" />
+			<hr class="border-gray-100 dark:border-gray-850" />
 
-      <div>
-        <div class=" mb-1 text-sm font-medium">{$i18n.t('TTS Settings')}</div>
+			<div>
+				<div class=" mb-1 text-sm font-medium">{$i18n.t('TTS Settings')}</div>
 
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs font-medium">{$i18n.t('Text-to-Speech Engine')}</div>
@@ -421,7 +415,7 @@
 					</div>
 				{/if}
 
-        <hr class="border-gray-100 dark:border-gray-850 my-2" />
+				<hr class="border-gray-100 dark:border-gray-850 my-2" />
 
 				{#if TTS_ENGINE === ''}
 					<div>
@@ -464,7 +458,7 @@
 						<div class="mt-2 mb-1 text-xs text-gray-400 dark:text-gray-500">
 							{$i18n.t(`Open WebUI uses SpeechT5 and CMU Arctic speaker embeddings.`)}
 
-              To learn more about SpeechT5,
+							To learn more about SpeechT5,
 
 							<a
 								class=" hover:underline dark:text-gray-200 text-gray-800"
@@ -612,36 +606,38 @@
 					</div>
 				{/if}
 
-        <hr class="border-gray-100 dark:border-gray-850 my-2" />
+				<hr class="border-gray-100 dark:border-gray-850 my-2" />
 
-        <div class="pt-0.5 flex w-full justify-between">
-          <div class="self-center text-xs font-medium">{$i18n.t('Response splitting')}</div>
-          <div class="flex items-center relative">
-            <select
-              class="dark:bg-gray-900 w-fit pr-8 cursor-pointer rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
-              aria-label="Select how to split message text for TTS requests"
-              bind:value={TTS_SPLIT_ON}
-            >
-              {#each Object.values(TTS_RESPONSE_SPLIT) as split}
-                <option value={split}>{$i18n.t(split.charAt(0).toUpperCase() + split.slice(1))}</option>
-              {/each}
-            </select>
-          </div>
-        </div>
-        <div class="mt-2 mb-1 text-xs text-gray-400 dark:text-gray-500">
-          {$i18n.t(
-            "Control how message text is split for TTS requests. 'Punctuation' splits into sentences, 'paragraphs' splits into paragraphs, and 'none' keeps the message as a single string."
-          )}
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="flex justify-end text-sm font-medium">
-    <button
-      class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-      type="submit"
-    >
-      {$i18n.t('Save')}
-    </button>
-  </div>
+				<div class="pt-0.5 flex w-full justify-between">
+					<div class="self-center text-xs font-medium">{$i18n.t('Response splitting')}</div>
+					<div class="flex items-center relative">
+						<select
+							class="dark:bg-gray-900 w-fit pr-8 cursor-pointer rounded-sm px-2 p-1 text-xs bg-transparent outline-hidden text-right"
+							aria-label="Select how to split message text for TTS requests"
+							bind:value={TTS_SPLIT_ON}
+						>
+							{#each Object.values(TTS_RESPONSE_SPLIT) as split}
+								<option value={split}
+									>{$i18n.t(split.charAt(0).toUpperCase() + split.slice(1))}</option
+								>
+							{/each}
+						</select>
+					</div>
+				</div>
+				<div class="mt-2 mb-1 text-xs text-gray-400 dark:text-gray-500">
+					{$i18n.t(
+						"Control how message text is split for TTS requests. 'Punctuation' splits into sentences, 'paragraphs' splits into paragraphs, and 'none' keeps the message as a single string."
+					)}
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex justify-end text-sm font-medium">
+		<button
+			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+			type="submit"
+		>
+			{$i18n.t('Save')}
+		</button>
+	</div>
 </form>

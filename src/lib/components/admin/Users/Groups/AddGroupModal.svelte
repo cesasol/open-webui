@@ -19,27 +19,27 @@
 
 	let loading = $state(false);
 
-  const submitHandler = async () => {
-    loading = true;
+	const submitHandler = async () => {
+		loading = true;
 
-    const group = {
-      name,
-      description
-    };
+		const group = {
+			name,
+			description
+		};
 
-    await onSubmit(group);
+		await onSubmit(group);
 
-    loading = false;
-    show = false;
+		loading = false;
+		show = false;
 
-    name = '';
-    description = '';
-    userIds = [];
-  };
+		name = '';
+		description = '';
+		userIds = [];
+	};
 
-  onMount(() => {
-    console.log('mounted');
-  });
+	onMount(() => {
+		console.log('mounted');
+	});
 </script>
 
 <Modal size="sm" bind:show>
@@ -94,8 +94,8 @@
 							</div>
 						</div>
 
-            <div class="flex flex-col w-full mt-2">
-              <div class=" mb-1 text-xs text-gray-500">{$i18n.t('Description')}</div>
+						<div class="flex flex-col w-full mt-2">
+							<div class=" mb-1 text-xs text-gray-500">{$i18n.t('Description')}</div>
 
 							<div class="flex-1">
 								<Textarea

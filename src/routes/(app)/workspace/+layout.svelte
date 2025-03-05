@@ -45,14 +45,14 @@
 			}
 		}
 
-    loaded = true;
-  });
+		loaded = true;
+	});
 </script>
 
 <svelte:head>
-  <title>
-    {$i18n.t('Workspace')} | {$WEBUI_NAME}
-  </title>
+	<title>
+		{$i18n.t('Workspace')} | {$WEBUI_NAME}
+	</title>
 </svelte:head>
 
 {#if loaded}
@@ -128,9 +128,9 @@
 					</div>
 				</div>
 
-        <!-- <div class="flex items-center text-xl font-semibold">{$i18n.t('Workspace')}</div> -->
-      </div>
-    </nav>
+				<!-- <div class="flex items-center text-xl font-semibold">{$i18n.t('Workspace')}</div> -->
+			</div>
+		</nav>
 
 		<div id="workspace-container" class="  pb-1 px-[18px] flex-1 max-h-full overflow-y-auto">
 			{@render children?.()}

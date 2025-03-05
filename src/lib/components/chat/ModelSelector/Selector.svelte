@@ -5,32 +5,32 @@
 	import { marked } from 'marked';
 	import Fuse from 'fuse.js';
 
-  import { flyAndScale } from '$lib/utils/transitions';
-  import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
 
-  import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
-  import Check from '$lib/components/icons/Check.svelte';
-  import Search from '$lib/components/icons/Search.svelte';
+	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
+	import Check from '$lib/components/icons/Check.svelte';
+	import Search from '$lib/components/icons/Search.svelte';
 
-  import { deleteModel, getOllamaVersion, pullModel } from '$lib/apis/ollama';
+	import { deleteModel, getOllamaVersion, pullModel } from '$lib/apis/ollama';
 
-  import {
-    user,
-    MODEL_DOWNLOAD_POOL,
-    models,
-    mobile,
-    temporaryChatEnabled,
-    settings,
-    config
-  } from '$lib/stores';
-  import { toast } from 'svelte-sonner';
-  import { capitalizeFirstLetter, sanitizeResponseContent, splitStream } from '$lib/utils';
-  import { getModels } from '$lib/apis';
+	import {
+		user,
+		MODEL_DOWNLOAD_POOL,
+		models,
+		mobile,
+		temporaryChatEnabled,
+		settings,
+		config
+	} from '$lib/stores';
+	import { toast } from 'svelte-sonner';
+	import { capitalizeFirstLetter, sanitizeResponseContent, splitStream } from '$lib/utils';
+	import { getModels } from '$lib/apis';
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import ChatBubbleOval from '$lib/components/icons/ChatBubbleOval.svelte';
-  import { goto } from '$app/navigation';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import ChatBubbleOval from '$lib/components/icons/ChatBubbleOval.svelte';
+	import { goto } from '$app/navigation';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -70,7 +70,7 @@
 
 	let tagsContainerElement;
 	let show = false;
-	let tags: string[] = []
+	let tags: string[] = [];
 
 	let selectedModel = $state('');
 	run(() => {
@@ -84,89 +84,89 @@
 
 	let selectedModelIdx = $state(0);
 
-  const fuse = new Fuse(
-    items.map((item) => {
-      const _item = {
-        ...item,
-        modelName: item.model?.name,
-        tags: item.model?.info?.meta?.tags?.map((tag) => tag.name).join(' '),
-        desc: item.model?.info?.meta?.description
-      };
-      return _item;
-    }),
-    {
-      keys: ['value', 'tags', 'modelName'],
-      threshold: 0.4
-    }
-  );
+	const fuse = new Fuse(
+		items.map((item) => {
+			const _item = {
+				...item,
+				modelName: item.model?.name,
+				tags: item.model?.info?.meta?.tags?.map((tag) => tag.name).join(' '),
+				desc: item.model?.info?.meta?.description
+			};
+			return _item;
+		}),
+		{
+			keys: ['value', 'tags', 'modelName'],
+			threshold: 0.4
+		}
+	);
 
 	let filteredItems = $derived(
 		searchValue
 			? fuse
-				.search(searchValue)
-				.map((e) => {
-					return e.item;
-				})
-				.filter((item) => {
+					.search(searchValue)
+					.map((e) => {
+						return e.item;
+					})
+					.filter((item) => {
+						if (selectedTag === '') {
+							return true;
+						}
+						return item.model?.info?.meta?.tags?.map((tag) => tag.name).includes(selectedTag);
+					})
+			: items.filter((item) => {
 					if (selectedTag === '') {
 						return true;
 					}
 					return item.model?.info?.meta?.tags?.map((tag) => tag.name).includes(selectedTag);
 				})
-		: items.filter((item) => {
-				if (selectedTag === '') {
-					return true;
-				}
-				return item.model?.info?.meta?.tags?.map((tag) => tag.name).includes(selectedTag);
-			})
 	);
 
-  const pullModelHandler = async () => {
-    const sanitizedModelTag = searchValue.trim().replace(/^ollama\s+(run|pull)\s+/, '');
+	const pullModelHandler = async () => {
+		const sanitizedModelTag = searchValue.trim().replace(/^ollama\s+(run|pull)\s+/, '');
 
-    console.log($MODEL_DOWNLOAD_POOL);
-    if ($MODEL_DOWNLOAD_POOL[sanitizedModelTag]) {
-      toast.error(
-        $i18n.t(`Model '{{modelTag}}' is already in queue for downloading.`, {
-          modelTag: sanitizedModelTag
-        })
-      );
-      return;
-    }
-    if (Object.keys($MODEL_DOWNLOAD_POOL).length === 3) {
-      toast.error(
-        $i18n.t('Maximum of 3 models can be downloaded simultaneously. Please try again later.')
-      );
-      return;
-    }
+		console.log($MODEL_DOWNLOAD_POOL);
+		if ($MODEL_DOWNLOAD_POOL[sanitizedModelTag]) {
+			toast.error(
+				$i18n.t(`Model '{{modelTag}}' is already in queue for downloading.`, {
+					modelTag: sanitizedModelTag
+				})
+			);
+			return;
+		}
+		if (Object.keys($MODEL_DOWNLOAD_POOL).length === 3) {
+			toast.error(
+				$i18n.t('Maximum of 3 models can be downloaded simultaneously. Please try again later.')
+			);
+			return;
+		}
 
-    const [res, controller] = await pullModel(localStorage.token, sanitizedModelTag, '0').catch(
-      (error) => {
-        toast.error(`${error}`);
-        return null;
-      }
-    );
+		const [res, controller] = await pullModel(localStorage.token, sanitizedModelTag, '0').catch(
+			(error) => {
+				toast.error(`${error}`);
+				return null;
+			}
+		);
 
-    if (res) {
-      const reader = res.body
-        .pipeThrough(new TextDecoderStream())
-        .pipeThrough(splitStream('\n'))
-        .getReader();
+		if (res) {
+			const reader = res.body
+				.pipeThrough(new TextDecoderStream())
+				.pipeThrough(splitStream('\n'))
+				.getReader();
 
-      MODEL_DOWNLOAD_POOL.set({
-        ...$MODEL_DOWNLOAD_POOL,
-        [sanitizedModelTag]: {
-          ...$MODEL_DOWNLOAD_POOL[sanitizedModelTag],
-          abortController: controller,
-          reader,
-          done: false
-        }
-      });
+			MODEL_DOWNLOAD_POOL.set({
+				...$MODEL_DOWNLOAD_POOL,
+				[sanitizedModelTag]: {
+					...$MODEL_DOWNLOAD_POOL[sanitizedModelTag],
+					abortController: controller,
+					reader,
+					done: false
+				}
+			});
 
-      while (true) {
-        try {
-          const { value, done } = await reader.read();
-          if (done) break;
+			while (true) {
+				try {
+					const { value, done } = await reader.read();
+					if (done) break;
 
 					const lines = value.split('\n');
 
@@ -181,100 +181,100 @@
 								throw data.detail;
 							}
 
-              if (data.status) {
-                if (data.digest) {
-                  let downloadProgress = 0;
-                  if (data.completed) {
-                    downloadProgress = Math.round((data.completed / data.total) * 1000) / 10;
-                  } else {
-                    downloadProgress = 100;
-                  }
+							if (data.status) {
+								if (data.digest) {
+									let downloadProgress = 0;
+									if (data.completed) {
+										downloadProgress = Math.round((data.completed / data.total) * 1000) / 10;
+									} else {
+										downloadProgress = 100;
+									}
 
-                  MODEL_DOWNLOAD_POOL.set({
-                    ...$MODEL_DOWNLOAD_POOL,
-                    [sanitizedModelTag]: {
-                      ...$MODEL_DOWNLOAD_POOL[sanitizedModelTag],
-                      pullProgress: downloadProgress,
-                      digest: data.digest
-                    }
-                  });
-                } else {
-                  toast.success(data.status);
+									MODEL_DOWNLOAD_POOL.set({
+										...$MODEL_DOWNLOAD_POOL,
+										[sanitizedModelTag]: {
+											...$MODEL_DOWNLOAD_POOL[sanitizedModelTag],
+											pullProgress: downloadProgress,
+											digest: data.digest
+										}
+									});
+								} else {
+									toast.success(data.status);
 
-                  MODEL_DOWNLOAD_POOL.set({
-                    ...$MODEL_DOWNLOAD_POOL,
-                    [sanitizedModelTag]: {
-                      ...$MODEL_DOWNLOAD_POOL[sanitizedModelTag],
-                      done: data.status === 'success'
-                    }
-                  });
-                }
-              }
-            }
-          }
-        } catch (error) {
-          console.log(error);
-          if (typeof error !== 'string') {
-            error = error.message;
-          }
+									MODEL_DOWNLOAD_POOL.set({
+										...$MODEL_DOWNLOAD_POOL,
+										[sanitizedModelTag]: {
+											...$MODEL_DOWNLOAD_POOL[sanitizedModelTag],
+											done: data.status === 'success'
+										}
+									});
+								}
+							}
+						}
+					}
+				} catch (error) {
+					console.log(error);
+					if (typeof error !== 'string') {
+						error = error.message;
+					}
 
-          toast.error(`${error}`);
-          // opts.callback({ success: false, error, modelName: opts.modelName });
-          break;
-        }
-      }
+					toast.error(`${error}`);
+					// opts.callback({ success: false, error, modelName: opts.modelName });
+					break;
+				}
+			}
 
-      if ($MODEL_DOWNLOAD_POOL[sanitizedModelTag].done) {
-        toast.success(
-          $i18n.t(`Model '{{modelName}}' has been successfully downloaded.`, {
-            modelName: sanitizedModelTag
-          })
-        );
+			if ($MODEL_DOWNLOAD_POOL[sanitizedModelTag].done) {
+				toast.success(
+					$i18n.t(`Model '{{modelName}}' has been successfully downloaded.`, {
+						modelName: sanitizedModelTag
+					})
+				);
 
-        models.set(
-          await getModels(
-            localStorage.token,
-            $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-          )
-        );
-      } else {
-        toast.error($i18n.t('Download canceled'));
-      }
+				models.set(
+					await getModels(
+						localStorage.token,
+						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+					)
+				);
+			} else {
+				toast.error($i18n.t('Download canceled'));
+			}
 
-      delete $MODEL_DOWNLOAD_POOL[sanitizedModelTag];
+			delete $MODEL_DOWNLOAD_POOL[sanitizedModelTag];
 
-      MODEL_DOWNLOAD_POOL.set({
-        ...$MODEL_DOWNLOAD_POOL
-      });
-    }
-  };
+			MODEL_DOWNLOAD_POOL.set({
+				...$MODEL_DOWNLOAD_POOL
+			});
+		}
+	};
 
-  onMount(async () => {
-    ollamaVersion = await getOllamaVersion(localStorage.token).catch((error) => false);
+	onMount(async () => {
+		ollamaVersion = await getOllamaVersion(localStorage.token).catch((error) => false);
 
-	if (items) {
+		if (items) {
 			tags = items.flatMap((item) => item.model?.info?.meta?.tags ?? []).map((tag) => tag.name);
 
 			// Remove duplicates and sort
 			tags = Array.from(new Set(tags)).sort((a, b) => a.localeCompare(b));
-	}
-  });
+		}
+	});
 
-  const cancelModelPullHandler = async (model: string) => {
-    const { reader, abortController } = $MODEL_DOWNLOAD_POOL[model];
-    if (abortController) {
-      abortController.abort();
-    }
-    if (reader) {
-      await reader.cancel();
-      delete $MODEL_DOWNLOAD_POOL[model];
-      MODEL_DOWNLOAD_POOL.set({
-        ...$MODEL_DOWNLOAD_POOL
-      });
-      await deleteModel(localStorage.token, model);
-      toast.success(`${model} download has been canceled`);
-    }
-  };
+	const cancelModelPullHandler = async (model: string) => {
+		const { reader, abortController } = $MODEL_DOWNLOAD_POOL[model];
+		if (abortController) {
+			abortController.abort();
+		}
+		if (reader) {
+			await reader.cancel();
+			delete $MODEL_DOWNLOAD_POOL[model];
+			MODEL_DOWNLOAD_POOL.set({
+				...$MODEL_DOWNLOAD_POOL
+			});
+			await deleteModel(localStorage.token, model);
+			toast.success(`${model} download has been canceled`);
+		}
+	};
 </script>
 
 <DropdownMenu.Root
@@ -341,21 +341,20 @@
 						bind:value={searchValue}
 					/>
 				</div>
-
-      {/if}
+			{/if}
 
 			<div class="px-3 mb-2 max-h-64 overflow-y-auto scrollbar-hidden group relative">
 				{#if tags}
 					<div class=" flex w-full sticky">
 						<div
-							class="flex gap-1 scrollbar-none overflow-x-auto w-fit text-center text-sm font-medium rounded-full bg-transparent px-1.5 pb-0.5"
 							bind:this={tagsContainerElement}
+							class="flex gap-1 scrollbar-none overflow-x-auto w-fit text-center text-sm font-medium rounded-full bg-transparent px-1.5 pb-0.5"
 						>
 							<button
 								class="min-w-fit outline-none p-1.5 {selectedTag === ''
 									? ''
 									: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition capitalize"
-								on:click={() => {
+								onclick={() => {
 									selectedTag = '';
 								}}
 							>
@@ -367,7 +366,7 @@
 									class="min-w-fit outline-none p-1.5 {selectedTag === tag
 										? ''
 										: 'text-gray-300 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white'} transition capitalize"
-									on:click={() => {
+									onclick={() => {
 										selectedTag = tag;
 									}}
 								>
@@ -445,7 +444,7 @@
 									{/if}
 								</div>
 
-                <!-- {JSON.stringify(item.info)} -->
+								<!-- {JSON.stringify(item.info)} -->
 
 								{#if item.model?.direct}
 									<Tooltip content={`${'Direct'}`}>
@@ -521,7 +520,7 @@
 										class="flex gap-0.5 self-center items-center h-full translate-y-[0.5px] overflow-x-auto scrollbar-none"
 									>
 										{#each item.model?.info?.meta.tags as tag}
-											<Tooltip content={tag.name} className="flex-shrink-0">
+											<Tooltip className="flex-shrink-0" content={tag.name}>
 												<div
 													class=" text-xs font-bold px-1 rounded-sm uppercase bg-gray-500/20 text-gray-700 dark:text-gray-200"
 												>
@@ -534,19 +533,19 @@
 							</div>
 						</div>
 
-            {#if value === item.value}
-              <div class="ml-auto pl-2 pr-2 md:pr-0">
-                <Check />
-              </div>
-            {/if}
-          </button>
-        {:else}
-          <div>
-            <div class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-100">
-              {$i18n.t('No results found')}
-            </div>
-          </div>
-        {/each}
+						{#if value === item.value}
+							<div class="ml-auto pl-2 pr-2 md:pr-0">
+								<Check />
+							</div>
+						{/if}
+					</button>
+				{:else}
+					<div>
+						<div class="block px-3 py-2 text-sm text-gray-700 dark:text-gray-100">
+							{$i18n.t('No results found')}
+						</div>
+					</div>
+				{/each}
 
 				{#if !(searchValue.trim() in $MODEL_DOWNLOAD_POOL) && searchValue && ollamaVersion && $user.role === 'admin'}
 					<Tooltip
@@ -599,26 +598,26 @@
 								>
 							</div>
 
-              <div class="flex flex-col self-start">
-                <div class="flex gap-1">
-                  <div class="line-clamp-1">
-                    Downloading "{model}"
-                  </div>
+							<div class="flex flex-col self-start">
+								<div class="flex gap-1">
+									<div class="line-clamp-1">
+										Downloading "{model}"
+									</div>
 
-                  <div class="shrink-0">
-                    {'pullProgress' in $MODEL_DOWNLOAD_POOL[model]
-                      ? `(${$MODEL_DOWNLOAD_POOL[model].pullProgress}%)`
-                      : ''}
-                  </div>
-                </div>
+									<div class="shrink-0">
+										{'pullProgress' in $MODEL_DOWNLOAD_POOL[model]
+											? `(${$MODEL_DOWNLOAD_POOL[model].pullProgress}%)`
+											: ''}
+									</div>
+								</div>
 
-                {#if 'digest' in $MODEL_DOWNLOAD_POOL[model] && $MODEL_DOWNLOAD_POOL[model].digest}
-                  <div class="-mt-1 h-fit text-[0.7rem] dark:text-gray-500 line-clamp-1">
-                    {$MODEL_DOWNLOAD_POOL[model].digest}
-                  </div>
-                {/if}
-              </div>
-            </div>
+								{#if 'digest' in $MODEL_DOWNLOAD_POOL[model] && $MODEL_DOWNLOAD_POOL[model].digest}
+									<div class="-mt-1 h-fit text-[0.7rem] dark:text-gray-500 line-clamp-1">
+										{$MODEL_DOWNLOAD_POOL[model].digest}
+									</div>
+								{/if}
+							</div>
+						</div>
 
 						<div class="mr-2 ml-1 translate-y-0.5">
 							<Tooltip content={$i18n.t('Cancel')}>
@@ -666,31 +665,28 @@
 								newChatButton?.click();
 							}, 0);
 
-              // add 'temporary-chat=true' to the URL
-              if ($temporaryChatEnabled) {
-                history.replaceState(null, '', '?temporary-chat=true');
-              } else {
-                history.replaceState(null, '', location.pathname);
-              }
+							// add 'temporary-chat=true' to the URL
+							if ($temporaryChatEnabled) {
+								history.replaceState(null, '', '?temporary-chat=true');
+							} else {
+								history.replaceState(null, '', location.pathname);
+							}
 
-              show = false;
-            }}
-          >
-            <div class="flex gap-2.5 items-center">
-              <ChatBubbleOval
-                className="size-4"
-                strokeWidth="2.5"
-              />
+							show = false;
+						}}
+					>
+						<div class="flex gap-2.5 items-center">
+							<ChatBubbleOval className="size-4" strokeWidth="2.5" />
 
-              {$i18n.t(`Temporary Chat`)}
-            </div>
+							{$i18n.t(`Temporary Chat`)}
+						</div>
 
-            <div>
-              <Switch state={$temporaryChatEnabled} />
-            </div>
-          </button>
-        </div>
-      {/if}
+						<div>
+							<Switch state={$temporaryChatEnabled} />
+						</div>
+					</button>
+				</div>
+			{/if}
 
 			<div class="hidden w-[42rem]"></div>
 			<div class="hidden w-[32rem]"></div>

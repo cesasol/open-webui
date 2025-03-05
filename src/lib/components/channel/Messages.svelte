@@ -1,60 +1,48 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 
-  import dayjs from 'dayjs';
-  import relativeTime from 'dayjs/plugin/relativeTime';
-  import isToday from 'dayjs/plugin/isToday';
-  import isYesterday from 'dayjs/plugin/isYesterday';
+	import dayjs from 'dayjs';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+	import isToday from 'dayjs/plugin/isToday';
+	import isYesterday from 'dayjs/plugin/isYesterday';
 
-  dayjs.extend(relativeTime);
-  dayjs.extend(isToday);
-  dayjs.extend(isYesterday);
-  import { tick, getContext, onMount, createEventDispatcher } from 'svelte';
+	dayjs.extend(relativeTime);
+	dayjs.extend(isToday);
+	dayjs.extend(isYesterday);
+	import { tick, getContext, onMount, createEventDispatcher } from 'svelte';
 
-  import { settings, user } from '$lib/stores';
+	import { settings, user } from '$lib/stores';
 
-  import Message from './Messages/Message.svelte';
-  import Loader from '../common/Loader.svelte';
-  import Spinner from '../common/Spinner.svelte';
-  import { addReaction, deleteMessage, removeReaction, updateMessage } from '$lib/apis/channels';
+	import Message from './Messages/Message.svelte';
+	import Loader from '../common/Loader.svelte';
+	import Spinner from '../common/Spinner.svelte';
+	import { addReaction, deleteMessage, removeReaction, updateMessage } from '$lib/apis/channels';
 
-	import { getI18nContext } from '$lib/contexts';
-	const i18n = getI18nContext();
+	const i18n = getContext('i18n');
 
-	interface Props {
-		id?: any;
-		channel?: any;
-		messages?: any;
-		top?: boolean;
-		thread?: boolean;
-		onLoad?: Function;
-		onThread?: Function;
-	}
+	export let id = null;
+	export let channel = null;
+	export let messages = [];
+	export let top = false;
+	export let thread = false;
 
-	let {
-		id = null,
-		channel = null,
-		messages = $bindable([]),
-		top = false,
-		thread = false,
-		onLoad = () => {},
-		onThread = () => {}
-	}: Props = $props();
+	export let onLoad: Function = () => {};
+	export let onThread: Function = () => {};
 
-	let messagesLoading = $state(false);
+	let messagesLoading = false;
 
-  const loadMoreMessages = async () => {
-    // scroll slightly down to disable continuous loading
-    const element = document.getElementById('messages-container');
-    element.scrollTop = element.scrollTop + 100;
+	const loadMoreMessages = async () => {
+		// scroll slightly down to disable continuous loading
+		const element = document.getElementById('messages-container');
+		element.scrollTop = element.scrollTop + 100;
 
-    messagesLoading = true;
+		messagesLoading = true;
 
-    await onLoad();
+		await onLoad();
 
-    await tick();
-    messagesLoading = false;
-  };
+		await tick();
+		messagesLoading = false;
+	};
 </script>
 
 {#if messages}
@@ -77,31 +65,31 @@
 		{:else if !thread}
 			<div
 				class="px-5
-
-          {($settings?.widescreenMode ?? null) ? 'max-w-full' : 'max-w-5xl'} mx-auto"
+			
+			{($settings?.widescreenMode ?? null) ? 'max-w-full' : 'max-w-5xl'} mx-auto"
 			>
 				{#if channel}
 					<div class="flex flex-col gap-1.5 pb-5 pt-10">
 						<div class="text-2xl font-medium capitalize">{channel.name}</div>
 
-          {($settings?.widescreenMode ?? null) ? 'max-w-full' : 'max-w-5xl'} mx-auto"
-      >
-        {#if channel}
-          <div class="flex flex-col gap-1.5 pb-5 pt-10">
-            <div class="text-2xl font-medium capitalize">{channel.name}</div>
+						<div class=" text-gray-500">
+							This channel was created on {dayjs(channel.created_at / 1000000).format(
+								'MMMM D, YYYY'
+							)}. This is the very beginning of the {channel.name}
+							channel.
+						</div>
+					</div>
+				{:else}
+					<div class="flex justify-center text-xs items-center gap-2 py-5">
+						<div class=" ">Start of the channel</div>
+					</div>
+				{/if}
 
-            <div class=" text-gray-500">
-              This channel was created on {dayjs(channel.created_at / 1000000).format(
-                'MMMM D, YYYY'
-              )}. This is the very beginning of the {channel.name}
-              channel.
-            </div>
-          </div>
-        {:else}
-          <div class="flex justify-center text-xs items-center gap-2 py-5">
-            <div class=" ">Start of the channel</div>
-          </div>
-        {/if}
+				{#if messageList.length > 0}
+					<hr class=" border-gray-50 dark:border-gray-700/20 py-2.5 w-full" />
+				{/if}
+			</div>
+		{/if}
 
 		{#each messageList as message, messageIdx (id ? `${id}-${message.id}` : message.id)}
 			<Message
@@ -109,11 +97,20 @@
 				onDelete={() => {
 					messages = messages.filter((m) => m.id !== message.id);
 
-    {#each messageList as message, messageIdx (id ? `${id}-${message.id}` : message.id)}
-      <Message
-        {message}
-        onDelete={() => {
-          messages = messages.filter((m) => m.id !== message.id);
+					const res = deleteMessage(localStorage.token, message.channel_id, message.id).catch(
+						(error) => {
+							toast.error(`${error}`);
+							return null;
+						}
+					);
+				}}
+				onEdit={(content) => {
+					messages = messages.map((m) => {
+						if (m.id === message.id) {
+							m.content = content;
+						}
+						return m;
+					});
 
 					const res = updateMessage(localStorage.token, message.channel_id, message.id, {
 						content: content
@@ -133,50 +130,47 @@
 							if (m.id === message.id) {
 								const reaction = m.reactions.find((reaction) => reaction.name === name);
 
-          const res = updateMessage(localStorage.token, message.channel_id, message.id, {
-            content: content
-          }).catch((error) => {
-            toast.error(`${error}`);
-            return null;
-          });
-        }}
-        onReaction={(name) => {
-          if (
-            (message?.reactions ?? [])
-              .find((reaction) => reaction.name === name)
-              ?.user_ids?.includes($user.id) ??
-            false
-          ) {
-            messages = messages.map((m) => {
-              if (m.id === message.id) {
-                const reaction = m.reactions.find((reaction) => reaction.name === name);
+								if (reaction) {
+									reaction.user_ids = reaction.user_ids.filter((id) => id !== $user.id);
+									reaction.count = reaction.user_ids.length;
 
-                if (reaction) {
-                  reaction.user_ids = reaction.user_ids.filter((id) => id !== $user.id);
-                  reaction.count = reaction.user_ids.length;
+									if (reaction.count === 0) {
+										m.reactions = m.reactions.filter((r) => r.name !== name);
+									}
+								}
+							}
+							return m;
+						});
 
-                  if (reaction.count === 0) {
-                    m.reactions = m.reactions.filter((r) => r.name !== name);
-                  }
-                }
-              }
-              return m;
-            });
+						const res = removeReaction(
+							localStorage.token,
+							message.channel_id,
+							message.id,
+							name
+						).catch((error) => {
+							toast.error(`${error}`);
+							return null;
+						});
+					} else {
+						messages = messages.map((m) => {
+							if (m.id === message.id) {
+								if (m.reactions) {
+									const reaction = m.reactions.find((reaction) => reaction.name === name);
 
-            const res = removeReaction(
-              localStorage.token,
-              message.channel_id,
-              message.id,
-              name
-            ).catch((error) => {
-              toast.error(`${error}`);
-              return null;
-            });
-          } else {
-            messages = messages.map((m) => {
-              if (m.id === message.id) {
-                if (m.reactions) {
-                  const reaction = m.reactions.find((reaction) => reaction.name === name);
+									if (reaction) {
+										reaction.user_ids.push($user.id);
+										reaction.count = reaction.user_ids.length;
+									} else {
+										m.reactions.push({
+											name: name,
+											user_ids: [$user.id],
+											count: 1
+										});
+									}
+								}
+							}
+							return m;
+						});
 
 						const res = addReaction(localStorage.token, message.channel_id, message.id, name).catch(
 							(error) => {
@@ -195,6 +189,6 @@
 			/>
 		{/each}
 
-		<div class="pb-6"></div>
+		<div class="pb-6" />
 	</div>
 {/if}

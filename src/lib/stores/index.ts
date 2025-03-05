@@ -86,51 +86,51 @@ export const playingNotificationSound = writable(false);
 export type Model = OpenAIModel | OllamaModel;
 
 type BaseModel = {
-  id: string;
-  name: string;
-  info?: ModelConfig;
-  owned_by: 'ollama' | 'openai' | 'arena';
+	id: string;
+	name: string;
+	info?: ModelConfig;
+	owned_by: 'ollama' | 'openai' | 'arena';
 };
 
 export interface OpenAIModel extends BaseModel {
-  owned_by: 'openai';
-  external: boolean;
-  source?: string;
+	owned_by: 'openai';
+	external: boolean;
+	source?: string;
 }
 
 export interface OllamaModel extends BaseModel {
-  owned_by: 'ollama';
-  details: OllamaModelDetails;
-  size: number;
-  description: string;
-  model: string;
-  modified_at: string;
-  digest: string;
-  ollama?: {
-    name?: string;
-    model?: string;
-    modified_at: string;
-    size?: number;
-    digest?: string;
-    details?: {
-      parent_model?: string;
-      format?: string;
-      family?: string;
-      families?: string[];
-      parameter_size?: string;
-      quantization_level?: string;
-    };
-    urls?: number[];
-  };
+	owned_by: 'ollama';
+	details: OllamaModelDetails;
+	size: number;
+	description: string;
+	model: string;
+	modified_at: string;
+	digest: string;
+	ollama?: {
+		name?: string;
+		model?: string;
+		modified_at: string;
+		size?: number;
+		digest?: string;
+		details?: {
+			parent_model?: string;
+			format?: string;
+			family?: string;
+			families?: string[];
+			parameter_size?: string;
+			quantization_level?: string;
+		};
+		urls?: number[];
+	};
 }
 
 type OllamaModelDetails = {
-  parent_model: string;
-  format: string;
-  family: string;
-  families: string[] | null;
-  parameter_size: string;
-  quantization_level: string;
+	parent_model: string;
+	format: string;
+	family: string;
+	families: string[] | null;
+	parameter_size: string;
+	quantization_level: string;
 };
 
 export type Settings = {
@@ -182,7 +182,7 @@ export type DirectConnectionsSettings = {
 };
 
 type ModelOptions = {
-  stop?: boolean;
+	stop?: boolean;
 };
 
 type AudioSettings = {
@@ -203,25 +203,25 @@ type TTSEngineConfig = {
 };
 
 type TitleSettings = {
-  auto?: boolean;
-  model?: string;
-  modelExternal?: string;
-  prompt?: string;
+	auto?: boolean;
+	model?: string;
+	modelExternal?: string;
+	prompt?: string;
 };
 
 type Prompt = {
-  command: string;
-  user_id: string;
-  title: string;
-  content: string;
-  timestamp: number;
+	command: string;
+	user_id: string;
+	title: string;
+	content: string;
+	timestamp: number;
 };
 
 type Document = {
-  collection_name: string;
-  filename: string;
-  name: string;
-  title: string;
+	collection_name: string;
+	filename: string;
+	name: string;
+	title: string;
 };
 
 type Config = {
@@ -254,8 +254,8 @@ type Config = {
 };
 
 type PromptSuggestion = {
-  content: string;
-  title: [string, string];
+	content: string;
+	title: [string, string];
 };
 
 type SessionUser = {

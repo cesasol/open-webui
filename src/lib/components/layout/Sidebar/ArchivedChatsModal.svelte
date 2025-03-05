@@ -8,16 +8,16 @@
 	import { createEventDispatcher } from 'svelte';
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
-  dayjs.extend(localizedFormat);
+	dayjs.extend(localizedFormat);
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
-  import {
-    archiveChatById,
-    deleteChatById,
-    getAllArchivedChats,
-    getArchivedChatList
-  } from '$lib/apis/chats';
+	import {
+		archiveChatById,
+		deleteChatById,
+		getAllArchivedChats,
+		getArchivedChatList
+	} from '$lib/apis/chats';
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
@@ -42,17 +42,17 @@
 			toast.error(`${error}`);
 		});
 
-    chats = await getArchivedChatList(localStorage.token);
-    dispatch('change');
-  };
+		chats = await getArchivedChatList(localStorage.token);
+		dispatch('change');
+	};
 
 	const deleteChatHandler = async (chatId: string) => {
 		const res = await deleteChatById(localStorage.token, chatId).catch((error) => {
 			toast.error(`${error}`);
 		});
 
-    chats = await getArchivedChatList(localStorage.token);
-  };
+		chats = await getArchivedChatList(localStorage.token);
+	};
 
 	const exportChatsHandler = async () => {
 		const chats = await getAllArchivedChats(localStorage.token);
@@ -62,12 +62,12 @@
 		saveAs(blob, `${$i18n.t('archived-chat-export')}-${Date.now()}.json`);
 	};
 
-  const unarchiveAllHandler = async () => {
-    for (const chat of chats) {
-      await archiveChatById(localStorage.token, chat.id);
-    }
-    chats = await getArchivedChatList(localStorage.token);
-  };
+	const unarchiveAllHandler = async () => {
+		for (const chat of chats) {
+			await archiveChatById(localStorage.token, chat.id);
+		}
+		chats = await getArchivedChatList(localStorage.token);
+	};
 
 	run(() => {
 		if (show) {
@@ -171,11 +171,11 @@
 													</a>
 												</td>
 
-                        <td class=" px-3 py-1 hidden md:flex h-[2.5rem]">
-                          <div class="my-auto">
-                            {dayjs(chat.created_at * 1000).format('LLL')}
-                          </div>
-                        </td>
+												<td class=" px-3 py-1 hidden md:flex h-[2.5rem]">
+													<div class="my-auto">
+														{dayjs(chat.created_at * 1000).format('LLL')}
+													</div>
+												</td>
 
 												<td class="px-3 py-1 text-right">
 													<div class="flex justify-end w-full">

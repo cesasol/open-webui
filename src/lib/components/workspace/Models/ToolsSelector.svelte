@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Checkbox from '$lib/components/common/Checkbox.svelte';
-  import { getContext, onMount } from 'svelte';
+	import Checkbox from '$lib/components/common/Checkbox.svelte';
+	import { getContext, onMount } from 'svelte';
 
 	let _tools = $state({});
 
@@ -9,26 +9,26 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  onMount(() => {
-    _tools = tools.reduce((acc, tool) => {
-      acc[tool.id] = {
-        ...tool,
-        selected: selectedToolIds.includes(tool.id)
-      };
+	onMount(() => {
+		_tools = tools.reduce((acc, tool) => {
+			acc[tool.id] = {
+				...tool,
+				selected: selectedToolIds.includes(tool.id)
+			};
 
-      return acc;
-    }, {});
-  });
+			return acc;
+		}, {});
+	});
 </script>
 
 <div>
-  <div class="flex w-full justify-between mb-1">
-    <div class=" self-center text-sm font-semibold">{$i18n.t('Tools')}</div>
-  </div>
+	<div class="flex w-full justify-between mb-1">
+		<div class=" self-center text-sm font-semibold">{$i18n.t('Tools')}</div>
+	</div>
 
-  <div class=" text-xs dark:text-gray-500">
-    {$i18n.t('To select toolkits here, add them to the "Tools" workspace first.')}
-  </div>
+	<div class=" text-xs dark:text-gray-500">
+		{$i18n.t('To select toolkits here, add them to the "Tools" workspace first.')}
+	</div>
 
 	<div class="flex flex-col">
 		{#if tools.length > 0}
@@ -45,12 +45,12 @@
 							/>
 						</div>
 
-            <div class=" py-0.5 text-sm w-full capitalize font-medium">
-              {_tools[tool].name}
-            </div>
-          </div>
-        {/each}
-      </div>
-    {/if}
-  </div>
+						<div class=" py-0.5 text-sm w-full capitalize font-medium">
+							{_tools[tool].name}
+						</div>
+					</div>
+				{/each}
+			</div>
+		{/if}
+	</div>
 </div>

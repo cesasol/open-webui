@@ -3,10 +3,10 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
-  import Cog6 from '$lib/components/icons/Cog6.svelte';
-  import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
+	import Cog6 from '$lib/components/icons/Cog6.svelte';
+	import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
 
 	interface Props {
 		onDelete?: any;
@@ -71,13 +71,13 @@
 				/>
 			</div>
 
-      <SensitiveInput
-        inputClassName=" outline-hidden bg-transparent w-full"
-        placeholder={$i18n.t('API Key')}
-        bind:value={key}
-      />
-    </div>
-  </Tooltip>
+			<SensitiveInput
+				inputClassName=" outline-hidden bg-transparent w-full"
+				placeholder={$i18n.t('API Key')}
+				bind:value={key}
+			/>
+		</div>
+	</Tooltip>
 
 	<div class="flex gap-1">
 		<Tooltip className="self-start" content={$i18n.t('Configure')}>

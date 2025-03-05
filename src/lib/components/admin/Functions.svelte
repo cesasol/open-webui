@@ -5,35 +5,35 @@
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-  import { WEBUI_NAME, config, functions, models, settings } from '$lib/stores';
-  import { onMount, getContext, tick } from 'svelte';
+	import { WEBUI_NAME, config, functions, models, settings } from '$lib/stores';
+	import { onMount, getContext, tick } from 'svelte';
 
-  import { goto } from '$app/navigation';
-  import {
-    createNewFunction,
-    deleteFunctionById,
-    exportFunctions,
-    getFunctionById,
-    getFunctions,
-    toggleFunctionById,
-    toggleGlobalById
-  } from '$lib/apis/functions';
+	import { goto } from '$app/navigation';
+	import {
+		createNewFunction,
+		deleteFunctionById,
+		exportFunctions,
+		getFunctionById,
+		getFunctions,
+		toggleFunctionById,
+		toggleGlobalById
+	} from '$lib/apis/functions';
 
-  import ArrowDownTray from '../icons/ArrowDownTray.svelte';
-  import Tooltip from '../common/Tooltip.svelte';
-  import ConfirmDialog from '../common/ConfirmDialog.svelte';
-  import { getModels } from '$lib/apis';
-  import FunctionMenu from './Functions/FunctionMenu.svelte';
-  import EllipsisHorizontal from '../icons/EllipsisHorizontal.svelte';
-  import Switch from '../common/Switch.svelte';
-  import ValvesModal from '../workspace/common/ValvesModal.svelte';
-  import ManifestModal from '../workspace/common/ManifestModal.svelte';
-  import Heart from '../icons/Heart.svelte';
-  import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-  import GarbageBin from '../icons/GarbageBin.svelte';
-  import Search from '../icons/Search.svelte';
-  import Plus from '../icons/Plus.svelte';
-  import ChevronRight from '../icons/ChevronRight.svelte';
+	import ArrowDownTray from '../icons/ArrowDownTray.svelte';
+	import Tooltip from '../common/Tooltip.svelte';
+	import ConfirmDialog from '../common/ConfirmDialog.svelte';
+	import { getModels } from '$lib/apis';
+	import FunctionMenu from './Functions/FunctionMenu.svelte';
+	import EllipsisHorizontal from '../icons/EllipsisHorizontal.svelte';
+	import Switch from '../common/Switch.svelte';
+	import ValvesModal from '../workspace/common/ValvesModal.svelte';
+	import ManifestModal from '../workspace/common/ManifestModal.svelte';
+	import Heart from '../icons/Heart.svelte';
+	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import GarbageBin from '../icons/GarbageBin.svelte';
+	import Search from '../icons/Search.svelte';
+	import Plus from '../icons/Plus.svelte';
+	import ChevronRight from '../icons/ChevronRight.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -64,54 +64,54 @@
 			.sort((a, b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
 	});
 
-  const shareHandler = async (func) => {
-    const item = await getFunctionById(localStorage.token, func.id).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const shareHandler = async (func) => {
+		const item = await getFunctionById(localStorage.token, func.id).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
-    toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
 
-    const url = 'https://openwebui.com';
+		const url = 'https://openwebui.com';
 
-    const tab = await window.open(`${url}/functions/create`, '_blank');
+		const tab = await window.open(`${url}/functions/create`, '_blank');
 
-    // Define the event handler function
-    const messageHandler = (event) => {
-      if (event.origin !== url) return;
-      if (event.data === 'loaded') {
-        tab.postMessage(JSON.stringify(item), '*');
+		// Define the event handler function
+		const messageHandler = (event) => {
+			if (event.origin !== url) return;
+			if (event.data === 'loaded') {
+				tab.postMessage(JSON.stringify(item), '*');
 
-        // Remove the event listener after handling the message
-        window.removeEventListener('message', messageHandler);
-      }
-    };
+				// Remove the event listener after handling the message
+				window.removeEventListener('message', messageHandler);
+			}
+		};
 
-    window.addEventListener('message', messageHandler, false);
-    console.log(item);
-  };
+		window.addEventListener('message', messageHandler, false);
+		console.log(item);
+	};
 
-  const cloneHandler = async (func) => {
-    const _function = await getFunctionById(localStorage.token, func.id).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const cloneHandler = async (func) => {
+		const _function = await getFunctionById(localStorage.token, func.id).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
-    if (_function) {
-      sessionStorage.function = JSON.stringify({
-        ..._function,
-        id: `${_function.id}_clone`,
-        name: `${_function.name} (Clone)`
-      });
-      goto('/admin/functions/create');
-    }
-  };
+		if (_function) {
+			sessionStorage.function = JSON.stringify({
+				..._function,
+				id: `${_function.id}_clone`,
+				name: `${_function.name} (Clone)`
+			});
+			goto('/admin/functions/create');
+		}
+	};
 
-  const exportHandler = async (func) => {
-    const _function = await getFunctionById(localStorage.token, func.id).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const exportHandler = async (func) => {
+		const _function = await getFunctionById(localStorage.token, func.id).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
 		if (_function) {
 			const blob = new Blob([JSON.stringify([_function])], {
@@ -121,84 +121,84 @@
 		}
 	};
 
-  const deleteHandler = async (func) => {
-    const res = await deleteFunctionById(localStorage.token, func.id).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const deleteHandler = async (func) => {
+		const res = await deleteFunctionById(localStorage.token, func.id).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
-    if (res) {
-      toast.success($i18n.t('Function deleted successfully'));
+		if (res) {
+			toast.success($i18n.t('Function deleted successfully'));
 
-      functions.set(await getFunctions(localStorage.token));
-      models.set(
-        await getModels(
-          localStorage.token,
-          $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-        )
-      );
-    }
-  };
+			functions.set(await getFunctions(localStorage.token));
+			models.set(
+				await getModels(
+					localStorage.token,
+					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+				)
+			);
+		}
+	};
 
-  const toggleGlobalHandler = async (func) => {
-    const res = await toggleGlobalById(localStorage.token, func.id).catch((error) => {
-      toast.error(`${error}`);
-    });
+	const toggleGlobalHandler = async (func) => {
+		const res = await toggleGlobalById(localStorage.token, func.id).catch((error) => {
+			toast.error(`${error}`);
+		});
 
-    if (res) {
-      if (func.is_global) {
-        func.type === 'filter'
-          ? toast.success($i18n.t('Filter is now globally enabled'))
-          : toast.success($i18n.t('Function is now globally enabled'));
-      } else {
-        func.type === 'filter'
-          ? toast.success($i18n.t('Filter is now globally disabled'))
-          : toast.success($i18n.t('Function is now globally disabled'));
-      }
+		if (res) {
+			if (func.is_global) {
+				func.type === 'filter'
+					? toast.success($i18n.t('Filter is now globally enabled'))
+					: toast.success($i18n.t('Function is now globally enabled'));
+			} else {
+				func.type === 'filter'
+					? toast.success($i18n.t('Filter is now globally disabled'))
+					: toast.success($i18n.t('Function is now globally disabled'));
+			}
 
-      functions.set(await getFunctions(localStorage.token));
-      models.set(
-        await getModels(
-          localStorage.token,
-          $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-        )
-      );
-    }
-  };
+			functions.set(await getFunctions(localStorage.token));
+			models.set(
+				await getModels(
+					localStorage.token,
+					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+				)
+			);
+		}
+	};
 
-  onMount(() => {
-    const onKeyDown = (event) => {
-      if (event.key === 'Shift') {
-        shiftKey = true;
-      }
-    };
+	onMount(() => {
+		const onKeyDown = (event) => {
+			if (event.key === 'Shift') {
+				shiftKey = true;
+			}
+		};
 
-    const onKeyUp = (event) => {
-      if (event.key === 'Shift') {
-        shiftKey = false;
-      }
-    };
+		const onKeyUp = (event) => {
+			if (event.key === 'Shift') {
+				shiftKey = false;
+			}
+		};
 
-    const onBlur = () => {
-      shiftKey = false;
-    };
+		const onBlur = () => {
+			shiftKey = false;
+		};
 
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    window.addEventListener('blur-sm', onBlur);
+		window.addEventListener('keydown', onKeyDown);
+		window.addEventListener('keyup', onKeyUp);
+		window.addEventListener('blur-sm', onBlur);
 
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-      window.removeEventListener('keyup', onKeyUp);
-      window.removeEventListener('blur-sm', onBlur);
-    };
-  });
+		return () => {
+			window.removeEventListener('keydown', onKeyDown);
+			window.removeEventListener('keyup', onKeyUp);
+			window.removeEventListener('blur-sm', onBlur);
+		};
+	});
 </script>
 
 <svelte:head>
-  <title>
-    {$i18n.t('Functions')} | {$WEBUI_NAME}
-  </title>
+	<title>
+		{$i18n.t('Functions')} | {$WEBUI_NAME}
+	</title>
 </svelte:head>
 
 <div class="flex flex-col gap-1 mt-1.5 mb-2">
@@ -222,44 +222,50 @@
 			/>
 		</div>
 
-    <div>
-      <a
-        class=" px-2 py-2 rounded-xl hover:bg-gray-700/10 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition font-medium text-sm flex items-center space-x-1"
-        href="/admin/functions/create"
-      >
-        <Plus className="size-3.5" />
-      </a>
-    </div>
-  </div>
+		<div>
+			<a
+				class=" px-2 py-2 rounded-xl hover:bg-gray-700/10 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition font-medium text-sm flex items-center space-x-1"
+				href="/admin/functions/create"
+			>
+				<Plus className="size-3.5" />
+			</a>
+		</div>
+	</div>
 </div>
 
 <div class="mb-5">
-  {#each filteredItems as func (func.id)}
-    <div class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl">
-      <a
-        class=" flex flex-1 space-x-3.5 cursor-pointer w-full"
-        href={`/admin/functions/edit?id=${encodeURIComponent(func.id)}`}
-      >
-        <div class="flex items-center text-left">
-          <div class=" flex-1 self-center pl-1">
-            <div class=" font-semibold flex items-center gap-1.5">
-              <div class=" text-xs font-bold px-1 rounded-sm uppercase line-clamp-1 bg-gray-500/20 text-gray-700 dark:text-gray-200">
-                {func.type}
-              </div>
+	{#each filteredItems as func (func.id)}
+		<div
+			class=" flex space-x-4 cursor-pointer w-full px-3 py-2 dark:hover:bg-white/5 hover:bg-black/5 rounded-xl"
+		>
+			<a
+				class=" flex flex-1 space-x-3.5 cursor-pointer w-full"
+				href={`/admin/functions/edit?id=${encodeURIComponent(func.id)}`}
+			>
+				<div class="flex items-center text-left">
+					<div class=" flex-1 self-center pl-1">
+						<div class=" font-semibold flex items-center gap-1.5">
+							<div
+								class=" text-xs font-bold px-1 rounded-sm uppercase line-clamp-1 bg-gray-500/20 text-gray-700 dark:text-gray-200"
+							>
+								{func.type}
+							</div>
 
-              {#if func?.meta?.manifest?.version}
-                <div class="text-xs font-bold px-1 rounded-sm line-clamp-1 bg-gray-500/20 text-gray-700 dark:text-gray-200">
-                  v{func?.meta?.manifest?.version ?? ''}
-                </div>
-              {/if}
+							{#if func?.meta?.manifest?.version}
+								<div
+									class="text-xs font-bold px-1 rounded-sm line-clamp-1 bg-gray-500/20 text-gray-700 dark:text-gray-200"
+								>
+									v{func?.meta?.manifest?.version ?? ''}
+								</div>
+							{/if}
 
-              <div class=" line-clamp-1">
-                {func.name}
-              </div>
-            </div>
+							<div class=" line-clamp-1">
+								{func.name}
+							</div>
+						</div>
 
-            <div class="flex gap-1.5 px-1">
-              <div class=" text-gray-500 text-xs font-medium shrink-0">{func.id}</div>
+						<div class="flex gap-1.5 px-1">
+							<div class=" text-gray-500 text-xs font-medium shrink-0">{func.id}</div>
 
 							<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
 								{func.meta.description}
@@ -362,26 +368,26 @@
 					</FunctionMenu>
 				{/if}
 
-        <div class=" self-center mx-1">
-          <Tooltip content={func.is_active ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
-            <Switch
-              bind:state={func.is_active}
-              on:change={async (e) => {
-                toggleFunctionById(localStorage.token, func.id);
-                models.set(
-                  await getModels(
-                    localStorage.token,
-                    $config?.features?.enable_direct_connections &&
-                      ($settings?.directConnections ?? null)
-                  )
-                );
-              }}
-            />
-          </Tooltip>
-        </div>
-      </div>
-    </div>
-  {/each}
+				<div class=" self-center mx-1">
+					<Tooltip content={func.is_active ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
+						<Switch
+							bind:state={func.is_active}
+							on:change={async (e) => {
+								toggleFunctionById(localStorage.token, func.id);
+								models.set(
+									await getModels(
+										localStorage.token,
+										$config?.features?.enable_direct_connections &&
+											($settings?.directConnections ?? null)
+									)
+								);
+							}}
+						/>
+					</Tooltip>
+				</div>
+			</div>
+		</div>
+	{/each}
 </div>
 
 <!-- <div class=" text-gray-500 text-xs mt-1 mb-2">
@@ -466,30 +472,30 @@
 </div>
 
 {#if $config?.features.enable_community_sharing}
-  <div class=" my-16">
-    <div class=" text-xl font-medium mb-1 line-clamp-1">
-      {$i18n.t('Made by Open WebUI Community')}
-    </div>
+	<div class=" my-16">
+		<div class=" text-xl font-medium mb-1 line-clamp-1">
+			{$i18n.t('Made by Open WebUI Community')}
+		</div>
 
-    <a
-      class=" flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full mb-2 px-3.5 py-1.5 rounded-xl transition"
-      href="https://openwebui.com/#open-webui-community"
-      target="_blank"
-    >
-      <div class=" self-center">
-        <div class=" font-semibold line-clamp-1">{$i18n.t('Discover a function')}</div>
-        <div class=" text-sm line-clamp-1">
-          {$i18n.t('Discover, download, and explore custom functions')}
-        </div>
-      </div>
+		<a
+			class=" flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full mb-2 px-3.5 py-1.5 rounded-xl transition"
+			href="https://openwebui.com/#open-webui-community"
+			target="_blank"
+		>
+			<div class=" self-center">
+				<div class=" font-semibold line-clamp-1">{$i18n.t('Discover a function')}</div>
+				<div class=" text-sm line-clamp-1">
+					{$i18n.t('Discover, download, and explore custom functions')}
+				</div>
+			</div>
 
-      <div>
-        <div>
-          <ChevronRight />
-        </div>
-      </div>
-    </a>
-  </div>
+			<div>
+				<div>
+					<ChevronRight />
+				</div>
+			</div>
+		</a>
+	</div>
 {/if}
 
 <DeleteConfirmDialog
@@ -499,9 +505,9 @@
 		deleteHandler(selectedFunction);
 	}}
 >
-  <div class=" text-sm text-gray-500">
-    {$i18n.t('This will delete')} <span class="  font-semibold">{selectedFunction.name}</span>.
-  </div>
+	<div class=" text-sm text-gray-500">
+		{$i18n.t('This will delete')} <span class="  font-semibold">{selectedFunction.name}</span>.
+	</div>
 </DeleteConfirmDialog>
 
 <ManifestModal manifest={selectedFunction?.meta?.manifest ?? {}} bind:show={showManifestModal} />
@@ -521,47 +527,47 @@
 />
 
 <ConfirmDialog
-  bind:show={showConfirm}
-  on:confirm={() => {
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const _functions = JSON.parse(event.target.result);
-      console.log(_functions);
+	bind:show={showConfirm}
+	on:confirm={() => {
+		const reader = new FileReader();
+		reader.onload = async (event) => {
+			const _functions = JSON.parse(event.target.result);
+			console.log(_functions);
 
-      for (const func of _functions) {
-        const res = await createNewFunction(localStorage.token, func).catch((error) => {
-          toast.error(`${error}`);
-          return null;
-        });
-      }
+			for (const func of _functions) {
+				const res = await createNewFunction(localStorage.token, func).catch((error) => {
+					toast.error(`${error}`);
+					return null;
+				});
+			}
 
-      toast.success($i18n.t('Functions imported successfully'));
-      functions.set(await getFunctions(localStorage.token));
-      models.set(
-        await getModels(
-          localStorage.token,
-          $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-        )
-      );
-    };
+			toast.success($i18n.t('Functions imported successfully'));
+			functions.set(await getFunctions(localStorage.token));
+			models.set(
+				await getModels(
+					localStorage.token,
+					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+				)
+			);
+		};
 
-    reader.readAsText(importFiles[0]);
-  }}
+		reader.readAsText(importFiles[0]);
+	}}
 >
-  <div class="text-sm text-gray-500">
-    <div class=" bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 rounded-lg px-4 py-3">
-      <div>Please carefully review the following warnings:</div>
+	<div class="text-sm text-gray-500">
+		<div class=" bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 rounded-lg px-4 py-3">
+			<div>Please carefully review the following warnings:</div>
 
-      <ul class=" mt-1 list-disc pl-4 text-xs">
-        <li>{$i18n.t('Functions allow arbitrary code execution.')}</li>
-        <li>{$i18n.t('Do not install functions from sources you do not fully trust.')}</li>
-      </ul>
-    </div>
+			<ul class=" mt-1 list-disc pl-4 text-xs">
+				<li>{$i18n.t('Functions allow arbitrary code execution.')}</li>
+				<li>{$i18n.t('Do not install functions from sources you do not fully trust.')}</li>
+			</ul>
+		</div>
 
-    <div class="my-3">
-      {$i18n.t(
-        'I acknowledge that I have read and I understand the implications of my action. I am aware of the risks associated with executing arbitrary code and I have verified the trustworthiness of the source.'
-      )}
-    </div>
-  </div>
+		<div class="my-3">
+			{$i18n.t(
+				'I acknowledge that I have read and I understand the implications of my action. I am aware of the risks associated with executing arbitrary code and I have verified the trustworthiness of the source.'
+			)}
+		</div>
+	</div>
 </ConfirmDialog>

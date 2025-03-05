@@ -3,12 +3,12 @@
 
 	import { onMount, tick, getContext } from 'svelte';
 
-  import Textarea from '$lib/components/common/Textarea.svelte';
-  import { toast } from 'svelte-sonner';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import AccessControl from '../common/AccessControl.svelte';
-  import LockClosed from '$lib/components/icons/LockClosed.svelte';
-  import AccessControlModal from '../common/AccessControlModal.svelte';
+	import Textarea from '$lib/components/common/Textarea.svelte';
+	import { toast } from 'svelte-sonner';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import AccessControl from '../common/AccessControl.svelte';
+	import LockClosed from '$lib/components/icons/LockClosed.svelte';
+	import AccessControlModal from '../common/AccessControlModal.svelte';
 
 	interface Props {
 		onSubmit: Function;
@@ -40,41 +40,41 @@
 	const submitHandler = async () => {
 		loading = true;
 
-    if (validateCommandString(command)) {
-      await onSubmit({
-        title,
-        command,
-        content,
-        access_control: accessControl
-      });
-    } else {
-      toast.error(
-        $i18n.t('Only alphanumeric characters and hyphens are allowed in the command string.')
-      );
-    }
+		if (validateCommandString(command)) {
+			await onSubmit({
+				title,
+				command,
+				content,
+				access_control: accessControl
+			});
+		} else {
+			toast.error(
+				$i18n.t('Only alphanumeric characters and hyphens are allowed in the command string.')
+			);
+		}
 
-    loading = false;
-  };
+		loading = false;
+	};
 
-  const validateCommandString = (inputString) => {
-    // Regular expression to match only alphanumeric characters and hyphen
-    const regex = /^[a-zA-Z0-9-]+$/;
+	const validateCommandString = (inputString) => {
+		// Regular expression to match only alphanumeric characters and hyphen
+		const regex = /^[a-zA-Z0-9-]+$/;
 
-    // Test the input string against the regular expression
-    return regex.test(inputString);
-  };
+		// Test the input string against the regular expression
+		return regex.test(inputString);
+	};
 
-  onMount(async () => {
-    if (prompt) {
-      title = prompt.title;
-      await tick();
+	onMount(async () => {
+		if (prompt) {
+			title = prompt.title;
+			await tick();
 
-      command = prompt.command.at(0) === '/' ? prompt.command.slice(1) : prompt.command;
-      content = prompt.content;
+			command = prompt.command.at(0) === '/' ? prompt.command.slice(1) : prompt.command;
+			content = prompt.content;
 
-      accessControl = prompt?.access_control ?? null;
-    }
-  });
+			accessControl = prompt?.access_control ?? null;
+		}
+	});
 </script>
 
 <AccessControlModal
@@ -119,12 +119,12 @@
 							>
 								<LockClosed className="size-3.5" strokeWidth="2.5" />
 
-                <div class="text-sm font-medium shrink-0">
-                  {$i18n.t('Access')}
-                </div>
-              </button>
-            </div>
-          </div>
+								<div class="text-sm font-medium shrink-0">
+									{$i18n.t('Access')}
+								</div>
+							</button>
+						</div>
+					</div>
 
 					<div class="flex gap-0.5 items-center text-xs text-gray-500">
 						<div class="">/</div>
@@ -140,10 +140,10 @@
 			</Tooltip>
 		</div>
 
-    <div class="my-2">
-      <div class="flex w-full justify-between">
-        <div class=" self-center text-sm font-semibold">{$i18n.t('Prompt Content')}</div>
-      </div>
+		<div class="my-2">
+			<div class="flex w-full justify-between">
+				<div class=" self-center text-sm font-semibold">{$i18n.t('Prompt Content')}</div>
+			</div>
 
 			<div class="mt-2">
 				<div>
@@ -167,13 +167,14 @@
 					<span class=" text-gray-600 dark:text-gray-300 font-medium">&#125;&#125;</span>.
 				</div>
 
-        <div class="text-xs text-gray-400 dark:text-gray-500">
-          {$i18n.t('Utilize')}<span class=" text-gray-600 dark:text-gray-300 font-medium">
-            {` {{CLIPBOARD}}`}</span>
-          {$i18n.t('variable to have them replaced with clipboard content.')}
-        </div>
-      </div>
-    </div>
+				<div class="text-xs text-gray-400 dark:text-gray-500">
+					{$i18n.t('Utilize')}<span class=" text-gray-600 dark:text-gray-300 font-medium">
+						{` {{CLIPBOARD}}`}</span
+					>
+					{$i18n.t('variable to have them replaced with clipboard content.')}
+				</div>
+			</div>
+		</div>
 
 		<div class="my-4 flex justify-end pb-20">
 			<button

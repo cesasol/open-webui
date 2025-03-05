@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { DropdownMenu } from 'bits-ui';
-  import { createEventDispatcher } from 'svelte';
+	import { DropdownMenu } from 'bits-ui';
+	import { createEventDispatcher } from 'svelte';
 
-  import { flyAndScale } from '$lib/utils/transitions';
-  import { WEBUI_BASE_URL } from '$lib/constants';
-  import { activeUserIds } from '$lib/stores';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { activeUserIds } from '$lib/stores';
 
 	interface Props {
 		side?: string;
@@ -17,7 +17,7 @@
 	let { side = 'right', align = 'top', user = null, children, content }: Props = $props();
 	let show = $state(false);
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 </script>
 
 <DropdownMenu.Root
@@ -51,10 +51,10 @@
 						/>
 					</div>
 
-          <div class=" flex flex-col pt-4 pb-2.5 px-4">
-            <div class=" -mb-1">
-              <span class="font-medium text-sm line-clamp-1"> {user.name} </span>
-            </div>
+					<div class=" flex flex-col pt-4 pb-2.5 px-4">
+						<div class=" -mb-1">
+							<span class="font-medium text-sm line-clamp-1"> {user.name} </span>
+						</div>
 
 						<div class=" flex items-center gap-2">
 							{#if $activeUserIds.includes(user.id)}

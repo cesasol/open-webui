@@ -3,14 +3,14 @@
 	import DOMPurify from 'dompurify';
 	import { toast } from 'svelte-sonner';
 
-  import type { Token } from 'marked';
-  import { getContext } from 'svelte';
+	import type { Token } from 'marked';
+	import { getContext } from 'svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { WEBUI_BASE_URL } from '$lib/constants';
-  import { copyToClipboard, unescapeHtml } from '$lib/utils';
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { copyToClipboard, unescapeHtml } from '$lib/utils';
 
 	import Image from '$lib/components/common/Image.svelte';
 	import KatexRenderer from './KatexRenderer.svelte';

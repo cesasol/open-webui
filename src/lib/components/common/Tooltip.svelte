@@ -3,11 +3,11 @@
 
 	import DOMPurify from 'dompurify';
 
-  import { onDestroy } from 'svelte';
-  import { marked } from 'marked';
+	import { onDestroy } from 'svelte';
+	import { marked } from 'marked';
 
-  import tippy from 'tippy.js';
-  import { roundArrow } from 'tippy.js';
+	import tippy from 'tippy.js';
+	import { roundArrow } from 'tippy.js';
 
 	interface Props {
 		placement?: string;

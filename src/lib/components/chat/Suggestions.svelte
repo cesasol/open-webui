@@ -21,41 +21,41 @@
 
 	let sortedPrompts = $state([]);
 
-  const fuseOptions = {
-    keys: ['content', 'title'],
-    threshold: 0.5
-  };
+	const fuseOptions = {
+		keys: ['content', 'title'],
+		threshold: 0.5
+	};
 
 	let fuse = $derived(new Fuse(sortedPrompts, fuseOptions));
 	let filteredPrompts = $state([]);
 
-  // Helper function to check if arrays are the same
+	// Helper function to check if arrays are the same
 	// (based on unique IDs oder content)
-  function arraysEqual(a, b) {
-    if (a.length !== b.length) return false;
-    for (let i = 0; i < a.length; i++) {
-      if ((a[i].id ?? a[i].content) !== (b[i].id ?? b[i].content)) {
-        return false;
-      }
-    }
-    return true;
-  }
+	function arraysEqual(a, b) {
+		if (a.length !== b.length) return false;
+		for (let i = 0; i < a.length; i++) {
+			if ((a[i].id ?? a[i].content) !== (b[i].id ?? b[i].content)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-  const getFilteredPrompts = (inputValue) => {
-    if (inputValue.length > 500) {
-      filteredPrompts = [];
-    } else {
-      const newFilteredPrompts = inputValue.trim()
-        ? fuse.search(inputValue.trim()).map((result) => result.item)
-        : sortedPrompts;
+	const getFilteredPrompts = (inputValue) => {
+		if (inputValue.length > 500) {
+			filteredPrompts = [];
+		} else {
+			const newFilteredPrompts = inputValue.trim()
+				? fuse.search(inputValue.trim()).map((result) => result.item)
+				: sortedPrompts;
 
-      // Compare with the oldFilteredPrompts
+			// Compare with the oldFilteredPrompts
 			// If there's a difference, update array + version
-      if (!arraysEqual(filteredPrompts, newFilteredPrompts)) {
-        filteredPrompts = newFilteredPrompts;
-      }
-    }
-  };
+			if (!arraysEqual(filteredPrompts, newFilteredPrompts)) {
+				filteredPrompts = newFilteredPrompts;
+			}
+		}
+	};
 
 	run(() => {
 		if (suggestionPrompts) {
@@ -73,16 +73,18 @@
 </script>
 
 <div class="mb-1 flex gap-1 text-xs font-medium items-center text-gray-400 dark:text-gray-600">
-  {#if filteredPrompts.length > 0}
-    <Bolt />
-    {$i18n.t('Suggested')}
-  {:else}
-    <!-- Keine Vorschläge -->
+	{#if filteredPrompts.length > 0}
+		<Bolt />
+		{$i18n.t('Suggested')}
+	{:else}
+		<!-- Keine Vorschläge -->
 
-    <div class="flex w-full text-center items-center justify-center self-start text-gray-400 dark:text-gray-600">
-      {$WEBUI_NAME} ‧ v{WEBUI_VERSION}
-    </div>
-  {/if}
+		<div
+			class="flex w-full text-center items-center justify-center self-start text-gray-400 dark:text-gray-600"
+		>
+			{$WEBUI_NAME} ‧ v{WEBUI_VERSION}
+		</div>
+	{/if}
 </div>
 
 <div class="h-40 overflow-auto scrollbar-none {className} items-start">

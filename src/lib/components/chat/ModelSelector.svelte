@@ -23,17 +23,17 @@
 		showSetDefault = true
 	}: Props = $props();
 
-  const saveDefaultModel = async () => {
-    const hasEmptyModel = selectedModels.filter((it) => it === '');
-    if (hasEmptyModel.length) {
-      toast.error($i18n.t('Choose a model before saving...'));
-      return;
-    }
-    settings.set({ ...$settings, models: selectedModels });
-    await updateUserSettings(localStorage.token, { ui: $settings });
+	const saveDefaultModel = async () => {
+		const hasEmptyModel = selectedModels.filter((it) => it === '');
+		if (hasEmptyModel.length) {
+			toast.error($i18n.t('Choose a model before saving...'));
+			return;
+		}
+		settings.set({ ...$settings, models: selectedModels });
+		await updateUserSettings(localStorage.token, { ui: $settings });
 
-    toast.success($i18n.t('Default model updated'));
-  };
+		toast.success($i18n.t('Default model updated'));
+	};
 
 	run(() => {
 		if (selectedModels.length > 0 && $models.length > 0) {

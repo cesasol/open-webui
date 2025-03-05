@@ -4,26 +4,26 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
 
-  import { onMount, getContext } from 'svelte';
-  import { goto } from '$app/navigation';
+	import { onMount, getContext } from 'svelte';
+	import { goto } from '$app/navigation';
 
-  import { WEBUI_NAME, config, user, showSidebar, knowledge } from '$lib/stores';
-  import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_NAME, config, user, showSidebar, knowledge } from '$lib/stores';
+	import { WEBUI_BASE_URL } from '$lib/constants';
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Plus from '$lib/components/icons/Plus.svelte';
-  import Badge from '$lib/components/common/Badge.svelte';
-  import UsersSolid from '$lib/components/icons/UsersSolid.svelte';
-  import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
-  import EllipsisHorizontal from '$lib/components/icons/EllipsisHorizontal.svelte';
-  import User from '$lib/components/icons/User.svelte';
-  import UserCircleSolid from '$lib/components/icons/UserCircleSolid.svelte';
-  import GroupModal from './Groups/EditGroupModal.svelte';
-  import Pencil from '$lib/components/icons/Pencil.svelte';
-  import GroupItem from './Groups/GroupItem.svelte';
-  import AddGroupModal from './Groups/AddGroupModal.svelte';
-  import { createNewGroup, getGroups } from '$lib/apis/groups';
-  import { getUserDefaultPermissions, updateUserDefaultPermissions } from '$lib/apis/users';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Plus from '$lib/components/icons/Plus.svelte';
+	import Badge from '$lib/components/common/Badge.svelte';
+	import UsersSolid from '$lib/components/icons/UsersSolid.svelte';
+	import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
+	import EllipsisHorizontal from '$lib/components/icons/EllipsisHorizontal.svelte';
+	import User from '$lib/components/icons/User.svelte';
+	import UserCircleSolid from '$lib/components/icons/UserCircleSolid.svelte';
+	import GroupModal from './Groups/EditGroupModal.svelte';
+	import Pencil from '$lib/components/icons/Pencil.svelte';
+	import GroupItem from './Groups/GroupItem.svelte';
+	import AddGroupModal from './Groups/AddGroupModal.svelte';
+	import { createNewGroup, getGroups } from '$lib/apis/groups';
+	import { getUserDefaultPermissions, updateUserDefaultPermissions } from '$lib/apis/users';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -70,47 +70,47 @@
 	let showCreateGroupModal = $state(false);
 	let showDefaultPermissionsModal = $state(false);
 
-  const setGroups = async () => {
-    groups = await getGroups(localStorage.token);
-  };
+	const setGroups = async () => {
+		groups = await getGroups(localStorage.token);
+	};
 
-  const addGroupHandler = async (group) => {
-    const res = await createNewGroup(localStorage.token, group).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const addGroupHandler = async (group) => {
+		const res = await createNewGroup(localStorage.token, group).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
-    if (res) {
-      toast.success($i18n.t('Group created successfully'));
-      groups = await getGroups(localStorage.token);
-    }
-  };
+		if (res) {
+			toast.success($i18n.t('Group created successfully'));
+			groups = await getGroups(localStorage.token);
+		}
+	};
 
-  const updateDefaultPermissionsHandler = async (group) => {
-    console.log(group.permissions);
+	const updateDefaultPermissionsHandler = async (group) => {
+		console.log(group.permissions);
 
-    const res = await updateUserDefaultPermissions(localStorage.token, group.permissions).catch(
-      (error) => {
-        toast.error(`${error}`);
-        return null;
-      }
-    );
+		const res = await updateUserDefaultPermissions(localStorage.token, group.permissions).catch(
+			(error) => {
+				toast.error(`${error}`);
+				return null;
+			}
+		);
 
-    if (res) {
-      toast.success($i18n.t('Default permissions updated successfully'));
-      defaultPermissions = await getUserDefaultPermissions(localStorage.token);
-    }
-  };
+		if (res) {
+			toast.success($i18n.t('Default permissions updated successfully'));
+			defaultPermissions = await getUserDefaultPermissions(localStorage.token);
+		}
+	};
 
-  onMount(async () => {
-    if ($user?.role !== 'admin') {
-      await goto('/');
-    } else {
-      await setGroups();
-      defaultPermissions = await getUserDefaultPermissions(localStorage.token);
-    }
-    loaded = true;
-  });
+	onMount(async () => {
+		if ($user?.role !== 'admin') {
+			await goto('/');
+		} else {
+			await setGroups();
+			defaultPermissions = await getUserDefaultPermissions(localStorage.token);
+		}
+		loaded = true;
+	});
 </script>
 
 {#if loaded}
@@ -120,8 +120,8 @@
 			{$i18n.t('Groups')}
 			<div class="flex self-center w-[1px] h-6 mx-2.5 bg-gray-50 dark:bg-gray-850"></div>
 
-      <span class="text-lg font-medium text-gray-500 dark:text-gray-300">{groups.length}</span>
-    </div>
+			<span class="text-lg font-medium text-gray-500 dark:text-gray-300">{groups.length}</span>
+		</div>
 
 		<div class="flex gap-1">
 			<div class=" flex w-full space-x-2">
@@ -163,16 +163,16 @@
 		</div>
 	</div>
 
-  <div>
-    {#if filteredGroups.length === 0}
-      <div class="flex flex-col items-center justify-center h-40">
-        <div class=" text-xl font-medium">
-          {$i18n.t('Organize your users')}
-        </div>
+	<div>
+		{#if filteredGroups.length === 0}
+			<div class="flex flex-col items-center justify-center h-40">
+				<div class=" text-xl font-medium">
+					{$i18n.t('Organize your users')}
+				</div>
 
-        <div class="mt-1 text-sm dark:text-gray-300">
-          {$i18n.t('Use groups to group your users and assign permissions.')}
-        </div>
+				<div class="mt-1 text-sm dark:text-gray-300">
+					{$i18n.t('Use groups to group your users and assign permissions.')}
+				</div>
 
 				<div class="mt-3">
 					<button
@@ -191,12 +191,12 @@
 				<div class=" flex items-center gap-3 justify-between text-xs uppercase px-1 font-bold">
 					<div class="w-full">Group</div>
 
-          <div class="w-full">Users</div>
+					<div class="w-full">Users</div>
 
-          <div class="w-full" />
-        </div>
+					<div class="w-full" />
+				</div>
 
-        <hr class="mt-1.5 border-gray-100 dark:border-gray-850" />
+				<hr class="mt-1.5 border-gray-100 dark:border-gray-850" />
 
 				{#each filteredGroups as group}
 					<div class="my-2">
@@ -206,7 +206,7 @@
 			</div>
 		{/if}
 
-    <hr class="mb-2 border-gray-100 dark:border-gray-850" />
+		<hr class="mb-2 border-gray-100 dark:border-gray-850" />
 
 		<GroupModal
 			custom={false}
@@ -227,18 +227,18 @@
 					<UsersSolid className="size-4" />
 				</div>
 
-        <div class="text-left">
-          <div class=" text-sm font-medium">{$i18n.t('Default permissions')}</div>
+				<div class="text-left">
+					<div class=" text-sm font-medium">{$i18n.t('Default permissions')}</div>
 
-          <div class="flex text-xs mt-0.5">
-            {$i18n.t('applies to all users with the "user" role')}
-          </div>
-        </div>
-      </div>
+					<div class="flex text-xs mt-0.5">
+						{$i18n.t('applies to all users with the "user" role')}
+					</div>
+				</div>
+			</div>
 
-      <div>
-        <ChevronRight strokeWidth="2.5" />
-      </div>
-    </button>
-  </div>
+			<div>
+				<ChevronRight strokeWidth="2.5" />
+			</div>
+		</button>
+	</div>
 {/if}

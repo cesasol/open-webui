@@ -4,13 +4,13 @@
 	import { toast } from 'svelte-sonner';
 	import Fuse from 'fuse.js';
 
-  import dayjs from 'dayjs';
-  import relativeTime from 'dayjs/plugin/relativeTime';
-  dayjs.extend(relativeTime);
+	import dayjs from 'dayjs';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+	dayjs.extend(relativeTime);
 
-  import { createEventDispatcher, tick, getContext, onMount } from 'svelte';
-  import { removeLastWordFromString, isValidHttpUrl } from '$lib/utils';
-  import { knowledge } from '$lib/stores';
+	import { createEventDispatcher, tick, getContext, onMount } from 'svelte';
+	import { removeLastWordFromString, isValidHttpUrl } from '$lib/utils';
+	import { knowledge } from '$lib/stores';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -45,46 +45,46 @@
 		}
 	});
 
-  export const selectUp = () => {
-    selectedIdx = Math.max(0, selectedIdx - 1);
-  };
+	export const selectUp = () => {
+		selectedIdx = Math.max(0, selectedIdx - 1);
+	};
 
-  export const selectDown = () => {
-    selectedIdx = Math.min(selectedIdx + 1, filteredItems.length - 1);
-  };
+	export const selectDown = () => {
+		selectedIdx = Math.min(selectedIdx + 1, filteredItems.length - 1);
+	};
 
-  const confirmSelect = async (item) => {
-    dispatch('select', item);
+	const confirmSelect = async (item) => {
+		dispatch('select', item);
 
-    prompt = removeLastWordFromString(prompt, command);
-    const chatInputElement = document.getElementById('chat-input');
+		prompt = removeLastWordFromString(prompt, command);
+		const chatInputElement = document.getElementById('chat-input');
 
-    await tick();
-    chatInputElement?.focus();
-    await tick();
-  };
+		await tick();
+		chatInputElement?.focus();
+		await tick();
+	};
 
-  const confirmSelectWeb = async (url) => {
-    dispatch('url', url);
+	const confirmSelectWeb = async (url) => {
+		dispatch('url', url);
 
-    prompt = removeLastWordFromString(prompt, command);
-    const chatInputElement = document.getElementById('chat-input');
+		prompt = removeLastWordFromString(prompt, command);
+		const chatInputElement = document.getElementById('chat-input');
 
-    await tick();
-    chatInputElement?.focus();
-    await tick();
-  };
+		await tick();
+		chatInputElement?.focus();
+		await tick();
+	};
 
-  const confirmSelectYoutube = async (url) => {
-    dispatch('youtube', url);
+	const confirmSelectYoutube = async (url) => {
+		dispatch('youtube', url);
 
-    prompt = removeLastWordFromString(prompt, command);
-    const chatInputElement = document.getElementById('chat-input');
+		prompt = removeLastWordFromString(prompt, command);
+		const chatInputElement = document.getElementById('chat-input');
 
-    await tick();
-    chatInputElement?.focus();
-    await tick();
-  };
+		await tick();
+		chatInputElement?.focus();
+		await tick();
+	};
 
 	onMount(() => {
 		const legacy_documents = $knowledge
@@ -106,21 +106,21 @@
 							collection_names: legacy_documents.map((item) => item.id)
 						},
 
-          ...legacy_documents
-            .reduce((a, item) => {
-              return [...new Set([...a, ...(item?.meta?.tags ?? []).map((tag) => tag.name)])];
-            }, [])
-            .map((tag) => ({
-              name: tag,
-              legacy: true,
-              type: 'collection',
-              description: 'Deprecated (legacy collection), please create a new knowledge base.',
-              collection_names: legacy_documents
-                .filter((item) => (item?.meta?.tags ?? []).map((tag) => tag.name).includes(tag))
-                .map((item) => item.id)
-            }))
-        ]
-        : [];
+						...legacy_documents
+							.reduce((a, item) => {
+								return [...new Set([...a, ...(item?.meta?.tags ?? []).map((tag) => tag.name)])];
+							}, [])
+							.map((tag) => ({
+								name: tag,
+								legacy: true,
+								type: 'collection',
+								description: 'Deprecated (legacy collection), please create a new knowledge base.',
+								collection_names: legacy_documents
+									.filter((item) => (item?.meta?.tags ?? []).map((tag) => tag.name).includes(tag))
+									.map((item) => item.id)
+							}))
+					]
+				: [];
 
 		const collections = $knowledge
 			.filter((item) => !item?.meta?.document)
@@ -152,19 +152,19 @@
 					]
 				: [];
 
-    items = [...collections, ...collection_files, ...legacy_collections, ...legacy_documents].map(
-      (item) => {
-        return {
-          ...item,
-          ...(item?.legacy || item?.meta?.legacy || item?.meta?.document ? { legacy: true } : {})
-        };
-      }
-    );
+		items = [...collections, ...collection_files, ...legacy_collections, ...legacy_documents].map(
+			(item) => {
+				return {
+					...item,
+					...(item?.legacy || item?.meta?.legacy || item?.meta?.document ? { legacy: true } : {})
+				};
+			}
+		);
 
-    fuse = new Fuse(items, {
-      keys: ['name', 'description']
-    });
-  });
+		fuse = new Fuse(items, {
+			keys: ['name', 'description']
+		});
+	});
 </script>
 
 {#if filteredItems.length > 0 || prompt.split(' ')?.at(0)?.substring(1).startsWith('http')}
@@ -220,18 +220,18 @@
 										</div>
 									{/if}
 
-                  <div class="line-clamp-1">
-                    {item?.name}
-                  </div>
-                </div>
+									<div class="line-clamp-1">
+										{item?.name}
+									</div>
+								</div>
 
-                <div class=" text-xs text-gray-600 dark:text-gray-100 line-clamp-1">
-                  {item?.description}
-                </div>
-              </div>
-            </button>
+								<div class=" text-xs text-gray-600 dark:text-gray-100 line-clamp-1">
+									{item?.description}
+								</div>
+							</div>
+						</button>
 
-            <!-- <div slot="content" class=" pl-2 pt-1 flex flex-col gap-0.5">
+						<!-- <div slot="content" class=" pl-2 pt-1 flex flex-col gap-0.5">
 								{#if !item.legacy && (item?.files ?? []).length > 0}
 									{#each item?.files ?? [] as file, fileIdx}
 										<button
@@ -272,7 +272,7 @@
 									</div>
 								{/if}
 							</div> -->
-          {/each}
+					{/each}
 
 					{#if prompt
 						.split(' ')
@@ -322,11 +322,11 @@
 								{prompt.split(' ')?.at(0)?.substring(1)}
 							</div>
 
-              <div class=" text-xs text-gray-600 line-clamp-1">{$i18n.t('Web')}</div>
-            </button>
-          {/if}
-        </div>
-      </div>
-    </div>
-  </div>
+							<div class=" text-xs text-gray-600 line-clamp-1">{$i18n.t('Web')}</div>
+						</button>
+					{/if}
+				</div>
+			</div>
+		</div>
+	</div>
 {/if}

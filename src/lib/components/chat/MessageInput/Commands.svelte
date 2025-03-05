@@ -4,18 +4,18 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
-  import { knowledge, prompts } from '$lib/stores';
+	import { knowledge, prompts } from '$lib/stores';
 
-  import { removeLastWordFromString } from '$lib/utils';
-  import { getPrompts } from '$lib/apis/prompts';
-  import { getKnowledgeBases } from '$lib/apis/knowledge';
+	import { removeLastWordFromString } from '$lib/utils';
+	import { getPrompts } from '$lib/apis/prompts';
+	import { getKnowledgeBases } from '$lib/apis/knowledge';
 
-  import Prompts from './Commands/Prompts.svelte';
-  import Knowledge from './Commands/Knowledge.svelte';
-  import Models from './Commands/Models.svelte';
-  import Spinner from '$lib/components/common/Spinner.svelte';
+	import Prompts from './Commands/Prompts.svelte';
+	import Knowledge from './Commands/Knowledge.svelte';
+	import Models from './Commands/Models.svelte';
+	import Spinner from '$lib/components/common/Spinner.svelte';
 
 	interface Props {
 		prompt?: string;
@@ -27,13 +27,13 @@
 	let loading = $state(false);
 	let commandElement = $state(null);
 
-  export const selectUp = () => {
-    commandElement?.selectUp();
-  };
+	export const selectUp = () => {
+		commandElement?.selectUp();
+	};
 
-  export const selectDown = () => {
-    commandElement?.selectDown();
-  };
+	export const selectDown = () => {
+		commandElement?.selectDown();
+	};
 
 	let command = $state('');
 
@@ -93,41 +93,43 @@
 						return;
 					}
 
-          files = [
-            ...files,
-            {
-              ...e.detail,
-              status: 'processed'
-            }
-          ];
+					files = [
+						...files,
+						{
+							...e.detail,
+							status: 'processed'
+						}
+					];
 
-          dispatch('select');
-        }}
-      />
-    {:else if command?.charAt(0) === '@'}
-      <Models
-        bind:this={commandElement}
-        {command}
-        on:select={(e) => {
-          prompt = removeLastWordFromString(prompt, command);
+					dispatch('select');
+				}}
+			/>
+		{:else if command?.charAt(0) === '@'}
+			<Models
+				bind:this={commandElement}
+				{command}
+				on:select={(e) => {
+					prompt = removeLastWordFromString(prompt, command);
 
-          dispatch('select', {
-            type: 'model',
-            data: e.detail
-          });
-        }}
-      />
-    {/if}
-  {:else}
-    <div
-      id="commands-container"
-      class="px-2 mb-2 text-left w-full absolute bottom-0 left-0 right-0 z-10"
-    >
-      <div class="flex w-full rounded-xl border border-gray-100 dark:border-gray-850">
-        <div class="max-h-60 flex flex-col w-full rounded-xl bg-white dark:bg-gray-900 dark:text-gray-100">
-          <Spinner />
-        </div>
-      </div>
-    </div>
-  {/if}
+					dispatch('select', {
+						type: 'model',
+						data: e.detail
+					});
+				}}
+			/>
+		{/if}
+	{:else}
+		<div
+			id="commands-container"
+			class="px-2 mb-2 text-left w-full absolute bottom-0 left-0 right-0 z-10"
+		>
+			<div class="flex w-full rounded-xl border border-gray-100 dark:border-gray-850">
+				<div
+					class="max-h-60 flex flex-col w-full rounded-xl bg-white dark:bg-gray-900 dark:text-gray-100"
+				>
+					<Spinner />
+				</div>
+			</div>
+		</div>
+	{/if}
 {/if}

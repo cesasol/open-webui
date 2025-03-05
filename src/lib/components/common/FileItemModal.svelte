@@ -8,11 +8,11 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import Modal from './Modal.svelte';
-  import XMark from '../icons/XMark.svelte';
-  import Info from '../icons/Info.svelte';
-  import Switch from './Switch.svelte';
-  import Tooltip from './Tooltip.svelte';
+	import Modal from './Modal.svelte';
+	import XMark from '../icons/XMark.svelte';
+	import Info from '../icons/Info.svelte';
+	import Switch from './Switch.svelte';
+	import Tooltip from './Tooltip.svelte';
 
 	interface Props {
 		item: any;
@@ -28,12 +28,12 @@
 			(item?.name && item?.name.toLowerCase().endsWith('.pdf'))
 	);
 
-  onMount(() => {
-    console.log(item);
-    if (item?.context === 'full') {
-      enableFullContent = true;
-    }
-  });
+	onMount(() => {
+		console.log(item);
+		if (item?.context === 'full') {
+			enableFullContent = true;
+		}
+	});
 </script>
 
 <Modal size="lg" bind:show>
@@ -70,53 +70,53 @@
 				</div>
 			</div>
 
-      <div>
-        <div class="flex flex-col items-center md:flex-row gap-1 justify-between w-full">
-          <div class=" flex flex-wrap text-sm gap-1 text-gray-500">
-            {#if item.size}
-              <div class="capitalize shrink-0">{formatFileSize(item.size)}</div>
-              •
-            {/if}
+			<div>
+				<div class="flex flex-col items-center md:flex-row gap-1 justify-between w-full">
+					<div class=" flex flex-wrap text-sm gap-1 text-gray-500">
+						{#if item.size}
+							<div class="capitalize shrink-0">{formatFileSize(item.size)}</div>
+							•
+						{/if}
 
-            {#if item?.file?.data?.content}
-              <div class="capitalize shrink-0">
-                {getLineCount(item?.file?.data?.content ?? '')} extracted lines
-              </div>
+						{#if item?.file?.data?.content}
+							<div class="capitalize shrink-0">
+								{getLineCount(item?.file?.data?.content ?? '')} extracted lines
+							</div>
 
-              <div class="flex items-center gap-1 shrink-0">
-                <Info />
+							<div class="flex items-center gap-1 shrink-0">
+								<Info />
 
-                Formatting may be inconsistent from source.
-              </div>
-            {/if}
-          </div>
+								Formatting may be inconsistent from source.
+							</div>
+						{/if}
+					</div>
 
-          {#if edit}
-            <div>
-              <Tooltip
-                content={enableFullContent
-                  ? 'Inject the entire content as context for comprehensive processing, this is recommended for complex queries.'
-                  : 'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'}
-              >
-                <div class="flex items-center gap-1.5 text-xs">
-                  {#if enableFullContent}
-                    Using Entire Document
-                  {:else}
-                    Using Focused Retrieval
-                  {/if}
-                  <Switch
-                    bind:state={enableFullContent}
-                    on:change={(e) => {
-                      item.context = e.detail ? 'full' : undefined;
-                    }}
-                  />
-                </div>
-              </Tooltip>
-            </div>
-          {/if}
-        </div>
-      </div>
-    </div>
+					{#if edit}
+						<div>
+							<Tooltip
+								content={enableFullContent
+									? 'Inject the entire content as context for comprehensive processing, this is recommended for complex queries.'
+									: 'Default to segmented retrieval for focused and relevant content extraction, this is recommended for most cases.'}
+							>
+								<div class="flex items-center gap-1.5 text-xs">
+									{#if enableFullContent}
+										Using Entire Document
+									{:else}
+										Using Focused Retrieval
+									{/if}
+									<Switch
+										bind:state={enableFullContent}
+										on:change={(e) => {
+											item.context = e.detail ? 'full' : undefined;
+										}}
+									/>
+								</div>
+							</Tooltip>
+						</div>
+					{/if}
+				</div>
+			</div>
+		</div>
 
 		<div class="max-h-[75vh] overflow-auto">
 			{#if isPDF}

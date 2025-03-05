@@ -5,19 +5,19 @@
 	import { toast } from 'svelte-sonner';
 	import { tick, getContext, onMount } from 'svelte';
 
-  import { models, settings } from '$lib/stores';
-  import { user as _user } from '$lib/stores';
-  import { copyToClipboard as _copyToClipboard, formatDate } from '$lib/utils';
+	import { models, settings } from '$lib/stores';
+	import { user as _user } from '$lib/stores';
+	import { copyToClipboard as _copyToClipboard, formatDate } from '$lib/utils';
 
-  import Name from './Name.svelte';
-  import ProfileImage from './ProfileImage.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import FileItem from '$lib/components/common/FileItem.svelte';
-  import Markdown from './Markdown.svelte';
-  import Image from '$lib/components/common/Image.svelte';
-  import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import Name from './Name.svelte';
+	import ProfileImage from './ProfileImage.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import FileItem from '$lib/components/common/FileItem.svelte';
+	import Markdown from './Markdown.svelte';
+	import Image from '$lib/components/common/Image.svelte';
+	import DeleteConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 
-  import localizedFormat from 'dayjs/plugin/localizedFormat';
+	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -71,37 +71,37 @@
 		}
 	};
 
-  const editMessageHandler = async () => {
-    edit = true;
-    editedContent = message.content;
+	const editMessageHandler = async () => {
+		edit = true;
+		editedContent = message.content;
 
-    await tick();
+		await tick();
 
-    messageEditTextAreaElement.style.height = '';
-    messageEditTextAreaElement.style.height = `${messageEditTextAreaElement.scrollHeight}px`;
+		messageEditTextAreaElement.style.height = '';
+		messageEditTextAreaElement.style.height = `${messageEditTextAreaElement.scrollHeight}px`;
 
-    messageEditTextAreaElement?.focus();
-  };
+		messageEditTextAreaElement?.focus();
+	};
 
-  const editMessageConfirmHandler = async (submit = true) => {
-    editMessage(message.id, editedContent, submit);
+	const editMessageConfirmHandler = async (submit = true) => {
+		editMessage(message.id, editedContent, submit);
 
-    edit = false;
-    editedContent = '';
-  };
+		edit = false;
+		editedContent = '';
+	};
 
-  const cancelEditMessage = () => {
-    edit = false;
-    editedContent = '';
-  };
+	const cancelEditMessage = () => {
+		edit = false;
+		editedContent = '';
+	};
 
-  const deleteMessageHandler = async () => {
-    deleteMessage(message.id);
-  };
+	const deleteMessageHandler = async () => {
+		deleteMessage(message.id);
+	};
 
-  onMount(() => {
-  // console.log('UserMessage mounted');
-  });
+	onMount(() => {
+		// console.log('UserMessage mounted');
+	});
 </script>
 
 <DeleteConfirmDialog
@@ -137,16 +137,18 @@
 						{$i18n.t('You')}
 					{/if}
 
-          {#if message.timestamp}
-            <div class=" self-center text-xs invisible group-hover:visible text-gray-400 font-medium first-letter:capitalize ml-0.5 translate-y-[1px]">
-              <Tooltip content={dayjs(message.timestamp * 1000).format('LLLL')}>
-                <span class="line-clamp-1">{formatDate(message.timestamp * 1000)}</span>
-              </Tooltip>
-            </div>
-          {/if}
-        </Name>
-      </div>
-    {/if}
+					{#if message.timestamp}
+						<div
+							class=" self-center text-xs invisible group-hover:visible text-gray-400 font-medium first-letter:capitalize ml-0.5 translate-y-[1px]"
+						>
+							<Tooltip content={dayjs(message.timestamp * 1000).format('LLLL')}>
+								<span class="line-clamp-1">{formatDate(message.timestamp * 1000)}</span>
+							</Tooltip>
+						</div>
+					{/if}
+				</Name>
+			</div>
+		{/if}
 
 		<div class="chat-{message.role} w-full min-w-full markdown-prose">
 			{#if message.files}
@@ -187,8 +189,8 @@
 										document.getElementById('close-edit-message-button')?.click();
 									}
 
-                  const isCmdOrCtrlPressed = e.metaKey || e.ctrlKey;
-                  const isEnterPressed = e.key === 'Enter';
+									const isCmdOrCtrlPressed = e.metaKey || e.ctrlKey;
+									const isEnterPressed = e.key === 'Enter';
 
 									if (isCmdOrCtrlPressed && isEnterPressed) {
 										document.getElementById('confirm-edit-message-button')?.click();
@@ -279,9 +281,11 @@
 											</svg>
 										</button>
 
-                    <div class="text-sm tracking-widest font-semibold self-center dark:text-gray-100">
-                      {siblings.indexOf(message.id) + 1}/{siblings.length}
-                    </div>
+										<div
+											class="text-sm tracking-widest font-semibold self-center dark:text-gray-100"
+										>
+											{siblings.indexOf(message.id) + 1}/{siblings.length}
+										</div>
 
 										<button
 											class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"
@@ -408,9 +412,11 @@
 											</svg>
 										</button>
 
-                    <div class="text-sm tracking-widest font-semibold self-center dark:text-gray-100">
-                      {siblings.indexOf(message.id) + 1}/{siblings.length}
-                    </div>
+										<div
+											class="text-sm tracking-widest font-semibold self-center dark:text-gray-100"
+										>
+											{siblings.indexOf(message.id) + 1}/{siblings.length}
+										</div>
 
 										<button
 											class="self-center p-1 hover:bg-black/5 dark:hover:bg-white/5 dark:hover:text-white hover:text-black rounded-md transition"

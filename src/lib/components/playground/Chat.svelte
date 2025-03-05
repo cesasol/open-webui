@@ -3,34 +3,34 @@
 
 	import { toast } from 'svelte-sonner';
 
-  import { goto } from '$app/navigation';
-  import { onMount, tick, getContext } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { onMount, tick, getContext } from 'svelte';
 
-  import {
-    OLLAMA_API_BASE_URL,
-    OPENAI_API_BASE_URL,
-    WEBUI_API_BASE_URL,
-    WEBUI_BASE_URL
-  } from '$lib/constants';
-  import { WEBUI_NAME, config, user, models, settings } from '$lib/stores';
+	import {
+		OLLAMA_API_BASE_URL,
+		OPENAI_API_BASE_URL,
+		WEBUI_API_BASE_URL,
+		WEBUI_BASE_URL
+	} from '$lib/constants';
+	import { WEBUI_NAME, config, user, models, settings } from '$lib/stores';
 
-  import { chatCompletion, generateOpenAIChatCompletion } from '$lib/apis/openai';
+	import { chatCompletion, generateOpenAIChatCompletion } from '$lib/apis/openai';
 
-  import { splitStream } from '$lib/utils';
-  import Collapsible from '../common/Collapsible.svelte';
+	import { splitStream } from '$lib/utils';
+	import Collapsible from '../common/Collapsible.svelte';
 
-  import Messages from '$lib/components/playground/Chat/Messages.svelte';
-  import ChevronUp from '../icons/ChevronUp.svelte';
-  import ChevronDown from '../icons/ChevronDown.svelte';
-  import Pencil from '../icons/Pencil.svelte';
-  import Cog6 from '../icons/Cog6.svelte';
-  import Sidebar from '../common/Sidebar.svelte';
-  import ArrowRight from '../icons/ArrowRight.svelte';
+	import Messages from '$lib/components/playground/Chat/Messages.svelte';
+	import ChevronUp from '../icons/ChevronUp.svelte';
+	import ChevronDown from '../icons/ChevronDown.svelte';
+	import Pencil from '../icons/Pencil.svelte';
+	import Cog6 from '../icons/Cog6.svelte';
+	import Sidebar from '../common/Sidebar.svelte';
+	import ArrowRight from '../icons/ArrowRight.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  let loaded = false;
+	let loaded = false;
 
 	let selectedModelId = $state('');
 	let loading = $state(false);
@@ -49,26 +49,26 @@
 
 	let messages = $state([]);
 
-  const scrollToBottom = () => {
-    const element = messagesContainerElement;
+	const scrollToBottom = () => {
+		const element = messagesContainerElement;
 
-    if (element) {
-      element.scrollTop = element?.scrollHeight;
-    }
-  };
+		if (element) {
+			element.scrollTop = element?.scrollHeight;
+		}
+	};
 
-  const stopResponse = () => {
-    stopResponseFlag = true;
-    console.log('stopResponse');
-  };
+	const stopResponse = () => {
+		stopResponseFlag = true;
+		console.log('stopResponse');
+	};
 
-  const resizeSystemTextarea = async () => {
-    await tick();
-    if (systemTextareaElement) {
-      systemTextareaElement.style.height = '';
-      systemTextareaElement.style.height = Math.min(systemTextareaElement.scrollHeight, 555) + 'px';
-    }
-  };
+	const resizeSystemTextarea = async () => {
+		await tick();
+		if (systemTextareaElement) {
+			systemTextareaElement.style.height = '';
+			systemTextareaElement.style.height = Math.min(systemTextareaElement.scrollHeight, 555) + 'px';
+		}
+	};
 
 	run(() => {
 		if (showSystem) {
@@ -76,65 +76,65 @@
 		}
 	});
 
-  const chatCompletionHandler = async () => {
-    if (selectedModelId === '') {
-      toast.error($i18n.t('Please select a model.'));
-      return;
-    }
+	const chatCompletionHandler = async () => {
+		if (selectedModelId === '') {
+			toast.error($i18n.t('Please select a model.'));
+			return;
+		}
 
-    const model = $models.find((model) => model.id === selectedModelId);
-    if (!model) {
-      selectedModelId = '';
-      return;
-    }
+		const model = $models.find((model) => model.id === selectedModelId);
+		if (!model) {
+			selectedModelId = '';
+			return;
+		}
 
-    const [res, controller] = await chatCompletion(
-      localStorage.token,
-      {
-        model: model.id,
-        stream: true,
-        messages: [
-          system
-            ? {
-              role: 'system',
-              content: system
-            }
-            : undefined,
-          ...messages
-        ].filter((message) => message)
-      },
-      `${WEBUI_BASE_URL}/api`
-    );
+		const [res, controller] = await chatCompletion(
+			localStorage.token,
+			{
+				model: model.id,
+				stream: true,
+				messages: [
+					system
+						? {
+								role: 'system',
+								content: system
+							}
+						: undefined,
+					...messages
+				].filter((message) => message)
+			},
+			`${WEBUI_BASE_URL}/api`
+		);
 
-    let responseMessage;
-    if (messages.at(-1)?.role === 'assistant') {
-      responseMessage = messages.at(-1);
-    } else {
-      responseMessage = {
-        role: 'assistant',
-        content: ''
-      };
-      messages.push(responseMessage);
-      messages = messages;
-    }
+		let responseMessage;
+		if (messages.at(-1)?.role === 'assistant') {
+			responseMessage = messages.at(-1);
+		} else {
+			responseMessage = {
+				role: 'assistant',
+				content: ''
+			};
+			messages.push(responseMessage);
+			messages = messages;
+		}
 
-    await tick();
-    const textareaElement = document.getElementById(`assistant-${messages.length - 1}-textarea`);
+		await tick();
+		const textareaElement = document.getElementById(`assistant-${messages.length - 1}-textarea`);
 
-    if (res && res.ok) {
-      const reader = res.body
-        .pipeThrough(new TextDecoderStream())
-        .pipeThrough(splitStream('\n'))
-        .getReader();
+		if (res && res.ok) {
+			const reader = res.body
+				.pipeThrough(new TextDecoderStream())
+				.pipeThrough(splitStream('\n'))
+				.getReader();
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done || stopResponseFlag) {
-          if (stopResponseFlag) {
-            controller.abort('User: Stop Response');
-          }
-          break;
-        }
+			while (true) {
+				const { value, done } = await reader.read();
+				if (done || stopResponseFlag) {
+					if (stopResponseFlag) {
+						controller.abort('User: Stop Response');
+					}
+					break;
+				}
 
 				try {
 					const lines = value.split('\n');
@@ -149,69 +149,69 @@
 								const data = JSON.parse(line.replace(/^data: /, ''));
 								console.log(data);
 
-                if (responseMessage.content == '' && data.choices[0].delta.content == '\n') {
-                  continue;
-                } else {
-                  textareaElement.style.height = textareaElement.scrollHeight + 'px';
+								if (responseMessage.content == '' && data.choices[0].delta.content == '\n') {
+									continue;
+								} else {
+									textareaElement.style.height = textareaElement.scrollHeight + 'px';
 
-                  responseMessage.content += data.choices[0].delta.content ?? '';
-                  messages = messages;
+									responseMessage.content += data.choices[0].delta.content ?? '';
+									messages = messages;
 
-                  textareaElement.style.height = textareaElement.scrollHeight + 'px';
+									textareaElement.style.height = textareaElement.scrollHeight + 'px';
 
-                  await tick();
-                }
-              }
-            }
-          }
-        } catch (error) {
-          console.log(error);
-        }
+									await tick();
+								}
+							}
+						}
+					}
+				} catch (error) {
+					console.log(error);
+				}
 
-        scrollToBottom();
-      }
-    }
-  };
+				scrollToBottom();
+			}
+		}
+	};
 
-  const addHandler = async () => {
-    if (message) {
-      messages.push({
-        role: role,
-        content: message
-      });
-      messages = messages;
-      message = '';
-      await tick();
-      scrollToBottom();
-    }
-  };
+	const addHandler = async () => {
+		if (message) {
+			messages.push({
+				role: role,
+				content: message
+			});
+			messages = messages;
+			message = '';
+			await tick();
+			scrollToBottom();
+		}
+	};
 
-  const submitHandler = async () => {
-    if (selectedModelId) {
-      await addHandler();
+	const submitHandler = async () => {
+		if (selectedModelId) {
+			await addHandler();
 
-      loading = true;
-      await chatCompletionHandler();
+			loading = true;
+			await chatCompletionHandler();
 
-      loading = false;
-      stopResponseFlag = false;
-    }
-  };
+			loading = false;
+			stopResponseFlag = false;
+		}
+	};
 
-  onMount(async () => {
-    if ($user?.role !== 'admin') {
-      await goto('/');
-    }
+	onMount(async () => {
+		if ($user?.role !== 'admin') {
+			await goto('/');
+		}
 
-    if ($settings?.models) {
-      selectedModelId = $settings?.models[0];
-    } else if ($config?.default_models) {
-      selectedModelId = $config?.default_models.split(',')[0];
-    } else {
-      selectedModelId = '';
-    }
-    loaded = true;
-  });
+		if ($settings?.models) {
+			selectedModelId = $settings?.models[0];
+		} else if ($config?.default_models) {
+			selectedModelId = $config?.default_models.split(',')[0];
+		} else {
+			selectedModelId = '';
+		}
+		loaded = true;
+	});
 </script>
 
 <div class=" flex flex-col justify-between w-full overflow-y-auto h-full">
@@ -233,9 +233,9 @@
 					</div>
 				</div>
 
-        <div class="mt-1">
-          <div>
-            <div class=" text-xs font-medium mb-1">Model</div>
+				<div class="mt-1">
+					<div>
+						<div class=" text-xs font-medium mb-1">Model</div>
 
 						<div class="w-full">
 							<select
@@ -265,22 +265,22 @@
 							{$i18n.t('System Instructions')}
 						</div>
 
-            {#if !showSystem}
-              <div class=" flex-1 text-gray-500 line-clamp-1">
-                {system}
-              </div>
-            {/if}
+						{#if !showSystem}
+							<div class=" flex-1 text-gray-500 line-clamp-1">
+								{system}
+							</div>
+						{/if}
 
-            <div class="shrink-0">
-              <button class="p-1.5 bg-transparent hover:bg-white/5 transition rounded-lg">
-                {#if showSystem}
-                  <ChevronUp className="size-3.5" />
-                {:else}
-                  <Pencil className="size-3.5" />
-                {/if}
-              </button>
-            </div>
-          </div>
+						<div class="shrink-0">
+							<button class="p-1.5 bg-transparent hover:bg-white/5 transition rounded-lg">
+								{#if showSystem}
+									<ChevronUp className="size-3.5" />
+								{:else}
+									<Pencil className="size-3.5" />
+								{/if}
+							</button>
+						</div>
+					</div>
 
 					{#snippet content()}
 						<div>

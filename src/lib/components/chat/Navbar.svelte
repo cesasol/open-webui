@@ -1,31 +1,31 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import { toast } from 'svelte-sonner';
+	import { getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
-  import {
-    WEBUI_NAME,
-    chatId,
-    mobile,
-    settings,
-    showArchivedChats,
-    showControls,
-    showSidebar,
-    temporaryChatEnabled,
-    user
-  } from '$lib/stores';
+	import {
+		WEBUI_NAME,
+		chatId,
+		mobile,
+		settings,
+		showArchivedChats,
+		showControls,
+		showSidebar,
+		temporaryChatEnabled,
+		user
+	} from '$lib/stores';
 
-  import { slide } from 'svelte/transition';
-  import { page } from '$app/stores';
+	import { slide } from 'svelte/transition';
+	import { page } from '$app/stores';
 
-  import ShareChatModal from '../chat/ShareChatModal.svelte';
-  import ModelSelector from '../chat/ModelSelector.svelte';
-  import Tooltip from '../common/Tooltip.svelte';
-  import Menu from '$lib/components/layout/Navbar/Menu.svelte';
-  import UserMenu from '$lib/components/layout/Sidebar/UserMenu.svelte';
-  import MenuLines from '../icons/MenuLines.svelte';
-  import AdjustmentsHorizontal from '../icons/AdjustmentsHorizontal.svelte';
+	import ShareChatModal from '../chat/ShareChatModal.svelte';
+	import ModelSelector from '../chat/ModelSelector.svelte';
+	import Tooltip from '../common/Tooltip.svelte';
+	import Menu from '$lib/components/layout/Navbar/Menu.svelte';
+	import UserMenu from '$lib/components/layout/Sidebar/UserMenu.svelte';
+	import MenuLines from '../icons/MenuLines.svelte';
+	import AdjustmentsHorizontal from '../icons/AdjustmentsHorizontal.svelte';
 
-  import PencilSquare from '../icons/PencilSquare.svelte';
+	import PencilSquare from '../icons/PencilSquare.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -55,7 +55,9 @@
 <ShareChatModal chatId={$chatId} bind:show={showShareChatModal} />
 
 <nav class="sticky top-0 z-30 w-full px-1.5 py-1.5 -mb-8 flex items-center drag-region">
-  <div class=" bg-linear-to-b via-50% from-white via-white to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent pointer-events-none absolute inset-0 -bottom-7 z-[-1]" />
+	<div
+		class=" bg-linear-to-b via-50% from-white via-white to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent pointer-events-none absolute inset-0 -bottom-7 z-[-1]"
+	/>
 
 	<div class=" flex max-w-full w-full mx-auto px-1 pt-0.5 bg-transparent">
 		<div class="flex items-center w-full max-w-full">

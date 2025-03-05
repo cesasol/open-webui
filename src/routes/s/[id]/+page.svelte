@@ -5,20 +5,20 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
-  import dayjs from 'dayjs';
+	import dayjs from 'dayjs';
 
-  import { settings, chatId, WEBUI_NAME, models, config } from '$lib/stores';
-  import { convertMessagesToHistory, createMessagesList } from '$lib/utils';
+	import { settings, chatId, WEBUI_NAME, models, config } from '$lib/stores';
+	import { convertMessagesToHistory, createMessagesList } from '$lib/utils';
 
-  import { getChatByShareId, cloneSharedChatById } from '$lib/apis/chats';
+	import { getChatByShareId, cloneSharedChatById } from '$lib/apis/chats';
 
-  import Messages from '$lib/components/chat/Messages.svelte';
-  import Navbar from '$lib/components/layout/Navbar.svelte';
+	import Messages from '$lib/components/chat/Messages.svelte';
+	import Navbar from '$lib/components/layout/Navbar.svelte';
 
-  import { getUserById } from '$lib/apis/users';
-  import { getModels } from '$lib/apis';
-  import { toast } from 'svelte-sonner';
-  import localizedFormat from 'dayjs/plugin/localizedFormat';
+	import { getUserById } from '$lib/apis/users';
+	import { getModels } from '$lib/apis';
+	import { toast } from 'svelte-sonner';
+	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -46,66 +46,66 @@
 		currentId: null
 	});
 
-  //////////////////////////
+	//////////////////////////
 	// Web functions
 	//////////////////////////
 
-  const loadSharedChat = async () => {
-    await models.set(
-      await getModels(
-        localStorage.token,
-        $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-      )
-    );
-    await chatId.set($page.params.id);
-    chat = await getChatByShareId(localStorage.token, $chatId).catch(async (error) => {
-      await goto('/');
-      return null;
-    });
+	const loadSharedChat = async () => {
+		await models.set(
+			await getModels(
+				localStorage.token,
+				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+			)
+		);
+		await chatId.set($page.params.id);
+		chat = await getChatByShareId(localStorage.token, $chatId).catch(async (error) => {
+			await goto('/');
+			return null;
+		});
 
-    if (chat) {
-      user = await getUserById(localStorage.token, chat.user_id).catch((error) => {
-        console.error(error);
-        return null;
-      });
+		if (chat) {
+			user = await getUserById(localStorage.token, chat.user_id).catch((error) => {
+				console.error(error);
+				return null;
+			});
 
-      const chatContent = chat.chat;
+			const chatContent = chat.chat;
 
-      if (chatContent) {
-        console.log(chatContent);
+			if (chatContent) {
+				console.log(chatContent);
 
-        selectedModels =
-          (chatContent?.models ?? undefined) !== undefined
-            ? chatContent.models
-            : [chatContent.models ?? ''];
-        history =
-          (chatContent?.history ?? undefined) !== undefined
-            ? chatContent.history
-            : convertMessagesToHistory(chatContent.messages);
-        title = chatContent.title;
+				selectedModels =
+					(chatContent?.models ?? undefined) !== undefined
+						? chatContent.models
+						: [chatContent.models ?? ''];
+				history =
+					(chatContent?.history ?? undefined) !== undefined
+						? chatContent.history
+						: convertMessagesToHistory(chatContent.messages);
+				title = chatContent.title;
 
-        autoScroll = true;
-        await tick();
+				autoScroll = true;
+				await tick();
 
-        if (messages.length > 0) {
-          history.messages[messages.at(-1).id].done = true;
-        }
-        await tick();
+				if (messages.length > 0) {
+					history.messages[messages.at(-1).id].done = true;
+				}
+				await tick();
 
-        return true;
-      } else {
-        return null;
-      }
-    }
-  };
+				return true;
+			} else {
+				return null;
+			}
+		}
+	};
 
-  const cloneSharedChat = async () => {
-    if (!chat) return;
+	const cloneSharedChat = async () => {
+		if (!chat) return;
 
-    const res = await cloneSharedChatById(localStorage.token, chat.id).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+		const res = await cloneSharedChatById(localStorage.token, chat.id).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
 		if (res) {
 			goto(`/c/${res.id}`);
@@ -129,11 +129,11 @@
 </script>
 
 <svelte:head>
-  <title>
-    {title
-      ? `${title.length > 30 ? `${title.slice(0, 30)}...` : title} | ${$WEBUI_NAME}`
-      : `${$WEBUI_NAME}`}
-  </title>
+	<title>
+		{title
+			? `${title.length > 30 ? `${title.slice(0, 30)}...` : title} | ${$WEBUI_NAME}`
+			: `${$WEBUI_NAME}`}
+	</title>
 </svelte:head>
 
 {#if loaded}
@@ -148,13 +148,13 @@
 							{title}
 						</div>
 
-            <div class="flex text-sm justify-between items-center mt-1">
-              <div class="text-gray-400">
-                {dayjs(chat.chat.timestamp).format('LLL')}
-              </div>
-            </div>
-          </div>
-        </div>
+						<div class="flex text-sm justify-between items-center mt-1">
+							<div class="text-gray-400">
+								{dayjs(chat.chat.timestamp).format('LLL')}
+							</div>
+						</div>
+					</div>
+				</div>
 
 				<div class=" h-full w-full flex flex-col py-2">
 					<div class="">

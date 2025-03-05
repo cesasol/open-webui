@@ -3,7 +3,7 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import ManageOllama from './ManageOllama.svelte';
+	import ManageOllama from './ManageOllama.svelte';
 
 	interface Props {
 		ollamaConfig?: any;
@@ -27,5 +27,5 @@
 		</select>
 	</div>
 
-  <ManageOllama urlIdx={selectedUrlIdx} />
+	<ManageOllama urlIdx={selectedUrlIdx} />
 {/if}

@@ -1,15 +1,15 @@
 <script lang="ts">
-  import { DropdownMenu } from 'bits-ui';
-  import { flyAndScale } from '$lib/utils/transitions';
-  import { getContext, createEventDispatcher } from 'svelte';
-  const dispatch = createEventDispatcher();
+	import { DropdownMenu } from 'bits-ui';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { getContext, createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 
-  import Dropdown from '$lib/components/common/Dropdown.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import ArrowUpCircle from '$lib/components/icons/ArrowUpCircle.svelte';
-  import BarsArrowUp from '$lib/components/icons/BarsArrowUp.svelte';
-  import FolderOpen from '$lib/components/icons/FolderOpen.svelte';
-  import ArrowPath from '$lib/components/icons/ArrowPath.svelte';
+	import Dropdown from '$lib/components/common/Dropdown.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import ArrowUpCircle from '$lib/components/icons/ArrowUpCircle.svelte';
+	import BarsArrowUp from '$lib/components/icons/BarsArrowUp.svelte';
+	import FolderOpen from '$lib/components/icons/FolderOpen.svelte';
+	import ArrowPath from '$lib/components/icons/ArrowPath.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();

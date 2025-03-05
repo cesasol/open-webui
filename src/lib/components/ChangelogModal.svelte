@@ -1,14 +1,14 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte';
-  import { Confetti } from 'svelte-confetti';
+	import { onMount, getContext } from 'svelte';
+	import { Confetti } from 'svelte-confetti';
 
-  import { WEBUI_NAME, config, settings } from '$lib/stores';
+	import { WEBUI_NAME, config, settings } from '$lib/stores';
 
 	import { WEBUI_VERSION } from '$lib/constants';
 	import { getChangelog, type Changelog, type ChangelogKeys } from '$lib/apis';
 
-  import Modal from './common/Modal.svelte';
-  import { updateUserSettings } from '$lib/apis/users';
+	import Modal from './common/Modal.svelte';
+	import { updateUserSettings } from '$lib/apis/users';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -76,7 +76,7 @@
 								v{version} - {changelog[version].date}
 							</div>
 
-              <hr class="border-gray-100 dark:border-gray-850 my-2" />
+							<hr class="border-gray-100 dark:border-gray-850 my-2" />
 
 							{#each (Object.keys(changelog[version]) as ChangelogKeys[]).filter((section) => section !== 'date') as section (section)}
 								<div class="">

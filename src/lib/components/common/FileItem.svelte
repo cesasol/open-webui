@@ -4,10 +4,10 @@
 	import { createEventDispatcher, getContext } from 'svelte';
 	import { formatFileSize } from '$lib/utils';
 
-  import FileItemModal from './FileItemModal.svelte';
-  import GarbageBin from '../icons/GarbageBin.svelte';
-  import Spinner from './Spinner.svelte';
-  import Tooltip from './Tooltip.svelte';
+	import FileItemModal from './FileItemModal.svelte';
+	import GarbageBin from '../icons/GarbageBin.svelte';
+	import Spinner from './Spinner.svelte';
+	import Tooltip from './Tooltip.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -94,11 +94,11 @@
 		</div>
 	{/if}
 
-  {#if !small}
-    <div class="flex flex-col justify-center -space-y-0.5 px-2.5 w-full">
-      <div class=" dark:text-gray-100 text-sm font-medium line-clamp-1 mb-1">
-        {name}
-      </div>
+	{#if !small}
+		<div class="flex flex-col justify-center -space-y-0.5 px-2.5 w-full">
+			<div class=" dark:text-gray-100 text-sm font-medium line-clamp-1 mb-1">
+				{name}
+			</div>
 
 			<div class=" flex justify-between text-gray-500 text-xs line-clamp-1">
 				{#if type === 'file'}
@@ -152,7 +152,7 @@
 				</svg>
 			</button>
 
-      <!-- <button
+			<!-- <button
 				class=" p-1 dark:text-gray-300 dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 rounded-full group-hover:visible invisible transition"
 				type="button"
 				on:click={() => {
@@ -160,6 +160,6 @@
 			>
 				<GarbageBin />
 			</button> -->
-    </div>
-  {/if}
+		</div>
+	{/if}
 </button>

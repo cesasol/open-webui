@@ -3,15 +3,15 @@
 
 	import { goto } from '$app/navigation';
 
-  import { socket, user } from '$lib/stores';
+	import { socket, user } from '$lib/stores';
 
-  import { getChannelThreadMessages, sendMessage } from '$lib/apis/channels';
+	import { getChannelThreadMessages, sendMessage } from '$lib/apis/channels';
 
-  import XMark from '$lib/components/icons/XMark.svelte';
-  import MessageInput from './MessageInput.svelte';
-  import Messages from './Messages.svelte';
-  import { onDestroy, onMount, tick } from 'svelte';
-  import { toast } from 'svelte-sonner';
+	import XMark from '$lib/components/icons/XMark.svelte';
+	import MessageInput from './MessageInput.svelte';
+	import Messages from './Messages.svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
+	import { toast } from 'svelte-sonner';
 
 	interface Props {
 		threadId?: any;
@@ -29,127 +29,127 @@
 
 	let messagesContainerElement = $state(null);
 
-  const scrollToBottom = () => {
-    messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
-  };
+	const scrollToBottom = () => {
+		messagesContainerElement.scrollTop = messagesContainerElement.scrollHeight;
+	};
 
-  const initHandler = async () => {
-    messages = null;
-    top = false;
+	const initHandler = async () => {
+		messages = null;
+		top = false;
 
-    typingUsers = [];
-    typingUsersTimeout = {};
+		typingUsers = [];
+		typingUsersTimeout = {};
 
-    if (channel) {
-      messages = await getChannelThreadMessages(localStorage.token, channel.id, threadId);
+		if (channel) {
+			messages = await getChannelThreadMessages(localStorage.token, channel.id, threadId);
 
-      if (messages.length < 50) {
-        top = true;
-      }
+			if (messages.length < 50) {
+				top = true;
+			}
 
-      await tick();
-      scrollToBottom();
-    } else {
-      goto('/');
-    }
-  };
+			await tick();
+			scrollToBottom();
+		} else {
+			goto('/');
+		}
+	};
 
-  const channelEventHandler = async (event) => {
-    console.log(event);
-    if (event.channel_id === channel.id) {
-      const type = event?.data?.type ?? null;
-      const data = event?.data?.data ?? null;
+	const channelEventHandler = async (event) => {
+		console.log(event);
+		if (event.channel_id === channel.id) {
+			const type = event?.data?.type ?? null;
+			const data = event?.data?.data ?? null;
 
-      if (type === 'message') {
-        if ((data?.parent_id ?? null) === threadId) {
-          if (messages) {
-            messages = [data, ...messages];
+			if (type === 'message') {
+				if ((data?.parent_id ?? null) === threadId) {
+					if (messages) {
+						messages = [data, ...messages];
 
-            if (typingUsers.find((user) => user.id === event.user.id)) {
-              typingUsers = typingUsers.filter((user) => user.id !== event.user.id);
-            }
-          }
-        }
-      } else if (type === 'message:update') {
-        if (messages) {
-          const idx = messages.findIndex((message) => message.id === data.id);
+						if (typingUsers.find((user) => user.id === event.user.id)) {
+							typingUsers = typingUsers.filter((user) => user.id !== event.user.id);
+						}
+					}
+				}
+			} else if (type === 'message:update') {
+				if (messages) {
+					const idx = messages.findIndex((message) => message.id === data.id);
 
-          if (idx !== -1) {
-            messages[idx] = data;
-          }
-        }
-      } else if (type === 'message:delete') {
-        if (messages) {
-          messages = messages.filter((message) => message.id !== data.id);
-        }
-      } else if (type.includes('message:reaction')) {
-        if (messages) {
-          const idx = messages.findIndex((message) => message.id === data.id);
-          if (idx !== -1) {
-            messages[idx] = data;
-          }
-        }
-      } else if (type === 'typing' && event.message_id === threadId) {
-        if (event.user.id === $user.id) {
-          return;
-        }
+					if (idx !== -1) {
+						messages[idx] = data;
+					}
+				}
+			} else if (type === 'message:delete') {
+				if (messages) {
+					messages = messages.filter((message) => message.id !== data.id);
+				}
+			} else if (type.includes('message:reaction')) {
+				if (messages) {
+					const idx = messages.findIndex((message) => message.id === data.id);
+					if (idx !== -1) {
+						messages[idx] = data;
+					}
+				}
+			} else if (type === 'typing' && event.message_id === threadId) {
+				if (event.user.id === $user.id) {
+					return;
+				}
 
-        typingUsers = data.typing
-          ? [
-            ...typingUsers,
-            ...(typingUsers.find((user) => user.id === event.user.id)
-              ? []
-              : [
-                {
-                  id: event.user.id,
-                  name: event.user.name
-                }
-              ])
-          ]
-          : typingUsers.filter((user) => user.id !== event.user.id);
+				typingUsers = data.typing
+					? [
+							...typingUsers,
+							...(typingUsers.find((user) => user.id === event.user.id)
+								? []
+								: [
+										{
+											id: event.user.id,
+											name: event.user.name
+										}
+									])
+						]
+					: typingUsers.filter((user) => user.id !== event.user.id);
 
-        if (typingUsersTimeout[event.user.id]) {
-          clearTimeout(typingUsersTimeout[event.user.id]);
-        }
+				if (typingUsersTimeout[event.user.id]) {
+					clearTimeout(typingUsersTimeout[event.user.id]);
+				}
 
-        typingUsersTimeout[event.user.id] = setTimeout(() => {
-          typingUsers = typingUsers.filter((user) => user.id !== event.user.id);
-        }, 5000);
-      }
-    }
-  };
+				typingUsersTimeout[event.user.id] = setTimeout(() => {
+					typingUsers = typingUsers.filter((user) => user.id !== event.user.id);
+				}, 5000);
+			}
+		}
+	};
 
-  const submitHandler = async ({ content, data }) => {
-    if (!content) {
-      return;
-    }
+	const submitHandler = async ({ content, data }) => {
+		if (!content) {
+			return;
+		}
 
-    const res = await sendMessage(localStorage.token, channel.id, {
-      parent_id: threadId,
-      content: content,
-      data: data
-    }).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
-  };
+		const res = await sendMessage(localStorage.token, channel.id, {
+			parent_id: threadId,
+			content: content,
+			data: data
+		}).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
+	};
 
-  const onChange = async () => {
-    $socket?.emit('channel-events', {
-      channel_id: channel.id,
-      message_id: threadId,
-      data: {
-        type: 'typing',
-        data: {
-          typing: true
-        }
-      }
-    });
-  };
+	const onChange = async () => {
+		$socket?.emit('channel-events', {
+			channel_id: channel.id,
+			message_id: threadId,
+			data: {
+				type: 'typing',
+				data: {
+					typing: true
+				}
+			}
+		});
+	};
 
-  onMount(() => {
-    $socket?.on('channel-events', channelEventHandler);
-  });
+	onMount(() => {
+		$socket?.on('channel-events', channelEventHandler);
+	});
 
 	onDestroy(() => {
 		$socket?.off('channel-events', channelEventHandler);
@@ -162,9 +162,9 @@
 </script>
 
 {#if channel}
-  <div class="flex flex-col w-full h-full bg-gray-50 dark:bg-gray-850">
-    <div class="flex items-center justify-between px-3.5 pt-3">
-      <div class=" font-medium text-lg">Thread</div>
+	<div class="flex flex-col w-full h-full bg-gray-50 dark:bg-gray-850">
+		<div class="flex items-center justify-between px-3.5 pt-3">
+			<div class=" font-medium text-lg">Thread</div>
 
 			<div>
 				<button
@@ -191,7 +191,7 @@
 						messages.length
 					);
 
-          messages = [...messages, ...newMessages];
+					messages = [...messages, ...newMessages];
 
 					if (newMessages.length < 50) {
 						top = true;

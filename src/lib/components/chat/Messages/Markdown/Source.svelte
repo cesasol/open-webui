@@ -16,28 +16,28 @@
 		let match;
 		const attrs: Record<string, string> = {};
 
-    // Loop through all matches and populate the attributes object
-    while ((match = regex.exec(input)) !== null) {
-      attrs[match[1]] = match[2];
-    }
+		// Loop through all matches and populate the attributes object
+		while ((match = regex.exec(input)) !== null) {
+			attrs[match[1]] = match[2];
+		}
 
-    return attrs;
-  }
+		return attrs;
+	}
 
-  // Helper function to return only the domain from a URL
-  function getDomain(url: string): string {
-    const domain = url.replace('http://', '').replace('https://', '').split(/[/?#]/)[0];
-    return domain;
-  }
+	// Helper function to return only the domain from a URL
+	function getDomain(url: string): string {
+		const domain = url.replace('http://', '').replace('https://', '').split(/[/?#]/)[0];
+		return domain;
+	}
 
-  // Helper function to check if text is a URL and return the domain
-  function formattedTitle(title: string): string {
-    if (title.startsWith('http')) {
-      return getDomain(title);
-    }
+	// Helper function to check if text is a URL and return the domain
+	function formattedTitle(title: string): string {
+		if (title.startsWith('http')) {
+			return getDomain(title);
+		}
 
-    return title;
-  }
+		return title;
+	}
 
 	run(() => {
 		attributes = extractAttributes(token.text);

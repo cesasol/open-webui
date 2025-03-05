@@ -5,11 +5,11 @@
 	import { onMount, getContext } from 'svelte';
 	import { getCodeExecutionConfig, setCodeExecutionConfig } from '$lib/apis/configs';
 
-  import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
+	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Textarea from '$lib/components/common/Textarea.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Textarea from '$lib/components/common/Textarea.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -24,17 +24,17 @@
 
 	const engines = ['pyodide', 'jupyter'];
 
-  const submitHandler = async () => {
-    const res = await setCodeExecutionConfig(localStorage.token, config);
-  };
+	const submitHandler = async () => {
+		const res = await setCodeExecutionConfig(localStorage.token, config);
+	};
 
-  onMount(async () => {
-    const res = await getCodeExecutionConfig(localStorage.token);
+	onMount(async () => {
+		const res = await getCodeExecutionConfig(localStorage.token);
 
-    if (res) {
-      config = res;
-    }
-  });
+		if (res) {
+			config = res;
+		}
+	});
 </script>
 
 <form
@@ -44,13 +44,13 @@
 		saveHandler();
 	})}
 >
-  <div class=" space-y-3 overflow-y-scroll scrollbar-hidden h-full">
-    {#if config}
-      <div>
-        <div class="mb-3.5">
-          <div class=" mb-2.5 text-base font-medium">{$i18n.t('General')}</div>
+	<div class=" space-y-3 overflow-y-scroll scrollbar-hidden h-full">
+		{#if config}
+			<div>
+				<div class="mb-3.5">
+					<div class=" mb-2.5 text-base font-medium">{$i18n.t('General')}</div>
 
-          <hr class=" border-gray-100 dark:border-gray-850 my-2" />
+					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
 					<div class="mb-2.5">
 						<div class="flex w-full justify-between">
@@ -70,20 +70,20 @@
 							</div>
 						</div>
 
-            {#if config.CODE_EXECUTION_ENGINE === 'jupyter'}
-              <div class="text-gray-500 text-xs">
-                {$i18n.t(
-                  'Warning: Jupyter execution enables arbitrary code execution, posing severe security risks—proceed with extreme caution.'
-                )}
-              </div>
-            {/if}
-          </div>
+						{#if config.CODE_EXECUTION_ENGINE === 'jupyter'}
+							<div class="text-gray-500 text-xs">
+								{$i18n.t(
+									'Warning: Jupyter execution enables arbitrary code execution, posing severe security risks—proceed with extreme caution.'
+								)}
+							</div>
+						{/if}
+					</div>
 
-          {#if config.CODE_EXECUTION_ENGINE === 'jupyter'}
-            <div class="mb-2.5 flex flex-col gap-1.5 w-full">
-              <div class="text-xs font-medium">
-                {$i18n.t('Jupyter URL')}
-              </div>
+					{#if config.CODE_EXECUTION_ENGINE === 'jupyter'}
+						<div class="mb-2.5 flex flex-col gap-1.5 w-full">
+							<div class="text-xs font-medium">
+								{$i18n.t('Jupyter URL')}
+							</div>
 
 							<div class="flex w-full">
 								<div class="flex-1">
@@ -98,11 +98,11 @@
 							</div>
 						</div>
 
-            <div class="mb-2.5 flex flex-col gap-1.5 w-full">
-              <div class=" flex gap-2 w-full items-center justify-between">
-                <div class="text-xs font-medium">
-                  {$i18n.t('Jupyter Auth')}
-                </div>
+						<div class="mb-2.5 flex flex-col gap-1.5 w-full">
+							<div class=" flex gap-2 w-full items-center justify-between">
+								<div class="text-xs font-medium">
+									{$i18n.t('Jupyter Auth')}
+								</div>
 
 								<div>
 									<select
@@ -140,10 +140,10 @@
 							{/if}
 						</div>
 
-            <div class="flex gap-2 w-full items-center justify-between">
-              <div class="text-xs font-medium">
-                {$i18n.t('Code Execution Timeout')}
-              </div>
+						<div class="flex gap-2 w-full items-center justify-between">
+							<div class="text-xs font-medium">
+								{$i18n.t('Code Execution Timeout')}
+							</div>
 
 							<div class="">
 								<Tooltip content={$i18n.t('Enter timeout in seconds')}>
@@ -160,20 +160,20 @@
 					{/if}
 				</div>
 
-        <div class="mb-3.5">
-          <div class=" mb-2.5 text-base font-medium">{$i18n.t('Code Interpreter')}</div>
+				<div class="mb-3.5">
+					<div class=" mb-2.5 text-base font-medium">{$i18n.t('Code Interpreter')}</div>
 
-          <hr class=" border-gray-100 dark:border-gray-850 my-2" />
+					<hr class=" border-gray-100 dark:border-gray-850 my-2" />
 
-          <div class="mb-2.5">
-            <div class=" flex w-full justify-between">
-              <div class=" self-center text-xs font-medium">
-                {$i18n.t('Enable Code Interpreter')}
-              </div>
+					<div class="mb-2.5">
+						<div class=" flex w-full justify-between">
+							<div class=" self-center text-xs font-medium">
+								{$i18n.t('Enable Code Interpreter')}
+							</div>
 
-              <Switch bind:state={config.ENABLE_CODE_INTERPRETER} />
-            </div>
-          </div>
+							<Switch bind:state={config.ENABLE_CODE_INTERPRETER} />
+						</div>
+					</div>
 
 					{#if config.ENABLE_CODE_INTERPRETER}
 						<div class="mb-2.5">
@@ -196,20 +196,20 @@
 								</div>
 							</div>
 
-              {#if config.CODE_INTERPRETER_ENGINE === 'jupyter'}
-                <div class="text-gray-500 text-xs">
-                  {$i18n.t(
-                    'Warning: Jupyter execution enables arbitrary code execution, posing severe security risks—proceed with extreme caution.'
-                  )}
-                </div>
-              {/if}
-            </div>
+							{#if config.CODE_INTERPRETER_ENGINE === 'jupyter'}
+								<div class="text-gray-500 text-xs">
+									{$i18n.t(
+										'Warning: Jupyter execution enables arbitrary code execution, posing severe security risks—proceed with extreme caution.'
+									)}
+								</div>
+							{/if}
+						</div>
 
-            {#if config.CODE_INTERPRETER_ENGINE === 'jupyter'}
-              <div class="mb-2.5 flex flex-col gap-1.5 w-full">
-                <div class="text-xs font-medium">
-                  {$i18n.t('Jupyter URL')}
-                </div>
+						{#if config.CODE_INTERPRETER_ENGINE === 'jupyter'}
+							<div class="mb-2.5 flex flex-col gap-1.5 w-full">
+								<div class="text-xs font-medium">
+									{$i18n.t('Jupyter URL')}
+								</div>
 
 								<div class="flex w-full">
 									<div class="flex-1">
@@ -224,11 +224,11 @@
 								</div>
 							</div>
 
-              <div class="mb-2.5 flex flex-col gap-1.5 w-full">
-                <div class="flex gap-2 w-full items-center justify-between">
-                  <div class="text-xs font-medium">
-                    {$i18n.t('Jupyter Auth')}
-                  </div>
+							<div class="mb-2.5 flex flex-col gap-1.5 w-full">
+								<div class="flex gap-2 w-full items-center justify-between">
+									<div class="text-xs font-medium">
+										{$i18n.t('Jupyter Auth')}
+									</div>
 
 									<div>
 										<select
@@ -266,10 +266,10 @@
 								{/if}
 							</div>
 
-              <div class="flex gap-2 w-full items-center justify-between">
-                <div class="text-xs font-medium">
-                  {$i18n.t('Code Execution Timeout')}
-                </div>
+							<div class="flex gap-2 w-full items-center justify-between">
+								<div class="text-xs font-medium">
+									{$i18n.t('Code Execution Timeout')}
+								</div>
 
 								<div class="">
 									<Tooltip content={$i18n.t('Enter timeout in seconds')}>
@@ -285,13 +285,13 @@
 							</div>
 						{/if}
 
-            <hr class="border-gray-100 dark:border-gray-850 my-2" />
+						<hr class="border-gray-100 dark:border-gray-850 my-2" />
 
-            <div>
-              <div class="py-0.5 w-full">
-                <div class=" mb-2.5 text-xs font-medium">
-                  {$i18n.t('Code Interpreter Prompt Template')}
-                </div>
+						<div>
+							<div class="py-0.5 w-full">
+								<div class=" mb-2.5 text-xs font-medium">
+									{$i18n.t('Code Interpreter Prompt Template')}
+								</div>
 
 								<Tooltip
 									content={$i18n.t(

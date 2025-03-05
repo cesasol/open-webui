@@ -4,12 +4,12 @@
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-  import { downloadDatabase, downloadLiteLLMConfig } from '$lib/apis/utils';
-  import { onMount, getContext } from 'svelte';
-  import { config, user } from '$lib/stores';
-  import { toast } from 'svelte-sonner';
-  import { getAllUserChats } from '$lib/apis/chats';
-  import { exportConfig, importConfig } from '$lib/apis/configs';
+	import { downloadDatabase, downloadLiteLLMConfig } from '$lib/apis/utils';
+	import { onMount, getContext } from 'svelte';
+	import { config, user } from '$lib/stores';
+	import { toast } from 'svelte-sonner';
+	import { getAllUserChats } from '$lib/apis/chats';
+	import { exportConfig, importConfig } from '$lib/apis/configs';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -27,9 +27,9 @@
 		saveAs(blob, `all-chats-export-${Date.now()}.json`);
 	};
 
-  onMount(async () => {
-  // permissions = await getUserPermissions(localStorage.token);
-  });
+	onMount(async () => {
+		// permissions = await getUserPermissions(localStorage.token);
+	});
 </script>
 
 <form
@@ -38,9 +38,9 @@
 		saveHandler();
 	})}
 >
-  <div class=" space-y-3 overflow-y-scroll scrollbar-hidden h-full">
-    <div>
-      <div class=" mb-2 text-sm font-medium">{$i18n.t('Database')}</div>
+	<div class=" space-y-3 overflow-y-scroll scrollbar-hidden h-full">
+		<div>
+			<div class=" mb-2 text-sm font-medium">{$i18n.t('Database')}</div>
 
 			<input
 				id="config-json-input"
@@ -50,18 +50,18 @@
 					const file = e.target.files[0];
 					const reader = new FileReader();
 
-          reader.onload = async (e) => {
-            const res = await importConfig(localStorage.token, JSON.parse(e.target.result)).catch(
-              (error) => {
-                toast.error(`${error}`);
-              }
-            );
+					reader.onload = async (e) => {
+						const res = await importConfig(localStorage.token, JSON.parse(e.target.result)).catch(
+							(error) => {
+								toast.error(`${error}`);
+							}
+						);
 
-            if (res) {
-              toast.success('Config imported successfully');
-            }
-            e.target.value = null;
-          };
+						if (res) {
+							toast.success('Config imported successfully');
+						}
+						e.target.value = null;
+					};
 
 					reader.readAsText(file);
 				}}
@@ -126,11 +126,11 @@
 				</div>
 			</button>
 
-      <hr class="border-gray-100 dark:border-gray-850 my-1" />
+			<hr class="border-gray-100 dark:border-gray-850 my-1" />
 
-      {#if $config?.features.enable_admin_export ?? true}
-        <div class="  flex w-full justify-between">
-          <!-- <div class=" self-center text-xs font-medium">{$i18n.t('Allow Chat Deletion')}</div> -->
+			{#if $config?.features.enable_admin_export ?? true}
+				<div class="  flex w-full justify-between">
+					<!-- <div class=" self-center text-xs font-medium">{$i18n.t('Allow Chat Deletion')}</div> -->
 
 					<button
 						class=" flex rounded-md py-1.5 px-3 w-full hover:bg-gray-200 dark:hover:bg-gray-800 transition"
@@ -191,7 +191,7 @@
 		</div>
 	</div>
 
-  <!-- <div class="flex justify-end pt-3 text-sm font-medium">
+	<!-- <div class="flex justify-end pt-3 text-sm font-medium">
 		<button
 			class=" px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-gray-100 transition rounded-lg"
 			type="submit"

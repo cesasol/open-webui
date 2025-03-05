@@ -33,21 +33,21 @@
 					src={model.meta.profile_image_url}
 				/>
 
-        <div class="w-full flex flex-col">
-          <div class="flex items-center gap-1">
-            <div class="shrink-0 line-clamp-1">
-              {model.name}
-            </div>
-          </div>
+				<div class="w-full flex flex-col">
+					<div class="flex items-center gap-1">
+						<div class="shrink-0 line-clamp-1">
+							{model.name}
+						</div>
+					</div>
 
-          <div class="flex items-center gap-1">
-            <div class=" text-xs w-full text-gray-500 bg-transparent line-clamp-1">
-              {model?.meta?.description ?? model.id}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+					<div class="flex items-center gap-1">
+						<div class=" text-xs w-full text-gray-500 bg-transparent line-clamp-1">
+							{model?.meta?.description ?? model.id}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<div class="flex items-center">
 			<button

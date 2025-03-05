@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { goto } from '$app/navigation';
-  import { prompts } from '$lib/stores';
-  import { onMount, tick, getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { goto } from '$app/navigation';
+	import { prompts } from '$lib/stores';
+	import { onMount, tick, getContext } from 'svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -10,7 +10,7 @@
 	import { getPromptByCommand, getPrompts, updatePromptByCommand } from '$lib/apis/prompts';
 	import { page } from '$app/state';
 
-  import PromptEditor from '$lib/components/workspace/Prompts/PromptEditor.svelte';
+	import PromptEditor from '$lib/components/workspace/Prompts/PromptEditor.svelte';
 
 	let prompt = $state(null);
 	const onSubmit = async (_prompt) => {
@@ -20,12 +20,12 @@
 			return null;
 		});
 
-    if (prompt) {
-      toast.success($i18n.t('Prompt updated successfully'));
-      await prompts.set(await getPrompts(localStorage.token));
-      await goto('/workspace/prompts');
-    }
-  };
+		if (prompt) {
+			toast.success($i18n.t('Prompt updated successfully'));
+			await prompts.set(await getPrompts(localStorage.token));
+			await goto('/workspace/prompts');
+		}
+	};
 
 	onMount(async () => {
 		const command = page.url.searchParams.get('command');
@@ -38,20 +38,20 @@
 				return null;
 			});
 
-      if (_prompt) {
-        prompt = {
-          title: _prompt.title,
-          command: _prompt.command,
-          content: _prompt.content,
-          access_control: _prompt?.access_control ?? null
-        };
-      } else {
-        goto('/workspace/prompts');
-      }
-    } else {
-      goto('/workspace/prompts');
-    }
-  });
+			if (_prompt) {
+				prompt = {
+					title: _prompt.title,
+					command: _prompt.command,
+					content: _prompt.content,
+					access_control: _prompt?.access_control ?? null
+				};
+			} else {
+				goto('/workspace/prompts');
+			}
+		} else {
+			goto('/workspace/prompts');
+		}
+	});
 </script>
 
 {#if prompt}

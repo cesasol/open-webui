@@ -3,32 +3,32 @@
 
 	import Fuse from 'fuse.js';
 
-  import dayjs from 'dayjs';
-  import relativeTime from 'dayjs/plugin/relativeTime';
-  dayjs.extend(relativeTime);
+	import dayjs from 'dayjs';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+	dayjs.extend(relativeTime);
 
 	import { toast } from 'svelte-sonner';
 	import { onMount, getContext } from 'svelte';
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { WEBUI_NAME, knowledge } from '$lib/stores';
-  import {
-    getKnowledgeBases,
-    deleteKnowledgeById,
-    getKnowledgeBaseList
-  } from '$lib/apis/knowledge';
+	import { WEBUI_NAME, knowledge } from '$lib/stores';
+	import {
+		getKnowledgeBases,
+		deleteKnowledgeById,
+		getKnowledgeBaseList
+	} from '$lib/apis/knowledge';
 
-  import { goto } from '$app/navigation';
+	import { goto } from '$app/navigation';
 
-  import DeleteConfirmDialog from '../common/ConfirmDialog.svelte';
-  import ItemMenu from './Knowledge/ItemMenu.svelte';
-  import Badge from '../common/Badge.svelte';
-  import Search from '../icons/Search.svelte';
-  import Plus from '../icons/Plus.svelte';
-  import Spinner from '../common/Spinner.svelte';
-  import { capitalizeFirstLetter } from '$lib/utils';
-  import Tooltip from '../common/Tooltip.svelte';
+	import DeleteConfirmDialog from '../common/ConfirmDialog.svelte';
+	import ItemMenu from './Knowledge/ItemMenu.svelte';
+	import Badge from '../common/Badge.svelte';
+	import Search from '../icons/Search.svelte';
+	import Plus from '../icons/Plus.svelte';
+	import Spinner from '../common/Spinner.svelte';
+	import { capitalizeFirstLetter } from '$lib/utils';
+	import Tooltip from '../common/Tooltip.svelte';
 
 	let loaded = $state(false);
 
@@ -59,37 +59,37 @@
 		}
 	});
 
-  const deleteHandler = async (item) => {
-    const res = await deleteKnowledgeById(localStorage.token, item.id).catch((e) => {
-      toast.error(`${e}`);
-    });
+	const deleteHandler = async (item) => {
+		const res = await deleteKnowledgeById(localStorage.token, item.id).catch((e) => {
+			toast.error(`${e}`);
+		});
 
-    if (res) {
-      knowledgeBases = await getKnowledgeBaseList(localStorage.token);
-      knowledge.set(await getKnowledgeBases(localStorage.token));
-      toast.success($i18n.t('Knowledge deleted successfully.'));
-    }
-  };
+		if (res) {
+			knowledgeBases = await getKnowledgeBaseList(localStorage.token);
+			knowledge.set(await getKnowledgeBases(localStorage.token));
+			toast.success($i18n.t('Knowledge deleted successfully.'));
+		}
+	};
 
-  onMount(async () => {
-    knowledgeBases = await getKnowledgeBaseList(localStorage.token);
-    loaded = true;
-  });
+	onMount(async () => {
+		knowledgeBases = await getKnowledgeBaseList(localStorage.token);
+		loaded = true;
+	});
 </script>
 
 <svelte:head>
-  <title>
-    {$i18n.t('Knowledge')} | {$WEBUI_NAME}
-  </title>
+	<title>
+		{$i18n.t('Knowledge')} | {$WEBUI_NAME}
+	</title>
 </svelte:head>
 
 {#if loaded}
-  <DeleteConfirmDialog
-    bind:show={showDeleteConfirm}
-    on:confirm={() => {
-      deleteHandler(selectedItem);
-    }}
-  />
+	<DeleteConfirmDialog
+		bind:show={showDeleteConfirm}
+		on:confirm={() => {
+			deleteHandler(selectedItem);
+		}}
+	/>
 
 	<div class="flex flex-col gap-1 my-1.5">
 		<div class="flex justify-between items-center">
@@ -152,22 +152,22 @@
 							<Badge content={$i18n.t('Collection')} type="success" />
 						{/if}
 
-            <div class=" flex self-center -mr-1 translate-y-1">
-              <ItemMenu
-                on:delete={() => {
-                  selectedItem = item;
-                  showDeleteConfirm = true;
-                }}
-              />
-            </div>
-          </div>
+						<div class=" flex self-center -mr-1 translate-y-1">
+							<ItemMenu
+								on:delete={() => {
+									selectedItem = item;
+									showDeleteConfirm = true;
+								}}
+							/>
+						</div>
+					</div>
 
-          <div class=" self-center flex-1 px-1 mb-1">
-            <div class=" font-semibold line-clamp-1 h-fit">{item.name}</div>
+					<div class=" self-center flex-1 px-1 mb-1">
+						<div class=" font-semibold line-clamp-1 h-fit">{item.name}</div>
 
-            <div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
-              {item.description}
-            </div>
+						<div class=" text-xs overflow-hidden text-ellipsis line-clamp-1">
+							{item.description}
+						</div>
 
 						<div class="mt-3 flex justify-between">
 							<div class="text-xs text-gray-500">
@@ -194,11 +194,11 @@
 		{/each}
 	</div>
 
-  <div class=" text-gray-500 text-xs mt-1 mb-2">
-    ⓘ {$i18n.t("Use '#' in the prompt input to load and include your knowledge.")}
-  </div>
+	<div class=" text-gray-500 text-xs mt-1 mb-2">
+		ⓘ {$i18n.t("Use '#' in the prompt input to load and include your knowledge.")}
+	</div>
 {:else}
-  <div class="w-full h-full flex justify-center items-center">
-    <Spinner />
-  </div>
+	<div class="w-full h-full flex justify-center items-center">
+		<Spinner />
+	</div>
 {/if}

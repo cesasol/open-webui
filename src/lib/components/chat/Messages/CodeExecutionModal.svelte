@@ -31,12 +31,12 @@
 					</div>
 				{/if}
 
-        <div class="flex gap-2 items-center">
-          {#if !codeExecution?.result}
-            <div>
-              <Spinner className="size-4" />
-            </div>
-          {/if}
+				<div class="flex gap-2 items-center">
+					{#if !codeExecution?.result}
+						<div>
+							<Spinner className="size-4" />
+						</div>
+					{/if}
 
 					<div>
 						{#if codeExecution?.name}
@@ -86,41 +86,38 @@
 					/>
 				</div>
 
-        {#if codeExecution?.result && (codeExecution?.result?.error || codeExecution?.result?.output)}
-          <div class="dark:bg-[#202123] dark:text-white px-4 py-4 rounded-b-lg flex flex-col gap-3">
-            {#if codeExecution?.result?.error}
-              <div>
-                <div class=" text-gray-500 text-xs mb-1">{$i18n.t('ERROR')}</div>
-                <div class="text-sm">{codeExecution?.result?.error}</div>
-              </div>
-            {/if}
-            {#if codeExecution?.result?.output}
-              <div>
-                <div class=" text-gray-500 text-xs mb-1">{$i18n.t('OUTPUT')}</div>
-                <div class="text-sm">{codeExecution?.result?.output}</div>
-              </div>
-            {/if}
-          </div>
-        {/if}
-        {#if codeExecution?.result?.files && codeExecution?.result?.files.length > 0}
-          <div class="flex flex-col w-full">
-            <hr class="border-gray-100 dark:border-gray-850 my-2" />
-            <div class=" text-sm font-medium dark:text-gray-300">
-              {$i18n.t('Files')}
-            </div>
-            <ul class="mt-1 list-disc pl-4 text-xs">
-              {#each codeExecution?.result?.files as file}
-                <li>
-                  <a
-                    href={file.url}
-                    target="_blank"
-                  >{file.name}</a>
-                </li>
-              {/each}
-            </ul>
-          </div>
-        {/if}
-      </div>
-    </div>
-  </div>
+				{#if codeExecution?.result && (codeExecution?.result?.error || codeExecution?.result?.output)}
+					<div class="dark:bg-[#202123] dark:text-white px-4 py-4 rounded-b-lg flex flex-col gap-3">
+						{#if codeExecution?.result?.error}
+							<div>
+								<div class=" text-gray-500 text-xs mb-1">{$i18n.t('ERROR')}</div>
+								<div class="text-sm">{codeExecution?.result?.error}</div>
+							</div>
+						{/if}
+						{#if codeExecution?.result?.output}
+							<div>
+								<div class=" text-gray-500 text-xs mb-1">{$i18n.t('OUTPUT')}</div>
+								<div class="text-sm">{codeExecution?.result?.output}</div>
+							</div>
+						{/if}
+					</div>
+				{/if}
+				{#if codeExecution?.result?.files && codeExecution?.result?.files.length > 0}
+					<div class="flex flex-col w-full">
+						<hr class="border-gray-100 dark:border-gray-850 my-2" />
+						<div class=" text-sm font-medium dark:text-gray-300">
+							{$i18n.t('Files')}
+						</div>
+						<ul class="mt-1 list-disc pl-4 text-xs">
+							{#each codeExecution?.result?.files as file}
+								<li>
+									<a href={file.url} target="_blank">{file.name}</a>
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
+			</div>
+		</div>
+	</div>
 </Modal>

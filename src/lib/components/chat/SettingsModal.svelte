@@ -8,18 +8,18 @@
 	import { getModels as _getModels } from '$lib/apis';
 	import { goto } from '$app/navigation';
 
-  import Modal from '../common/Modal.svelte';
-  import Account from './Settings/Account.svelte';
-  import About from './Settings/About.svelte';
-  import General from './Settings/General.svelte';
-  import Interface from './Settings/Interface.svelte';
-  import Audio from './Settings/Audio.svelte';
-  import Chats from './Settings/Chats.svelte';
-  import User from '../icons/User.svelte';
-  import Personalization from './Settings/Personalization.svelte';
-  import SearchInput from '../layout/Sidebar/SearchInput.svelte';
-  import Search from '../icons/Search.svelte';
-  import Connections from './Settings/Connections.svelte';
+	import Modal from '../common/Modal.svelte';
+	import Account from './Settings/Account.svelte';
+	import About from './Settings/About.svelte';
+	import General from './Settings/General.svelte';
+	import Interface from './Settings/Interface.svelte';
+	import Audio from './Settings/Audio.svelte';
+	import Chats from './Settings/Chats.svelte';
+	import User from '../icons/User.svelte';
+	import Personalization from './Settings/Personalization.svelte';
+	import SearchInput from '../layout/Sidebar/SearchInput.svelte';
+	import Search from '../icons/Search.svelte';
+	import Connections from './Settings/Connections.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -30,337 +30,337 @@
 
 	let { show = $bindable(false) }: Props = $props();
 
-  interface SettingsTab {
-    id: string;
-    title: string;
-    keywords: string[];
-  }
+	interface SettingsTab {
+		id: string;
+		title: string;
+		keywords: string[];
+	}
 
-  const searchData: SettingsTab[] = [
-    {
-      id: 'general',
-      title: 'General',
-      keywords: [
-        'general',
-        'theme',
-        'language',
-        'notifications',
-        'system',
-        'systemprompt',
-        'prompt',
-        'advanced',
-        'settings',
-        'defaultsettings',
-        'configuration',
-        'systemsettings',
-        'notificationsettings',
-        'systempromptconfig',
-        'languageoptions',
-        'defaultparameters',
-        'systemparameters'
-      ]
-    },
-    {
-      id: 'interface',
-      title: 'Interface',
-      keywords: [
-        'defaultmodel',
-        'selectmodel',
-        'ui',
-        'userinterface',
-        'display',
-        'layout',
-        'design',
-        'landingpage',
-        'landingpagemode',
-        'default',
-        'chat',
-        'chatbubble',
-        'chatui',
-        'username',
-        'showusername',
-        'displayusername',
-        'widescreen',
-        'widescreenmode',
-        'fullscreen',
-        'expandmode',
-        'chatdirection',
-        'lefttoright',
-        'ltr',
-        'righttoleft',
-        'rtl',
-        'notifications',
-        'toast',
-        'toastnotifications',
-        'largechunks',
-        'streamlargechunks',
-        'scroll',
-        'scrollonbranchchange',
-        'scrollbehavior',
-        'richtext',
-        'richtextinput',
-        'background',
-        'chatbackground',
-        'chatbackgroundimage',
-        'backgroundimage',
-        'uploadbackground',
-        'resetbackground',
-        'titleautogen',
-        'titleautogeneration',
-        'autotitle',
-        'chattags',
-        'autochattags',
-        'responseautocopy',
-        'clipboard',
-        'location',
-        'userlocation',
-        'userlocationaccess',
-        'haptic',
-        'hapticfeedback',
-        'vibration',
-        'voice',
-        'voicecontrol',
-        'voiceinterruption',
-        'call',
-        'emojis',
-        'displayemoji',
-        'save',
-        'interfaceoptions',
-        'interfacecustomization',
-        'alwaysonwebsearch'
-      ]
-    },
-    {
-      id: 'connections',
-      title: 'Connections',
-      keywords: []
-    },
-    {
-      id: 'personalization',
-      title: 'Personalization',
-      keywords: [
-        'personalization',
-        'memory',
-        'personalize',
-        'preferences',
-        'profile',
-        'personalsettings',
-        'customsettings',
-        'userpreferences',
-        'accountpreferences'
-      ]
-    },
-    {
-      id: 'audio',
-      title: 'Audio',
-      keywords: [
-        'audio',
-        'sound',
-        'soundsettings',
-        'audiocontrol',
-        'volume',
-        'speech',
-        'speechrecognition',
-        'stt',
-        'speechtotext',
-        'tts',
-        'texttospeech',
-        'playback',
-        'playbackspeed',
-        'voiceplayback',
-        'speechplayback',
-        'audiooutput',
-        'speechengine',
-        'voicecontrol',
-        'audioplayback',
-        'transcription',
-        'autotranscribe',
-        'autosend',
-        'speechsettings',
-        'audiovoice',
-        'voiceoptions',
-        'setvoice',
-        'nonlocalvoices',
-        'savesettings',
-        'audioconfig',
-        'speechconfig',
-        'voicerecognition',
-        'speechsynthesis',
-        'speechmode',
-        'voicespeed',
-        'speechrate',
-        'speechspeed',
-        'audioinput',
-        'audiofeatures',
-        'voicemodes'
-      ]
-    },
-    {
-      id: 'chats',
-      title: 'Chats',
-      keywords: [
-        'chat',
-        'messages',
-        'conversations',
-        'chatsettings',
-        'history',
-        'chathistory',
-        'messagehistory',
-        'messagearchive',
-        'convo',
-        'chats',
-        'conversationhistory',
-        'exportmessages',
-        'chatactivity'
-      ]
-    },
-    {
-      id: 'account',
-      title: 'Account',
-      keywords: [
-        'account',
-        'profile',
-        'security',
-        'privacy',
-        'settings',
-        'login',
-        'useraccount',
-        'userdata',
-        'api',
-        'apikey',
-        'userprofile',
-        'profiledetails',
-        'accountsettings',
-        'accountpreferences',
-        'securitysettings',
-        'privacysettings'
-      ]
-    },
-    {
-      id: 'admin',
-      title: 'Admin',
-      keywords: [
-        'admin',
-        'administrator',
-        'adminsettings',
-        'adminpanel',
-        'systemadmin',
-        'administratoraccess',
-        'systemcontrol',
-        'manage',
-        'management',
-        'admincontrols',
-        'adminfeatures',
-        'usercontrol',
-        'arenamodel',
-        'evaluations',
-        'websearch',
-        'database',
-        'pipelines',
-        'images',
-        'audio',
-        'documents',
-        'rag',
-        'models',
-        'ollama',
-        'openai',
-        'users'
-      ]
-    },
-    {
-      id: 'about',
-      title: 'About',
-      keywords: [
-        'about',
-        'info',
-        'information',
-        'version',
-        'documentation',
-        'help',
-        'support',
-        'details',
-        'aboutus',
-        'softwareinfo',
-        'timothyjaeryangbaek',
-        'openwebui',
-        'release',
-        'updates',
-        'updateinfo',
-        'versioninfo',
-        'aboutapp',
-        'terms',
-        'termsandconditions',
-        'contact',
-        'aboutpage'
-      ]
-    }
-  ];
+	const searchData: SettingsTab[] = [
+		{
+			id: 'general',
+			title: 'General',
+			keywords: [
+				'general',
+				'theme',
+				'language',
+				'notifications',
+				'system',
+				'systemprompt',
+				'prompt',
+				'advanced',
+				'settings',
+				'defaultsettings',
+				'configuration',
+				'systemsettings',
+				'notificationsettings',
+				'systempromptconfig',
+				'languageoptions',
+				'defaultparameters',
+				'systemparameters'
+			]
+		},
+		{
+			id: 'interface',
+			title: 'Interface',
+			keywords: [
+				'defaultmodel',
+				'selectmodel',
+				'ui',
+				'userinterface',
+				'display',
+				'layout',
+				'design',
+				'landingpage',
+				'landingpagemode',
+				'default',
+				'chat',
+				'chatbubble',
+				'chatui',
+				'username',
+				'showusername',
+				'displayusername',
+				'widescreen',
+				'widescreenmode',
+				'fullscreen',
+				'expandmode',
+				'chatdirection',
+				'lefttoright',
+				'ltr',
+				'righttoleft',
+				'rtl',
+				'notifications',
+				'toast',
+				'toastnotifications',
+				'largechunks',
+				'streamlargechunks',
+				'scroll',
+				'scrollonbranchchange',
+				'scrollbehavior',
+				'richtext',
+				'richtextinput',
+				'background',
+				'chatbackground',
+				'chatbackgroundimage',
+				'backgroundimage',
+				'uploadbackground',
+				'resetbackground',
+				'titleautogen',
+				'titleautogeneration',
+				'autotitle',
+				'chattags',
+				'autochattags',
+				'responseautocopy',
+				'clipboard',
+				'location',
+				'userlocation',
+				'userlocationaccess',
+				'haptic',
+				'hapticfeedback',
+				'vibration',
+				'voice',
+				'voicecontrol',
+				'voiceinterruption',
+				'call',
+				'emojis',
+				'displayemoji',
+				'save',
+				'interfaceoptions',
+				'interfacecustomization',
+				'alwaysonwebsearch'
+			]
+		},
+		{
+			id: 'connections',
+			title: 'Connections',
+			keywords: []
+		},
+		{
+			id: 'personalization',
+			title: 'Personalization',
+			keywords: [
+				'personalization',
+				'memory',
+				'personalize',
+				'preferences',
+				'profile',
+				'personalsettings',
+				'customsettings',
+				'userpreferences',
+				'accountpreferences'
+			]
+		},
+		{
+			id: 'audio',
+			title: 'Audio',
+			keywords: [
+				'audio',
+				'sound',
+				'soundsettings',
+				'audiocontrol',
+				'volume',
+				'speech',
+				'speechrecognition',
+				'stt',
+				'speechtotext',
+				'tts',
+				'texttospeech',
+				'playback',
+				'playbackspeed',
+				'voiceplayback',
+				'speechplayback',
+				'audiooutput',
+				'speechengine',
+				'voicecontrol',
+				'audioplayback',
+				'transcription',
+				'autotranscribe',
+				'autosend',
+				'speechsettings',
+				'audiovoice',
+				'voiceoptions',
+				'setvoice',
+				'nonlocalvoices',
+				'savesettings',
+				'audioconfig',
+				'speechconfig',
+				'voicerecognition',
+				'speechsynthesis',
+				'speechmode',
+				'voicespeed',
+				'speechrate',
+				'speechspeed',
+				'audioinput',
+				'audiofeatures',
+				'voicemodes'
+			]
+		},
+		{
+			id: 'chats',
+			title: 'Chats',
+			keywords: [
+				'chat',
+				'messages',
+				'conversations',
+				'chatsettings',
+				'history',
+				'chathistory',
+				'messagehistory',
+				'messagearchive',
+				'convo',
+				'chats',
+				'conversationhistory',
+				'exportmessages',
+				'chatactivity'
+			]
+		},
+		{
+			id: 'account',
+			title: 'Account',
+			keywords: [
+				'account',
+				'profile',
+				'security',
+				'privacy',
+				'settings',
+				'login',
+				'useraccount',
+				'userdata',
+				'api',
+				'apikey',
+				'userprofile',
+				'profiledetails',
+				'accountsettings',
+				'accountpreferences',
+				'securitysettings',
+				'privacysettings'
+			]
+		},
+		{
+			id: 'admin',
+			title: 'Admin',
+			keywords: [
+				'admin',
+				'administrator',
+				'adminsettings',
+				'adminpanel',
+				'systemadmin',
+				'administratoraccess',
+				'systemcontrol',
+				'manage',
+				'management',
+				'admincontrols',
+				'adminfeatures',
+				'usercontrol',
+				'arenamodel',
+				'evaluations',
+				'websearch',
+				'database',
+				'pipelines',
+				'images',
+				'audio',
+				'documents',
+				'rag',
+				'models',
+				'ollama',
+				'openai',
+				'users'
+			]
+		},
+		{
+			id: 'about',
+			title: 'About',
+			keywords: [
+				'about',
+				'info',
+				'information',
+				'version',
+				'documentation',
+				'help',
+				'support',
+				'details',
+				'aboutus',
+				'softwareinfo',
+				'timothyjaeryangbaek',
+				'openwebui',
+				'release',
+				'updates',
+				'updateinfo',
+				'versioninfo',
+				'aboutapp',
+				'terms',
+				'termsandconditions',
+				'contact',
+				'aboutpage'
+			]
+		}
+	];
 
 	let search = $state('');
 	let visibleTabs = $state(searchData.map((tab) => tab.id));
 	let searchDebounceTimeout;
 
-  const searchSettings = (query: string): string[] => {
-    const lowerCaseQuery = query.toLowerCase().trim();
-    return searchData
-      .filter(
-        (tab) =>
-          tab.title.toLowerCase().includes(lowerCaseQuery) ||
-            tab.keywords.some((keyword) => keyword.includes(lowerCaseQuery))
-      )
-      .map((tab) => tab.id);
-  };
+	const searchSettings = (query: string): string[] => {
+		const lowerCaseQuery = query.toLowerCase().trim();
+		return searchData
+			.filter(
+				(tab) =>
+					tab.title.toLowerCase().includes(lowerCaseQuery) ||
+					tab.keywords.some((keyword) => keyword.includes(lowerCaseQuery))
+			)
+			.map((tab) => tab.id);
+	};
 
-  const searchDebounceHandler = () => {
-    clearTimeout(searchDebounceTimeout);
-    searchDebounceTimeout = setTimeout(() => {
-      visibleTabs = searchSettings(search);
-      if (visibleTabs.length > 0 && !visibleTabs.includes(selectedTab)) {
-        selectedTab = visibleTabs[0];
-      }
-    }, 100);
-  };
+	const searchDebounceHandler = () => {
+		clearTimeout(searchDebounceTimeout);
+		searchDebounceTimeout = setTimeout(() => {
+			visibleTabs = searchSettings(search);
+			if (visibleTabs.length > 0 && !visibleTabs.includes(selectedTab)) {
+				selectedTab = visibleTabs[0];
+			}
+		}, 100);
+	};
 
-  const saveSettings = async (updated) => {
-    console.log(updated);
-    await settings.set({ ...$settings, ...updated });
-    await models.set(await getModels());
-    await updateUserSettings(localStorage.token, { ui: $settings });
-  };
+	const saveSettings = async (updated) => {
+		console.log(updated);
+		await settings.set({ ...$settings, ...updated });
+		await models.set(await getModels());
+		await updateUserSettings(localStorage.token, { ui: $settings });
+	};
 
-  const getModels = async () => {
-    return await _getModels(
-      localStorage.token,
-      $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-    );
-  };
+	const getModels = async () => {
+		return await _getModels(
+			localStorage.token,
+			$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+		);
+	};
 
 	let selectedTab = $state('general');
 
-  // Function to handle sideways scrolling
-  const scrollHandler = (event) => {
-    const settingsTabsContainer = document.getElementById('settings-tabs-container');
-    if (settingsTabsContainer) {
-      event.preventDefault(); // Prevent default vertical scrolling
-      settingsTabsContainer.scrollLeft += event.deltaY; // Scroll sideways
-    }
-  };
+	// Function to handle sideways scrolling
+	const scrollHandler = (event) => {
+		const settingsTabsContainer = document.getElementById('settings-tabs-container');
+		if (settingsTabsContainer) {
+			event.preventDefault(); // Prevent default vertical scrolling
+			settingsTabsContainer.scrollLeft += event.deltaY; // Scroll sideways
+		}
+	};
 
-  const addScrollListener = async () => {
-    await tick();
-    const settingsTabsContainer = document.getElementById('settings-tabs-container');
-    if (settingsTabsContainer) {
-      settingsTabsContainer.addEventListener('wheel', scrollHandler);
-    }
-  };
+	const addScrollListener = async () => {
+		await tick();
+		const settingsTabsContainer = document.getElementById('settings-tabs-container');
+		if (settingsTabsContainer) {
+			settingsTabsContainer.addEventListener('wheel', scrollHandler);
+		}
+	};
 
-  const removeScrollListener = async () => {
-    await tick();
-    const settingsTabsContainer = document.getElementById('settings-tabs-container');
-    if (settingsTabsContainer) {
-      settingsTabsContainer.removeEventListener('wheel', scrollHandler);
-    }
-  };
+	const removeScrollListener = async () => {
+		await tick();
+		const settingsTabsContainer = document.getElementById('settings-tabs-container');
+		if (settingsTabsContainer) {
+			settingsTabsContainer.removeEventListener('wheel', scrollHandler);
+		}
+	};
 
 	run(() => {
 		if (show) {

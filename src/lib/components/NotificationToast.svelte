@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { settings, playingNotificationSound, isLastActiveTab } from '$lib/stores';
-  import DOMPurify from 'dompurify';
+	import { settings, playingNotificationSound, isLastActiveTab } from '$lib/stores';
+	import DOMPurify from 'dompurify';
 
-  import { marked } from 'marked';
-  import { createEventDispatcher, onMount } from 'svelte';
+	import { marked } from 'marked';
+	import { createEventDispatcher, onMount } from 'svelte';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	interface Props {
 		onClick?: Function;
@@ -15,23 +15,23 @@
 
 	let { onClick = () => {}, title = 'HI', content }: Props = $props();
 
-  onMount(() => {
-    if (!navigator.userActivation.hasBeenActive) {
-      return;
-    }
+	onMount(() => {
+		if (!navigator.userActivation.hasBeenActive) {
+			return;
+		}
 
-    if ($settings?.notificationSound ?? true) {
-      if (!$playingNotificationSound && $isLastActiveTab) {
-        playingNotificationSound.set(true);
+		if ($settings?.notificationSound ?? true) {
+			if (!$playingNotificationSound && $isLastActiveTab) {
+				playingNotificationSound.set(true);
 
-        const audio = new Audio(`/audio/notification.mp3`);
-        audio.play().finally(() => {
-          // Ensure the global state is reset after the sound finishes
-          playingNotificationSound.set(false);
-        });
-      }
-    }
-  });
+				const audio = new Audio(`/audio/notification.mp3`);
+				audio.play().finally(() => {
+					// Ensure the global state is reset after the sound finishes
+					playingNotificationSound.set(false);
+				});
+			}
+		}
+	});
 </script>
 
 <button
@@ -46,13 +46,13 @@
 		<img class="size-7 rounded-full" alt="favicon" src="/static/favicon.png" />
 	</div>
 
-  <div>
-    {#if title}
-      <div class=" text-[13px] font-medium mb-0.5 line-clamp-1 capitalize">{title}</div>
-    {/if}
+	<div>
+		{#if title}
+			<div class=" text-[13px] font-medium mb-0.5 line-clamp-1 capitalize">{title}</div>
+		{/if}
 
-    <div class=" line-clamp-2 text-xs self-center dark:text-gray-300 font-normal">
-      {@html DOMPurify.sanitize(marked(content))}
-    </div>
-  </div>
+		<div class=" line-clamp-2 text-xs self-center dark:text-gray-300 font-normal">
+			{@html DOMPurify.sanitize(marked(content))}
+		</div>
+	</div>
 </button>

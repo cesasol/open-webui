@@ -422,10 +422,10 @@
 </script>
 
 <ArchivedChatsModal
-  bind:show={$showArchivedChats}
-  on:change={async () => {
-    await initChatList();
-  }}
+	bind:show={$showArchivedChats}
+	on:change={async () => {
+		await initChatList();
+	}}
 />
 
 <ChannelModal
@@ -531,16 +531,13 @@
 					</div>
 				</div>
 
-        <div>
-          <PencilSquare
-            className=" size-5"
-            strokeWidth="2"
-          />
-        </div>
-      </a>
-    </div>
+				<div>
+					<PencilSquare className=" size-5" strokeWidth="2" />
+				</div>
+			</a>
+		</div>
 
-    <!-- {#if $user?.role === 'admin'}
+		<!-- {#if $user?.role === 'admin'}
 			<div class="px-1.5 flex justify-center text-gray-800 dark:text-gray-200">
 				<a
 					class="grow flex items-center space-x-3 rounded-lg px-2 py-[7px] hover:bg-gray-100 dark:hover:bg-gray-900 transition"
@@ -598,12 +595,12 @@
 						</svg>
 					</div>
 
-          <div class="flex self-center translate-y-[0.5px]">
-            <div class=" self-center font-medium text-sm font-primary">{$i18n.t('Workspace')}</div>
-          </div>
-        </a>
-      </div>
-    {/if}
+					<div class="flex self-center translate-y-[0.5px]">
+						<div class=" self-center font-medium text-sm font-primary">{$i18n.t('Workspace')}</div>
+					</div>
+				</a>
+			</div>
+		{/if}
 
 		<div class="relative" class:opacity-20={$temporaryChatEnabled}>
 			{#if $temporaryChatEnabled}
@@ -630,23 +627,23 @@
 						if ($user.role === 'admin') {
 							await tick();
 
-              setTimeout(() => {
-                showCreateChannel = true;
-              }, 0);
-            }
-          }}
-          onAddLabel={$i18n.t('Create Channel')}
-        >
-          {#each $channels as channel}
-            <ChannelItem
-              {channel}
-              onUpdate={async () => {
-                await initChannels();
-              }}
-            />
-          {/each}
-        </Folder>
-      {/if}
+							setTimeout(() => {
+								showCreateChannel = true;
+							}, 0);
+						}
+					}}
+					onAddLabel={$i18n.t('Create Channel')}
+				>
+					{#each $channels as channel}
+						<ChannelItem
+							{channel}
+							onUpdate={async () => {
+								await initChannels();
+							}}
+						/>
+					{/each}
+				</Folder>
+			{/if}
 
 			<Folder
 				name={$i18n.t('Chats')}
@@ -662,52 +659,52 @@
 				on:drop={async (e) => {
 					const { type, id, item } = e.detail;
 
-          if (type === 'chat') {
-            let chat = await getChatById(localStorage.token, id).catch((error) => {
-              return null;
-            });
-            if (!chat && item) {
-              chat = await importChat(localStorage.token, item.chat, item?.meta ?? {});
-            }
+					if (type === 'chat') {
+						let chat = await getChatById(localStorage.token, id).catch((error) => {
+							return null;
+						});
+						if (!chat && item) {
+							chat = await importChat(localStorage.token, item.chat, item?.meta ?? {});
+						}
 
-            if (chat) {
-              console.log(chat);
-              if (chat.folder_id) {
-                const res = await updateChatFolderIdById(localStorage.token, chat.id, null).catch(
-                  (error) => {
-                    toast.error(`${error}`);
-                    return null;
-                  }
-                );
-              }
+						if (chat) {
+							console.log(chat);
+							if (chat.folder_id) {
+								const res = await updateChatFolderIdById(localStorage.token, chat.id, null).catch(
+									(error) => {
+										toast.error(`${error}`);
+										return null;
+									}
+								);
+							}
 
-              if (chat.pinned) {
-                const res = await toggleChatPinnedStatusById(localStorage.token, chat.id);
-              }
+							if (chat.pinned) {
+								const res = await toggleChatPinnedStatusById(localStorage.token, chat.id);
+							}
 
-              initChatList();
-            }
-          } else if (type === 'folder') {
-            if (folders[id].parent_id === null) {
-              return;
-            }
+							initChatList();
+						}
+					} else if (type === 'folder') {
+						if (folders[id].parent_id === null) {
+							return;
+						}
 
-            const res = await updateFolderParentIdById(localStorage.token, id, null).catch(
-              (error) => {
-                toast.error(`${error}`);
-                return null;
-              }
-            );
+						const res = await updateFolderParentIdById(localStorage.token, id, null).catch(
+							(error) => {
+								toast.error(`${error}`);
+								return null;
+							}
+						);
 
-            if (res) {
-              await initFolders();
-            }
-          }
-        }}
-      >
-        {#if $temporaryChatEnabled}
-          <div class="absolute z-40 w-full h-full flex justify-center" />
-        {/if}
+						if (res) {
+							await initFolders();
+						}
+					}
+				}}
+			>
+				{#if $temporaryChatEnabled}
+					<div class="absolute z-40 w-full h-full flex justify-center" />
+				{/if}
 
 				{#if !search && $pinnedChats.length > 0}
 					<div class="flex flex-col space-y-1 rounded-xl">
@@ -725,30 +722,30 @@
 							on:drop={async (e) => {
 								const { type, id, item } = e.detail;
 
-                if (type === 'chat') {
-                  let chat = await getChatById(localStorage.token, id).catch((error) => {
-                    return null;
-                  });
-                  if (!chat && item) {
-                    chat = await importChat(localStorage.token, item.chat, item?.meta ?? {});
-                  }
+								if (type === 'chat') {
+									let chat = await getChatById(localStorage.token, id).catch((error) => {
+										return null;
+									});
+									if (!chat && item) {
+										chat = await importChat(localStorage.token, item.chat, item?.meta ?? {});
+									}
 
-                  if (chat) {
-                    console.log(chat);
-                    if (chat.folder_id) {
-                      const res = await updateChatFolderIdById(
-                        localStorage.token,
-                        chat.id,
-                        null
-                      ).catch((error) => {
-                        toast.error(`${error}`);
-                        return null;
-                      });
-                    }
+									if (chat) {
+										console.log(chat);
+										if (chat.folder_id) {
+											const res = await updateChatFolderIdById(
+												localStorage.token,
+												chat.id,
+												null
+											).catch((error) => {
+												toast.error(`${error}`);
+												return null;
+											});
+										}
 
-                    if (!chat.pinned) {
-                      const res = await toggleChatPinnedStatusById(localStorage.token, chat.id);
-                    }
+										if (!chat.pinned) {
+											const res = await toggleChatPinnedStatusById(localStorage.token, chat.id);
+										}
 
 										initChatList();
 									}
@@ -785,21 +782,21 @@
 					</div>
 				{/if}
 
-        {#if !search && folders}
-          <Folders
-            {folders}
-            on:import={(e) => {
-              const { folderId, items } = e.detail;
-              importChatHandler(items, false, folderId);
-            }}
-            on:update={async (e) => {
-              initChatList();
-            }}
-            on:change={async () => {
-              initChatList();
-            }}
-          />
-        {/if}
+				{#if !search && folders}
+					<Folders
+						{folders}
+						on:import={(e) => {
+							const { folderId, items } = e.detail;
+							importChatHandler(items, false, folderId);
+						}}
+						on:update={async (e) => {
+							initChatList();
+						}}
+						on:change={async () => {
+							initChatList();
+						}}
+					/>
+				{/if}
 
 				<div class=" flex-1 flex flex-col overflow-y-auto scrollbar-hidden">
 					<div class="pt-1.5">
@@ -829,8 +826,8 @@
 							{$i18n.t('November')}
 							{$i18n.t('December')}
 							-->
-                  </div>
-                {/if}
+									</div>
+								{/if}
 
 								<ChatItem
 									id={chat.id}
@@ -854,30 +851,32 @@
 								/>
 							{/each}
 
-              {#if $scrollPaginationEnabled && !allChatsLoaded}
-                <Loader
-                  on:visible={(e) => {
-                    if (!chatListLoading) {
-                      loadMoreChats();
-                    }
-                  }}
-                >
-                  <div class="w-full flex justify-center py-1 text-xs animate-pulse items-center gap-2">
-                    <Spinner className=" size-4" />
-                    <div class=" ">Loading...</div>
-                  </div>
-                </Loader>
-              {/if}
-            {:else}
-              <div class="w-full flex justify-center py-1 text-xs animate-pulse items-center gap-2">
-                <Spinner className=" size-4" />
-                <div class=" ">Loading...</div>
-              </div>
-            {/if}
-          </div>
-        </div>
-      </Folder>
-    </div>
+							{#if $scrollPaginationEnabled && !allChatsLoaded}
+								<Loader
+									on:visible={(e) => {
+										if (!chatListLoading) {
+											loadMoreChats();
+										}
+									}}
+								>
+									<div
+										class="w-full flex justify-center py-1 text-xs animate-pulse items-center gap-2"
+									>
+										<Spinner className=" size-4" />
+										<div class=" ">Loading...</div>
+									</div>
+								</Loader>
+							{/if}
+						{:else}
+							<div class="w-full flex justify-center py-1 text-xs animate-pulse items-center gap-2">
+								<Spinner className=" size-4" />
+								<div class=" ">Loading...</div>
+							</div>
+						{/if}
+					</div>
+				</div>
+			</Folder>
+		</div>
 
 		<div class="px-2">
 			<div class="flex flex-col font-primary">

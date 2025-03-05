@@ -3,40 +3,40 @@
 
 	import { marked } from 'marked';
 
-  import { toast } from 'svelte-sonner';
-  import Sortable from 'sortablejs';
+	import { toast } from 'svelte-sonner';
+	import Sortable from 'sortablejs';
 
-  import fileSaver from 'file-saver';
-  const { saveAs } = fileSaver;
+	import fileSaver from 'file-saver';
+	const { saveAs } = fileSaver;
 
 	import { onMount, getContext, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
-  import {
-    createNewModel,
-    deleteModelById,
-    getModels as getWorkspaceModels,
-    toggleModelById,
-    updateModelById
-  } from '$lib/apis/models';
+	import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
+	import {
+		createNewModel,
+		deleteModelById,
+		getModels as getWorkspaceModels,
+		toggleModelById,
+		updateModelById
+	} from '$lib/apis/models';
 
-  import { getModels } from '$lib/apis';
-  import { getGroups } from '$lib/apis/groups';
+	import { getModels } from '$lib/apis';
+	import { getGroups } from '$lib/apis/groups';
 
-  import EllipsisHorizontal from '../icons/EllipsisHorizontal.svelte';
-  import ModelMenu from './Models/ModelMenu.svelte';
-  import ModelDeleteConfirmDialog from '../common/ConfirmDialog.svelte';
-  import Tooltip from '../common/Tooltip.svelte';
-  import GarbageBin from '../icons/GarbageBin.svelte';
-  import Search from '../icons/Search.svelte';
-  import Plus from '../icons/Plus.svelte';
-  import ChevronRight from '../icons/ChevronRight.svelte';
-  import Switch from '../common/Switch.svelte';
-  import Spinner from '../common/Spinner.svelte';
-  import { capitalizeFirstLetter } from '$lib/utils';
+	import EllipsisHorizontal from '../icons/EllipsisHorizontal.svelte';
+	import ModelMenu from './Models/ModelMenu.svelte';
+	import ModelDeleteConfirmDialog from '../common/ConfirmDialog.svelte';
+	import Tooltip from '../common/Tooltip.svelte';
+	import GarbageBin from '../icons/GarbageBin.svelte';
+	import Search from '../icons/Search.svelte';
+	import Plus from '../icons/Plus.svelte';
+	import ChevronRight from '../icons/ChevronRight.svelte';
+	import Switch from '../common/Switch.svelte';
+	import Spinner from '../common/Spinner.svelte';
+	import { capitalizeFirstLetter } from '$lib/utils';
 
 	let shiftKey = $state(false);
 
@@ -55,95 +55,95 @@
 
 	let searchValue = $state('');
 
-  const deleteModelHandler = async (model) => {
-    const res = await deleteModelById(localStorage.token, model.id).catch((e) => {
-      toast.error(`${e}`);
-      return null;
-    });
+	const deleteModelHandler = async (model) => {
+		const res = await deleteModelById(localStorage.token, model.id).catch((e) => {
+			toast.error(`${e}`);
+			return null;
+		});
 
-    if (res) {
-      toast.success($i18n.t(`Deleted {{name}}`, { name: model.id }));
-    }
+		if (res) {
+			toast.success($i18n.t(`Deleted {{name}}`, { name: model.id }));
+		}
 
-    await _models.set(
-      await getModels(
-        localStorage.token,
-        $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-      )
-    );
-    models = await getWorkspaceModels(localStorage.token);
-  };
+		await _models.set(
+			await getModels(
+				localStorage.token,
+				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+			)
+		);
+		models = await getWorkspaceModels(localStorage.token);
+	};
 
-  const cloneModelHandler = async (model) => {
-    sessionStorage.model = JSON.stringify({
-      ...model,
-      id: `${model.id}-clone`,
-      name: `${model.name} (Clone)`
-    });
-    goto('/workspace/models/create');
-  };
+	const cloneModelHandler = async (model) => {
+		sessionStorage.model = JSON.stringify({
+			...model,
+			id: `${model.id}-clone`,
+			name: `${model.name} (Clone)`
+		});
+		goto('/workspace/models/create');
+	};
 
-  const shareModelHandler = async (model) => {
-    toast.success($i18n.t('Redirecting you to Open WebUI Community'));
+	const shareModelHandler = async (model) => {
+		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
 
-    const url = 'https://openwebui.com';
+		const url = 'https://openwebui.com';
 
-    const tab = await window.open(`${url}/models/create`, '_blank');
+		const tab = await window.open(`${url}/models/create`, '_blank');
 
-    // Define the event handler function
-    const messageHandler = (event) => {
-      if (event.origin !== url) return;
-      if (event.data === 'loaded') {
-        tab.postMessage(JSON.stringify(model), '*');
+		// Define the event handler function
+		const messageHandler = (event) => {
+			if (event.origin !== url) return;
+			if (event.data === 'loaded') {
+				tab.postMessage(JSON.stringify(model), '*');
 
-        // Remove the event listener after handling the message
-        window.removeEventListener('message', messageHandler);
-      }
-    };
+				// Remove the event listener after handling the message
+				window.removeEventListener('message', messageHandler);
+			}
+		};
 
-    window.addEventListener('message', messageHandler, false);
-  };
+		window.addEventListener('message', messageHandler, false);
+	};
 
-  const hideModelHandler = async (model) => {
-    let info = model.info;
+	const hideModelHandler = async (model) => {
+		let info = model.info;
 
-    if (!info) {
-      info = {
-        id: model.id,
-        name: model.name,
-        meta: {
-          suggestion_prompts: null
-        },
-        params: {}
-      };
-    }
+		if (!info) {
+			info = {
+				id: model.id,
+				name: model.name,
+				meta: {
+					suggestion_prompts: null
+				},
+				params: {}
+			};
+		}
 
-    info.meta = {
-      ...info.meta,
-      hidden: !(info?.meta?.hidden ?? false)
-    };
+		info.meta = {
+			...info.meta,
+			hidden: !(info?.meta?.hidden ?? false)
+		};
 
-    console.log(info);
+		console.log(info);
 
-    const res = await updateModelById(localStorage.token, info.id, info);
+		const res = await updateModelById(localStorage.token, info.id, info);
 
-    if (res) {
-      toast.success(
-        $i18n.t(`Model {{name}} is now {{status}}`, {
-          name: info.id,
-          status: info.meta.hidden ? 'hidden' : 'visible'
-        })
-      );
-    }
+		if (res) {
+			toast.success(
+				$i18n.t(`Model {{name}} is now {{status}}`, {
+					name: info.id,
+					status: info.meta.hidden ? 'hidden' : 'visible'
+				})
+			);
+		}
 
-    await _models.set(
-      await getModels(
-        localStorage.token,
-        $config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
-      )
-    );
-    models = await getWorkspaceModels(localStorage.token);
-  };
+		await _models.set(
+			await getModels(
+				localStorage.token,
+				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+			)
+		);
+		models = await getWorkspaceModels(localStorage.token);
+	};
 
 	const downloadModels = async (models) => {
 		const blob = new Blob([JSON.stringify(models)], {
@@ -164,27 +164,27 @@
 		const groups = await getGroups(localStorage.token);
 		group_ids = groups.map((group) => group.id);
 
-    loaded = true;
+		loaded = true;
 
-    const onKeyDown = (event) => {
-      if (event.key === 'Shift') {
-        shiftKey = true;
-      }
-    };
+		const onKeyDown = (event) => {
+			if (event.key === 'Shift') {
+				shiftKey = true;
+			}
+		};
 
-    const onKeyUp = (event) => {
-      if (event.key === 'Shift') {
-        shiftKey = false;
-      }
-    };
+		const onKeyUp = (event) => {
+			if (event.key === 'Shift') {
+				shiftKey = false;
+			}
+		};
 
-    const onBlur = () => {
-      shiftKey = false;
-    };
+		const onBlur = () => {
+			shiftKey = false;
+		};
 
-    window.addEventListener('keydown', onKeyDown);
-    window.addEventListener('keyup', onKeyUp);
-    window.addEventListener('blur-sm', onBlur);
+		window.addEventListener('keydown', onKeyDown);
+		window.addEventListener('keyup', onKeyUp);
+		window.addEventListener('blur-sm', onBlur);
 
 		return () => {
 			window.removeEventListener('keydown', onKeyDown);
@@ -202,18 +202,18 @@
 </script>
 
 <svelte:head>
-  <title>
-    {$i18n.t('Models')} | {$WEBUI_NAME}
-  </title>
+	<title>
+		{$i18n.t('Models')} | {$WEBUI_NAME}
+	</title>
 </svelte:head>
 
 {#if loaded}
-  <ModelDeleteConfirmDialog
-    bind:show={showModelDeleteConfirm}
-    on:confirm={() => {
-      deleteModelHandler(selectedModel);
-    }}
-  />
+	<ModelDeleteConfirmDialog
+		bind:show={showModelDeleteConfirm}
+		on:confirm={() => {
+			deleteModelHandler(selectedModel);
+		}}
+	/>
 
 	<div class="flex flex-col gap-1 my-1.5">
 		<div class="flex justify-between items-center">
@@ -238,16 +238,16 @@
 				/>
 			</div>
 
-      <div>
-        <a
-          class=" px-2 py-2 rounded-xl hover:bg-gray-700/10 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition font-medium text-sm flex items-center space-x-1"
-          href="/workspace/models/create"
-        >
-          <Plus className="size-3.5" />
-        </a>
-      </div>
-    </div>
-  </div>
+			<div>
+				<a
+					class=" px-2 py-2 rounded-xl hover:bg-gray-700/10 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition font-medium text-sm flex items-center space-x-1"
+					href="/workspace/models/create"
+				>
+					<Plus className="size-3.5" />
+				</a>
+			</div>
+		</div>
+	</div>
 
 	<div id="model-list" class=" my-2 mb-5 gap-2 grid lg:grid-cols-2 xl:grid-cols-3">
 		{#each filteredModels as model}
@@ -283,18 +283,18 @@
 								<div class=" font-semibold line-clamp-1">{model.name}</div>
 							</Tooltip>
 
-              <div class="flex gap-1 text-xs overflow-hidden">
-                <div class="line-clamp-1">
-                  {#if (model?.meta?.description ?? '').trim()}
-                    {model?.meta?.description}
-                  {:else}
-                    {model.id}
-                  {/if}
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
+							<div class="flex gap-1 text-xs overflow-hidden">
+								<div class="line-clamp-1">
+									{#if (model?.meta?.description ?? '').trim()}
+										{model?.meta?.description}
+									{:else}
+										{model.id}
+									{/if}
+								</div>
+							</div>
+						</div>
+					</a>
+				</div>
 
 				<div class="flex justify-between items-center -mb-0.5 px-0.5">
 					<div class=" text-xs mt-0.5">
@@ -379,29 +379,29 @@
 								</button>
 							</ModelMenu>
 
-              <div class="ml-1">
-                <Tooltip content={model.is_active ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
-                  <Switch
-                    bind:state={model.is_active}
-                    on:change={async (e) => {
-                      toggleModelById(localStorage.token, model.id);
-                      _models.set(
-                        await getModels(
-                          localStorage.token,
-                          $config?.features?.enable_direct_connections &&
-                            ($settings?.directConnections ?? null)
-                        )
-                      );
-                    }}
-                  />
-                </Tooltip>
-              </div>
-            {/if}
-          </div>
-        </div>
-      </div>
-    {/each}
-  </div>
+							<div class="ml-1">
+								<Tooltip content={model.is_active ? $i18n.t('Enabled') : $i18n.t('Disabled')}>
+									<Switch
+										bind:state={model.is_active}
+										on:change={async (e) => {
+											toggleModelById(localStorage.token, model.id);
+											_models.set(
+												await getModels(
+													localStorage.token,
+													$config?.features?.enable_direct_connections &&
+														($settings?.directConnections ?? null)
+												)
+											);
+										}}
+									/>
+								</Tooltip>
+							</div>
+						{/if}
+					</div>
+				</div>
+			</div>
+		{/each}
+	</div>
 
 	{#if $user?.role === 'admin'}
 		<div class=" flex justify-end w-full mb-3">
@@ -419,31 +419,31 @@
 							const savedModels = JSON.parse(event.target.result);
 							console.log(savedModels);
 
-              for (const model of savedModels) {
-                if (model?.info ?? false) {
-                  if ($_models.find((m) => m.id === model.id)) {
-                    await updateModelById(localStorage.token, model.id, model.info).catch(
-                      (error) => {
-                        return null;
-                      }
-                    );
-                  } else {
-                    await createNewModel(localStorage.token, model.info).catch((error) => {
-                      return null;
-                    });
-                  }
-                }
-              }
+							for (const model of savedModels) {
+								if (model?.info ?? false) {
+									if ($_models.find((m) => m.id === model.id)) {
+										await updateModelById(localStorage.token, model.id, model.info).catch(
+											(error) => {
+												return null;
+											}
+										);
+									} else {
+										await createNewModel(localStorage.token, model.info).catch((error) => {
+											return null;
+										});
+									}
+								}
+							}
 
-              await _models.set(
-                await getModels(
-                  localStorage.token,
-                  $config?.features?.enable_direct_connections &&
-                    ($settings?.directConnections ?? null)
-                )
-              );
-              models = await getWorkspaceModels(localStorage.token);
-            };
+							await _models.set(
+								await getModels(
+									localStorage.token,
+									$config?.features?.enable_direct_connections &&
+										($settings?.directConnections ?? null)
+								)
+							);
+							models = await getWorkspaceModels(localStorage.token);
+						};
 
 						reader.readAsText(importFiles[0]);
 					}}
@@ -502,34 +502,34 @@
 		</div>
 	{/if}
 
-  {#if $config?.features.enable_community_sharing}
-    <div class=" my-16">
-      <div class=" text-xl font-medium mb-1 line-clamp-1">
-        {$i18n.t('Made by Open WebUI Community')}
-      </div>
+	{#if $config?.features.enable_community_sharing}
+		<div class=" my-16">
+			<div class=" text-xl font-medium mb-1 line-clamp-1">
+				{$i18n.t('Made by Open WebUI Community')}
+			</div>
 
-      <a
-        class=" flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full mb-2 px-3.5 py-1.5 rounded-xl transition"
-        href="https://openwebui.com/#open-webui-community"
-        target="_blank"
-      >
-        <div class=" self-center">
-          <div class=" font-semibold line-clamp-1">{$i18n.t('Discover a model')}</div>
-          <div class=" text-sm line-clamp-1">
-            {$i18n.t('Discover, download, and explore model presets')}
-          </div>
-        </div>
+			<a
+				class=" flex cursor-pointer items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-850 w-full mb-2 px-3.5 py-1.5 rounded-xl transition"
+				href="https://openwebui.com/#open-webui-community"
+				target="_blank"
+			>
+				<div class=" self-center">
+					<div class=" font-semibold line-clamp-1">{$i18n.t('Discover a model')}</div>
+					<div class=" text-sm line-clamp-1">
+						{$i18n.t('Discover, download, and explore model presets')}
+					</div>
+				</div>
 
-        <div>
-          <div>
-            <ChevronRight />
-          </div>
-        </div>
-      </a>
-    </div>
-  {/if}
+				<div>
+					<div>
+						<ChevronRight />
+					</div>
+				</div>
+			</a>
+		</div>
+	{/if}
 {:else}
-  <div class="w-full h-full flex justify-center items-center">
-    <Spinner />
-  </div>
+	<div class="w-full h-full flex justify-center items-center">
+		<Spinner />
+	</div>
 {/if}

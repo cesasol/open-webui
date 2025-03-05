@@ -482,109 +482,109 @@
 		// Initialize i18n even if we didn't get a backend config,
 		// so `/error` can show something that's not `undefined`.
 
-    initI18n();
-    if (!localStorage.locale) {
-      const languages = await getLanguages();
-      const browserLanguages = navigator.languages
-        ? navigator.languages
-        : [navigator.language || navigator.userLanguage];
-      const lang = backendConfig.default_locale
-        ? backendConfig.default_locale
-        : bestMatchingLanguage(languages, browserLanguages, 'en-US');
-      changeLanguage(lang);
-    }
+		initI18n();
+		if (!localStorage.locale) {
+			const languages = await getLanguages();
+			const browserLanguages = navigator.languages
+				? navigator.languages
+				: [navigator.language || navigator.userLanguage];
+			const lang = backendConfig.default_locale
+				? backendConfig.default_locale
+				: bestMatchingLanguage(languages, browserLanguages, 'en-US');
+			changeLanguage(lang);
+		}
 
-    if (backendConfig) {
-      // Save Backend Status to Store
-      await config.set(backendConfig);
-      await WEBUI_NAME.set(backendConfig.name);
+		if (backendConfig) {
+			// Save Backend Status to Store
+			await config.set(backendConfig);
+			await WEBUI_NAME.set(backendConfig.name);
 
-      if ($config) {
-        await setupSocket($config.features?.enable_websocket ?? true);
+			if ($config) {
+				await setupSocket($config.features?.enable_websocket ?? true);
 
-        if (localStorage.token) {
-          // Get Session User Info
-          const sessionUser = await getSessionUser(localStorage.token).catch((error) => {
-            toast.error(`${error}`);
-            return null;
-          });
+				if (localStorage.token) {
+					// Get Session User Info
+					const sessionUser = await getSessionUser(localStorage.token).catch((error) => {
+						toast.error(`${error}`);
+						return null;
+					});
 
 					if (sessionUser) {
 						// Save Session User to Store
 						$socket.emit('user-join', { auth: { token: sessionUser.token } });
 
-            await user.set(sessionUser);
-            await config.set(await getBackendConfig());
-          } else {
-            // Redirect Invalid Session User to /auth Page
-            localStorage.removeItem('token');
-            await goto('/auth');
-          }
-        } else {
-          // Don't redirect if we're already on the auth page
+						await user.set(sessionUser);
+						await config.set(await getBackendConfig());
+					} else {
+						// Redirect Invalid Session User to /auth Page
+						localStorage.removeItem('token');
+						await goto('/auth');
+					}
+				} else {
+					// Don't redirect if we're already on the auth page
 					// Needed because we pass in tokens from OAuth logins via URL fragments
-          if ($page.url.pathname !== '/auth') {
-            await goto('/auth');
-          }
-        }
-      }
-    } else {
-      // Redirect to /error when Backend Not Detected
-      await goto(`/error`);
-    }
+					if ($page.url.pathname !== '/auth') {
+						await goto('/auth');
+					}
+				}
+			}
+		} else {
+			// Redirect to /error when Backend Not Detected
+			await goto(`/error`);
+		}
 
-    await tick();
+		await tick();
 
-    if (
-      document.documentElement.classList.contains('her') &&
-      document.getElementById('progress-bar')
-    ) {
-      loadingProgress.subscribe((value) => {
-        const progressBar = document.getElementById('progress-bar');
+		if (
+			document.documentElement.classList.contains('her') &&
+			document.getElementById('progress-bar')
+		) {
+			loadingProgress.subscribe((value) => {
+				const progressBar = document.getElementById('progress-bar');
 
-        if (progressBar) {
-          progressBar.style.width = `${value}%`;
-        }
-      });
+				if (progressBar) {
+					progressBar.style.width = `${value}%`;
+				}
+			});
 
-      await loadingProgress.set(100);
+			await loadingProgress.set(100);
 
-      document.getElementById('splash-screen')?.remove();
+			document.getElementById('splash-screen')?.remove();
 
-      const audio = new Audio(`/audio/greeting.mp3`);
-      const playAudio = () => {
-        audio.play();
-        document.removeEventListener('click', playAudio);
-      };
+			const audio = new Audio(`/audio/greeting.mp3`);
+			const playAudio = () => {
+				audio.play();
+				document.removeEventListener('click', playAudio);
+			};
 
-      document.addEventListener('click', playAudio);
+			document.addEventListener('click', playAudio);
 
-      loaded = true;
-    } else {
-      document.getElementById('splash-screen')?.remove();
-      loaded = true;
-    }
+			loaded = true;
+		} else {
+			document.getElementById('splash-screen')?.remove();
+			loaded = true;
+		}
 
-    return () => {
-      window.removeEventListener('resize', onResize);
-    };
-  });
+		return () => {
+			window.removeEventListener('resize', onResize);
+		};
+	});
 </script>
 
 <svelte:head>
 	<title>{$WEBUI_NAME}</title>
 	<link crossorigin="anonymous" href="{WEBUI_BASE_URL}/static/favicon.png" rel="icon" />
 
-  <!-- rosepine themes have been disabled as it's not up to date with our latest version. -->
-  <!-- feel free to make a PR to fix if anyone wants to see it return -->
-  <!-- <link rel="stylesheet" type="text/css" href="/themes/rosepine.css" />
+	<!-- rosepine themes have been disabled as it's not up to date with our latest version. -->
+	<!-- feel free to make a PR to fix if anyone wants to see it return -->
+	<!-- <link rel="stylesheet" type="text/css" href="/themes/rosepine.css" />
 	<link rel="stylesheet" type="text/css" href="/themes/rosepine-dawn.css" /> -->
 </svelte:head>
 
 {#if loaded}
-  {#if $isApp}
-    <div class="flex flex-row h-screen">
-      <AppSidebar />
+	{#if $isApp}
+		<div class="flex flex-row h-screen">
+			<AppSidebar />
 
 			<div class="w-full flex-1 max-w-[calc(100%-4.5rem)]">
 				{@render children?.()}

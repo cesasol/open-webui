@@ -4,20 +4,20 @@
 	import { onMount, getContext, tick } from 'svelte';
 	import { models, tools, functions, knowledge as knowledgeCollections, user } from '$lib/stores';
 
-  import AdvancedParams from '$lib/components/chat/Settings/Advanced/AdvancedParams.svelte';
-  import Tags from '$lib/components/common/Tags.svelte';
-  import Knowledge from '$lib/components/workspace/Models/Knowledge.svelte';
-  import ToolsSelector from '$lib/components/workspace/Models/ToolsSelector.svelte';
-  import FiltersSelector from '$lib/components/workspace/Models/FiltersSelector.svelte';
-  import ActionsSelector from '$lib/components/workspace/Models/ActionsSelector.svelte';
-  import Capabilities from '$lib/components/workspace/Models/Capabilities.svelte';
-  import Textarea from '$lib/components/common/Textarea.svelte';
-  import { getTools } from '$lib/apis/tools';
-  import { getFunctions } from '$lib/apis/functions';
-  import { getKnowledgeBases } from '$lib/apis/knowledge';
-  import AccessControl from '../common/AccessControl.svelte';
-  import { stringify } from 'postcss';
-  import { toast } from 'svelte-sonner';
+	import AdvancedParams from '$lib/components/chat/Settings/Advanced/AdvancedParams.svelte';
+	import Tags from '$lib/components/common/Tags.svelte';
+	import Knowledge from '$lib/components/workspace/Models/Knowledge.svelte';
+	import ToolsSelector from '$lib/components/workspace/Models/ToolsSelector.svelte';
+	import FiltersSelector from '$lib/components/workspace/Models/FiltersSelector.svelte';
+	import ActionsSelector from '$lib/components/workspace/Models/ActionsSelector.svelte';
+	import Capabilities from '$lib/components/workspace/Models/Capabilities.svelte';
+	import Textarea from '$lib/components/common/Textarea.svelte';
+	import { getTools } from '$lib/apis/tools';
+	import { getFunctions } from '$lib/apis/functions';
+	import { getKnowledgeBases } from '$lib/apis/knowledge';
+	import AccessControl from '../common/AccessControl.svelte';
+	import { stringify } from 'postcss';
+	import { toast } from 'svelte-sonner';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -49,7 +49,7 @@
 
 	let loaded = $state(false);
 
-  // ///////////
+	// ///////////
 	// model
 	// ///////////
 
@@ -100,178 +100,178 @@
 
 	let accessControl = $state({});
 
-  const addUsage = (base_model_id) => {
-    const baseModel = $models.find((m) => m.id === base_model_id);
+	const addUsage = (base_model_id) => {
+		const baseModel = $models.find((m) => m.id === base_model_id);
 
-    if (baseModel) {
-      if (baseModel.owned_by === 'openai') {
-        capabilities.usage = baseModel?.meta?.capabilities?.usage ?? false;
-      } else {
-        delete capabilities.usage;
-      }
-      capabilities = capabilities;
-    }
-  };
+		if (baseModel) {
+			if (baseModel.owned_by === 'openai') {
+				capabilities.usage = baseModel?.meta?.capabilities?.usage ?? false;
+			} else {
+				delete capabilities.usage;
+			}
+			capabilities = capabilities;
+		}
+	};
 
-  const submitHandler = async () => {
-    loading = true;
+	const submitHandler = async () => {
+		loading = true;
 
-    info.id = id;
-    info.name = name;
+		info.id = id;
+		info.name = name;
 
-    if (id === '') {
-      toast.error('Model ID is required.');
-    }
+		if (id === '') {
+			toast.error('Model ID is required.');
+		}
 
-    if (name === '') {
-      toast.error('Model Name is required.');
-    }
+		if (name === '') {
+			toast.error('Model Name is required.');
+		}
 
-    info.access_control = accessControl;
-    info.meta.capabilities = capabilities;
+		info.access_control = accessControl;
+		info.meta.capabilities = capabilities;
 
-    if (enableDescription) {
-      info.meta.description = info.meta.description.trim() === '' ? null : info.meta.description;
-    } else {
-      info.meta.description = null;
-    }
+		if (enableDescription) {
+			info.meta.description = info.meta.description.trim() === '' ? null : info.meta.description;
+		} else {
+			info.meta.description = null;
+		}
 
-    if (knowledge.length > 0) {
-      info.meta.knowledge = knowledge;
-    } else {
-      if (info.meta.knowledge) {
-        delete info.meta.knowledge;
-      }
-    }
+		if (knowledge.length > 0) {
+			info.meta.knowledge = knowledge;
+		} else {
+			if (info.meta.knowledge) {
+				delete info.meta.knowledge;
+			}
+		}
 
-    if (toolIds.length > 0) {
-      info.meta.toolIds = toolIds;
-    } else {
-      if (info.meta.toolIds) {
-        delete info.meta.toolIds;
-      }
-    }
+		if (toolIds.length > 0) {
+			info.meta.toolIds = toolIds;
+		} else {
+			if (info.meta.toolIds) {
+				delete info.meta.toolIds;
+			}
+		}
 
-    if (filterIds.length > 0) {
-      info.meta.filterIds = filterIds;
-    } else {
-      if (info.meta.filterIds) {
-        delete info.meta.filterIds;
-      }
-    }
+		if (filterIds.length > 0) {
+			info.meta.filterIds = filterIds;
+		} else {
+			if (info.meta.filterIds) {
+				delete info.meta.filterIds;
+			}
+		}
 
-    if (actionIds.length > 0) {
-      info.meta.actionIds = actionIds;
-    } else {
-      if (info.meta.actionIds) {
-        delete info.meta.actionIds;
-      }
-    }
+		if (actionIds.length > 0) {
+			info.meta.actionIds = actionIds;
+		} else {
+			if (info.meta.actionIds) {
+				delete info.meta.actionIds;
+			}
+		}
 
-    info.params.stop = params.stop ? params.stop.split(',').filter((s) => s.trim()) : null;
-    Object.keys(info.params).forEach((key) => {
-      if (info.params[key] === '' || info.params[key] === null) {
-        delete info.params[key];
-      }
-    });
+		info.params.stop = params.stop ? params.stop.split(',').filter((s) => s.trim()) : null;
+		Object.keys(info.params).forEach((key) => {
+			if (info.params[key] === '' || info.params[key] === null) {
+				delete info.params[key];
+			}
+		});
 
-    await onSubmit(info);
+		await onSubmit(info);
 
-    loading = false;
-    success = false;
-  };
+		loading = false;
+		success = false;
+	};
 
-  onMount(async () => {
-    await tools.set(await getTools(localStorage.token));
-    await functions.set(await getFunctions(localStorage.token));
-    await knowledgeCollections.set(await getKnowledgeBases(localStorage.token));
+	onMount(async () => {
+		await tools.set(await getTools(localStorage.token));
+		await functions.set(await getFunctions(localStorage.token));
+		await knowledgeCollections.set(await getKnowledgeBases(localStorage.token));
 
-    // Scroll to top 'workspace-container' element
-    const workspaceContainer = document.getElementById('workspace-container');
-    if (workspaceContainer) {
-      workspaceContainer.scrollTop = 0;
-    }
+		// Scroll to top 'workspace-container' element
+		const workspaceContainer = document.getElementById('workspace-container');
+		if (workspaceContainer) {
+			workspaceContainer.scrollTop = 0;
+		}
 
-    if (model) {
-      name = model.name;
-      await tick();
+		if (model) {
+			name = model.name;
+			await tick();
 
-      id = model.id;
+			id = model.id;
 
-      enableDescription = model?.meta?.description !== null;
+			enableDescription = model?.meta?.description !== null;
 
-      if (model.base_model_id) {
-        const base_model = $models
-          .filter((m) => !m?.preset && !(m?.arena ?? false))
-          .find((m) => [model.base_model_id, `${model.base_model_id}:latest`].includes(m.id));
+			if (model.base_model_id) {
+				const base_model = $models
+					.filter((m) => !m?.preset && !(m?.arena ?? false))
+					.find((m) => [model.base_model_id, `${model.base_model_id}:latest`].includes(m.id));
 
-        console.log('base_model', base_model);
+				console.log('base_model', base_model);
 
-        if (base_model) {
-          model.base_model_id = base_model.id;
-        } else {
-          model.base_model_id = null;
-        }
-      }
+				if (base_model) {
+					model.base_model_id = base_model.id;
+				} else {
+					model.base_model_id = null;
+				}
+			}
 
-      params = { ...params, ...model?.params };
-      params.stop = params?.stop
-        ? (typeof params.stop === 'string' ? params.stop.split(',') : (params?.stop ?? [])).join(
-          ','
-        )
-        : null;
+			params = { ...params, ...model?.params };
+			params.stop = params?.stop
+				? (typeof params.stop === 'string' ? params.stop.split(',') : (params?.stop ?? [])).join(
+						','
+					)
+				: null;
 
-      toolIds = model?.meta?.toolIds ?? [];
-      filterIds = model?.meta?.filterIds ?? [];
-      actionIds = model?.meta?.actionIds ?? [];
-      knowledge = (model?.meta?.knowledge ?? []).map((item) => {
-        if (item?.collection_name) {
-          return {
-            id: item.collection_name,
-            name: item.name,
-            legacy: true
-          };
-        } else if (item?.collection_names) {
-          return {
-            name: item.name,
-            type: 'collection',
-            collection_names: item.collection_names,
-            legacy: true
-          };
-        } else {
-          return item;
-        }
-      });
-      capabilities = { ...capabilities, ...(model?.meta?.capabilities ?? {}) };
+			toolIds = model?.meta?.toolIds ?? [];
+			filterIds = model?.meta?.filterIds ?? [];
+			actionIds = model?.meta?.actionIds ?? [];
+			knowledge = (model?.meta?.knowledge ?? []).map((item) => {
+				if (item?.collection_name) {
+					return {
+						id: item.collection_name,
+						name: item.name,
+						legacy: true
+					};
+				} else if (item?.collection_names) {
+					return {
+						name: item.name,
+						type: 'collection',
+						collection_names: item.collection_names,
+						legacy: true
+					};
+				} else {
+					return item;
+				}
+			});
+			capabilities = { ...capabilities, ...(model?.meta?.capabilities ?? {}) };
 
-      if ('access_control' in model) {
-        accessControl = model.access_control;
-      } else {
-        accessControl = {};
-      }
+			if ('access_control' in model) {
+				accessControl = model.access_control;
+			} else {
+				accessControl = {};
+			}
 
-      console.log(model?.access_control);
-      console.log(accessControl);
+			console.log(model?.access_control);
+			console.log(accessControl);
 
-      info = {
-        ...info,
-        ...JSON.parse(
-          JSON.stringify(
-            model
-              ? model
-              : {
-                id: model.id,
-                name: model.name
-              }
-          )
-        )
-      };
+			info = {
+				...info,
+				...JSON.parse(
+					JSON.stringify(
+						model
+							? model
+							: {
+									id: model.id,
+									name: model.name
+								}
+					)
+				)
+			};
 
-      console.log(model);
-    }
+			console.log(model);
+		}
 
-    loaded = true;
-  });
+		loaded = true;
+	});
 </script>
 
 {#if loaded}
@@ -310,47 +310,47 @@
 				reader.onload = (event) => {
 					const originalImageUrl = `${event.target.result}`;
 
-          const img = new Image();
-          img.src = originalImageUrl;
+					const img = new Image();
+					img.src = originalImageUrl;
 
-          img.onload = function () {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+					img.onload = function () {
+						const canvas = document.createElement('canvas');
+						const ctx = canvas.getContext('2d');
 
-            // Calculate the aspect ratio of the image
-            const aspectRatio = img.width / img.height;
+						// Calculate the aspect ratio of the image
+						const aspectRatio = img.width / img.height;
 
-            // Calculate the new width and height to fit within 100x100
-            let newWidth, newHeight;
-            if (aspectRatio > 1) {
-              newWidth = 250 * aspectRatio;
-              newHeight = 250;
-            } else {
-              newWidth = 250;
-              newHeight = 250 / aspectRatio;
-            }
+						// Calculate the new width and height to fit within 100x100
+						let newWidth, newHeight;
+						if (aspectRatio > 1) {
+							newWidth = 250 * aspectRatio;
+							newHeight = 250;
+						} else {
+							newWidth = 250;
+							newHeight = 250 / aspectRatio;
+						}
 
-            // Set the canvas size
-            canvas.width = 250;
-            canvas.height = 250;
+						// Set the canvas size
+						canvas.width = 250;
+						canvas.height = 250;
 
-            // Calculate the position to center the image
-            const offsetX = (250 - newWidth) / 2;
-            const offsetY = (250 - newHeight) / 2;
+						// Calculate the position to center the image
+						const offsetX = (250 - newWidth) / 2;
+						const offsetY = (250 - newHeight) / 2;
 
-            // Draw the image on the canvas
-            ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+						// Draw the image on the canvas
+						ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
 
-            // Get the base64 representation of the compressed image
-            const compressedSrc = canvas.toDataURL();
+						// Get the base64 representation of the compressed image
+						const compressedSrc = canvas.toDataURL();
 
-            // Display the compressed image
-            info.meta.profile_image_url = compressedSrc;
+						// Display the compressed image
+						info.meta.profile_image_url = compressedSrc;
 
-            inputFiles = null;
-            filesInputElement.value = '';
-          };
-        };
+						inputFiles = null;
+						filesInputElement.value = '';
+					};
+				};
 
 				if (
 					inputFiles &&
@@ -423,8 +423,10 @@
 								</div>
 							</div>
 
-              <div class="absolute top-0 bottom-0 left-0 right-0 bg-white dark:bg-black rounded-lg opacity-0 group-hover:opacity-20 transition" />
-            </button>
+							<div
+								class="absolute top-0 bottom-0 left-0 right-0 bg-white dark:bg-black rounded-lg opacity-0 group-hover:opacity-20 transition"
+							/>
+						</button>
 
 						<div class="flex w-full mt-1 justify-end">
 							<button
@@ -466,9 +468,9 @@
 						</div>
 					</div>
 
-          {#if preset}
-            <div class="my-1">
-              <div class=" text-sm font-semibold mb-1">{$i18n.t('Base Model (From)')}</div>
+					{#if preset}
+						<div class="my-1">
+							<div class=" text-sm font-semibold mb-1">{$i18n.t('Base Model (From)')}</div>
 
 							<div>
 								<select
@@ -491,9 +493,9 @@
 						</div>
 					{/if}
 
-          <div class="my-1">
-            <div class="mb-1 flex w-full justify-between items-center">
-              <div class=" self-center text-sm font-semibold">{$i18n.t('Description')}</div>
+					<div class="my-1">
+						<div class="mb-1 flex w-full justify-between items-center">
+							<div class=" self-center text-sm font-semibold">{$i18n.t('Description')}</div>
 
 							<button
 								class="p-1 text-xs flex rounded-sm transition"
@@ -510,34 +512,34 @@
 							</button>
 						</div>
 
-            {#if enableDescription}
-              <Textarea
-                className=" text-sm w-full bg-transparent outline-hidden resize-none overflow-y-hidden "
-                placeholder={$i18n.t('Add a short description about what this model does')}
-                bind:value={info.meta.description}
-              />
-            {/if}
-          </div>
+						{#if enableDescription}
+							<Textarea
+								className=" text-sm w-full bg-transparent outline-hidden resize-none overflow-y-hidden "
+								placeholder={$i18n.t('Add a short description about what this model does')}
+								bind:value={info.meta.description}
+							/>
+						{/if}
+					</div>
 
-          <div class=" mt-2 my-1">
-            <div class="">
-              <Tags
-                tags={info?.meta?.tags ?? []}
-                on:delete={(e) => {
-                  const tagName = e.detail;
-                  info.meta.tags = info.meta.tags.filter((tag) => tag.name !== tagName);
-                }}
-                on:add={(e) => {
-                  const tagName = e.detail;
-                  if (!(info?.meta?.tags ?? null)) {
-                    info.meta.tags = [{ name: tagName }];
-                  } else {
-                    info.meta.tags = [...info.meta.tags, { name: tagName }];
-                  }
-                }}
-              />
-            </div>
-          </div>
+					<div class=" mt-2 my-1">
+						<div class="">
+							<Tags
+								tags={info?.meta?.tags ?? []}
+								on:delete={(e) => {
+									const tagName = e.detail;
+									info.meta.tags = info.meta.tags.filter((tag) => tag.name !== tagName);
+								}}
+								on:add={(e) => {
+									const tagName = e.detail;
+									if (!(info?.meta?.tags ?? null)) {
+										info.meta.tags = [{ name: tagName }];
+									} else {
+										info.meta.tags = [...info.meta.tags, { name: tagName }];
+									}
+								}}
+							/>
+						</div>
+					</div>
 
 					<div class="my-2">
 						<div class="px-3 py-2 bg-gray-50 dark:bg-gray-950 rounded-lg">
@@ -545,30 +547,30 @@
 						</div>
 					</div>
 
-          <hr class=" border-gray-100 dark:border-gray-850 my-1.5" />
+					<hr class=" border-gray-100 dark:border-gray-850 my-1.5" />
 
-          <div class="my-2">
-            <div class="flex w-full justify-between">
-              <div class=" self-center text-sm font-semibold">{$i18n.t('Model Params')}</div>
-            </div>
+					<div class="my-2">
+						<div class="flex w-full justify-between">
+							<div class=" self-center text-sm font-semibold">{$i18n.t('Model Params')}</div>
+						</div>
 
-            <div class="mt-2">
-              <div class="my-1">
-                <div class=" text-xs font-semibold mb-2">{$i18n.t('System Prompt')}</div>
-                <div>
-                  <Textarea
-                    className=" text-sm w-full bg-transparent outline-hidden resize-none overflow-y-hidden "
-                    placeholder={`Write your model system prompt content here\ne.g.) You are Mario from Super Mario Bros, acting as an assistant.`}
-                    rows={4}
-                    bind:value={info.params.system}
-                  />
-                </div>
-              </div>
+						<div class="mt-2">
+							<div class="my-1">
+								<div class=" text-xs font-semibold mb-2">{$i18n.t('System Prompt')}</div>
+								<div>
+									<Textarea
+										className=" text-sm w-full bg-transparent outline-hidden resize-none overflow-y-hidden "
+										placeholder={`Write your model system prompt content here\ne.g.) You are Mario from Super Mario Bros, acting as an assistant.`}
+										rows={4}
+										bind:value={info.params.system}
+									/>
+								</div>
+							</div>
 
-              <div class="flex w-full justify-between">
-                <div class=" self-center text-xs font-semibold">
-                  {$i18n.t('Advanced Params')}
-                </div>
+							<div class="flex w-full justify-between">
+								<div class=" self-center text-xs font-semibold">
+									{$i18n.t('Advanced Params')}
+								</div>
 
 								<button
 									class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -585,28 +587,28 @@
 								</button>
 							</div>
 
-              {#if showAdvanced}
-                <div class="my-2">
-                  <AdvancedParams
-                    admin={true}
-                    bind:params
-                    on:change={(e) => {
-                      info.params = { ...info.params, ...params };
-                    }}
-                  />
-                </div>
-              {/if}
-            </div>
-          </div>
+							{#if showAdvanced}
+								<div class="my-2">
+									<AdvancedParams
+										admin={true}
+										bind:params
+										on:change={(e) => {
+											info.params = { ...info.params, ...params };
+										}}
+									/>
+								</div>
+							{/if}
+						</div>
+					</div>
 
-          <hr class=" border-gray-100 dark:border-gray-850 my-1" />
+					<hr class=" border-gray-100 dark:border-gray-850 my-1" />
 
-          <div class="my-2">
-            <div class="flex w-full justify-between items-center">
-              <div class="flex w-full justify-between items-center">
-                <div class=" self-center text-sm font-semibold">
-                  {$i18n.t('Prompt suggestions')}
-                </div>
+					<div class="my-2">
+						<div class="flex w-full justify-between items-center">
+							<div class="flex w-full justify-between items-center">
+								<div class=" self-center text-sm font-semibold">
+									{$i18n.t('Prompt suggestions')}
+								</div>
 
 								<button
 									class="p-1 text-xs flex rounded-sm transition"
@@ -657,16 +659,16 @@
 							{/if}
 						</div>
 
-            {#if info?.meta?.suggestion_prompts}
-              <div class="flex flex-col space-y-1 mt-1 mb-3">
-                {#if info.meta.suggestion_prompts.length > 0}
-                  {#each info.meta.suggestion_prompts as prompt, promptIdx}
-                    <div class=" flex rounded-lg">
-                      <input
-                        class=" text-sm w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850"
-                        placeholder={$i18n.t('Write a prompt suggestion (e.g. Who are you?)')}
-                        bind:value={prompt.content}
-                      />
+						{#if info?.meta?.suggestion_prompts}
+							<div class="flex flex-col space-y-1 mt-1 mb-3">
+								{#if info.meta.suggestion_prompts.length > 0}
+									{#each info.meta.suggestion_prompts as prompt, promptIdx}
+										<div class=" flex rounded-lg">
+											<input
+												class=" text-sm w-full bg-transparent outline-hidden border-r border-gray-100 dark:border-gray-850"
+												placeholder={$i18n.t('Write a prompt suggestion (e.g. Who are you?)')}
+												bind:value={prompt.content}
+											/>
 
 											<button
 												class="px-2"
@@ -696,7 +698,7 @@
 						{/if}
 					</div>
 
-          <hr class=" border-gray-100 dark:border-gray-850 my-1.5" />
+					<hr class=" border-gray-100 dark:border-gray-850 my-1.5" />
 
 					<div class="my-2">
 						<Knowledge collections={$knowledgeCollections} bind:selectedKnowledge={knowledge} />
@@ -720,13 +722,13 @@
 						/>
 					</div>
 
-          <div class="my-2">
-            <Capabilities bind:capabilities />
-          </div>
+					<div class="my-2">
+						<Capabilities bind:capabilities />
+					</div>
 
-          <div class="my-2 text-gray-300 dark:text-gray-700">
-            <div class="flex w-full justify-between mb-2">
-              <div class=" self-center text-sm font-semibold">{$i18n.t('JSON Preview')}</div>
+					<div class="my-2 text-gray-300 dark:text-gray-700">
+						<div class="flex w-full justify-between mb-2">
+							<div class=" self-center text-sm font-semibold">{$i18n.t('JSON Preview')}</div>
 
 							<button
 								class="p-1 px-3 text-xs flex rounded-sm transition"

@@ -5,13 +5,13 @@
 	import { replaceTokens, processResponseContent } from '$lib/utils';
 	import { user } from '$lib/stores';
 
-  import markedExtension from '$lib/utils/marked/extension';
-  import markedKatexExtension from '$lib/utils/marked/katex-extension';
+	import markedExtension from '$lib/utils/marked/extension';
+	import markedKatexExtension from '$lib/utils/marked/katex-extension';
 
-  import MarkdownTokens from './Markdown/MarkdownTokens.svelte';
-  import { createEventDispatcher } from 'svelte';
+	import MarkdownTokens from './Markdown/MarkdownTokens.svelte';
+	import { createEventDispatcher } from 'svelte';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	interface Props {
 		id: any;
@@ -35,12 +35,12 @@
 
 	let tokens = $state([]);
 
-  const options = {
-    throwOnError: false
-  };
+	const options = {
+		throwOnError: false
+	};
 
-  marked.use(markedKatexExtension(options));
-  marked.use(markedExtension(options));
+	marked.use(markedKatexExtension(options));
+	marked.use(markedExtension(options));
 
 	run(() => {
 		(async () => {

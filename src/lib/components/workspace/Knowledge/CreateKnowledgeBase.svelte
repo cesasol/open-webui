@@ -6,10 +6,10 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { createNewKnowledge, getKnowledgeBases } from '$lib/apis/knowledge';
-  import { toast } from 'svelte-sonner';
-  import { knowledge } from '$lib/stores';
-  import AccessControl from '../common/AccessControl.svelte';
+	import { createNewKnowledge, getKnowledgeBases } from '$lib/apis/knowledge';
+	import { toast } from 'svelte-sonner';
+	import { knowledge } from '$lib/stores';
+	import AccessControl from '../common/AccessControl.svelte';
 
 	let loading = $state(false);
 
@@ -17,34 +17,34 @@
 	let description = $state('');
 	let accessControl = $state(null);
 
-  const submitHandler = async () => {
-    loading = true;
+	const submitHandler = async () => {
+		loading = true;
 
-    if (name.trim() === '' || description.trim() === '') {
-      toast.error($i18n.t('Please fill in all fields.'));
-      name = '';
-      description = '';
-      loading = false;
-      return;
-    }
+		if (name.trim() === '' || description.trim() === '') {
+			toast.error($i18n.t('Please fill in all fields.'));
+			name = '';
+			description = '';
+			loading = false;
+			return;
+		}
 
-    const res = await createNewKnowledge(
-      localStorage.token,
-      name,
-      description,
-      accessControl
-    ).catch((e) => {
-      toast.error(`${e}`);
-    });
+		const res = await createNewKnowledge(
+			localStorage.token,
+			name,
+			description,
+			accessControl
+		).catch((e) => {
+			toast.error(`${e}`);
+		});
 
-    if (res) {
-      toast.success($i18n.t('Knowledge created successfully.'));
-      knowledge.set(await getKnowledgeBases(localStorage.token));
-      goto(`/workspace/knowledge/${res.id}`);
-    }
+		if (res) {
+			toast.success($i18n.t('Knowledge created successfully.'));
+			knowledge.set(await getKnowledgeBases(localStorage.token));
+			goto(`/workspace/knowledge/${res.id}`);
+		}
 
-    loading = false;
-  };
+		loading = false;
+	};
 </script>
 
 <div class="w-full max-h-full">
@@ -82,9 +82,9 @@
 				{$i18n.t('Create a knowledge base')}
 			</div>
 
-      <div class="w-full flex flex-col gap-2.5">
-        <div class="w-full">
-          <div class=" text-sm mb-2">{$i18n.t('What are you working on?')}</div>
+			<div class="w-full flex flex-col gap-2.5">
+				<div class="w-full">
+					<div class=" text-sm mb-2">{$i18n.t('What are you working on?')}</div>
 
 					<div class="w-full mt-1">
 						<input
@@ -97,8 +97,8 @@
 					</div>
 				</div>
 
-        <div>
-          <div class="text-sm mb-2">{$i18n.t('What are you trying to achieve?')}</div>
+				<div>
+					<div class="text-sm mb-2">{$i18n.t('What are you trying to achieve?')}</div>
 
 					<div class=" w-full mt-1">
 						<textarea

@@ -4,12 +4,12 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { page } from '$app/stores';
-  import { mobile, showSidebar, user } from '$lib/stores';
-  import { updateChannelById } from '$lib/apis/channels';
+	import { page } from '$app/stores';
+	import { mobile, showSidebar, user } from '$lib/stores';
+	import { updateChannelById } from '$lib/apis/channels';
 
-  import Cog6 from '$lib/components/icons/Cog6.svelte';
-  import ChannelModal from './ChannelModal.svelte';
+	import Cog6 from '$lib/components/icons/Cog6.svelte';
+	import ChannelModal from './ChannelModal.svelte';
 
 	interface Props {
 		onUpdate?: Function;
@@ -35,9 +35,9 @@
 			toast.error(error.message);
 		});
 
-    if (res) {
-      toast.success('Channel updated successfully');
-    }
+		if (res) {
+			toast.success('Channel updated successfully');
+		}
 
 		onUpdate();
 	}}
@@ -46,11 +46,11 @@
 />
 
 <div
-  bind:this={itemElement}
-  class=" w-full {className} rounded-lg flex relative group hover:bg-gray-100 dark:hover:bg-gray-900 {$page
-    .url.pathname === `/channels/${channel.id}`
-    ? 'bg-gray-100 dark:bg-gray-900'
-    : ''} px-2.5 py-1"
+	bind:this={itemElement}
+	class=" w-full {className} rounded-lg flex relative group hover:bg-gray-100 dark:hover:bg-gray-900 {$page
+		.url.pathname === `/channels/${channel.id}`
+		? 'bg-gray-100 dark:bg-gray-900'
+		: ''} px-2.5 py-1"
 >
 	<a
 		class=" w-full flex justify-between"
@@ -76,11 +76,11 @@
 				/>
 			</svg>
 
-      <div class=" text-left self-center overflow-hidden w-full line-clamp-1">
-        {channel.name}
-      </div>
-    </div>
-  </a>
+			<div class=" text-left self-center overflow-hidden w-full line-clamp-1">
+				{channel.name}
+			</div>
+		</div>
+	</a>
 
 	{#if $user?.role === 'admin'}
 		<button

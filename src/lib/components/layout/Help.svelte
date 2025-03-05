@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { onMount, tick, getContext } from 'svelte';
+	import { onMount, tick, getContext } from 'svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import ShortcutsModal from '../chat/ShortcutsModal.svelte';
-  import Tooltip from '../common/Tooltip.svelte';
-  import HelpMenu from './Help/HelpMenu.svelte';
+	import ShortcutsModal from '../chat/ShortcutsModal.svelte';
+	import Tooltip from '../common/Tooltip.svelte';
+	import HelpMenu from './Help/HelpMenu.svelte';
 
 	let showShortcuts = $state(false);
 </script>
@@ -20,23 +20,22 @@
 		}}
 	></button>
 
-  <HelpMenu
-    showDocsHandler={() => {
-      showShortcuts = !showShortcuts;
-    }}
-    showShortcutsHandler={() => {
-      showShortcuts = !showShortcuts;
-    }}
-  >
-    <Tooltip
-      content={$i18n.t('Help')}
-      placement="left"
-    >
-      <button class="text-gray-600 dark:text-gray-300 bg-gray-300/20 size-4 flex items-center justify-center text-[0.7rem] rounded-full">
-        ?
-      </button>
-    </Tooltip>
-  </HelpMenu>
+	<HelpMenu
+		showDocsHandler={() => {
+			showShortcuts = !showShortcuts;
+		}}
+		showShortcutsHandler={() => {
+			showShortcuts = !showShortcuts;
+		}}
+	>
+		<Tooltip content={$i18n.t('Help')} placement="left">
+			<button
+				class="text-gray-600 dark:text-gray-300 bg-gray-300/20 size-4 flex items-center justify-center text-[0.7rem] rounded-full"
+			>
+				?
+			</button>
+		</Tooltip>
+	</HelpMenu>
 </div>
 
 <ShortcutsModal bind:show={showShortcuts} />

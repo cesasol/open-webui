@@ -4,20 +4,20 @@
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-  import { chats, user, settings, scrollPaginationEnabled, currentChatPage } from '$lib/stores';
+	import { chats, user, settings, scrollPaginationEnabled, currentChatPage } from '$lib/stores';
 
-  import {
-    archiveAllChats,
-    createNewChat,
-    deleteAllChats,
-    getAllChats,
-    getAllUserChats,
-    getChatList
-  } from '$lib/apis/chats';
-  import { getImportOrigin, convertOpenAIChats } from '$lib/utils';
-  import { onMount, getContext } from 'svelte';
-  import { goto } from '$app/navigation';
-  import { toast } from 'svelte-sonner';
+	import {
+		archiveAllChats,
+		createNewChat,
+		deleteAllChats,
+		getAllChats,
+		getAllUserChats,
+		getChatList
+	} from '$lib/apis/chats';
+	import { getImportOrigin, convertOpenAIChats } from '$lib/utils';
+	import { onMount, getContext } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -36,21 +36,21 @@
 
 	let chatImportInputElement: HTMLInputElement = $state();
 
-  const importChats = async (_chats) => {
-    for (const chat of _chats) {
-      console.log(chat);
+	const importChats = async (_chats) => {
+		for (const chat of _chats) {
+			console.log(chat);
 
-      if (chat.chat) {
-        await createNewChat(localStorage.token, chat.chat);
-      } else {
-        await createNewChat(localStorage.token, chat);
-      }
-    }
+			if (chat.chat) {
+				await createNewChat(localStorage.token, chat.chat);
+			} else {
+				await createNewChat(localStorage.token, chat);
+			}
+		}
 
-    currentChatPage.set(1);
-    await chats.set(await getChatList(localStorage.token, $currentChatPage));
-    scrollPaginationEnabled.set(true);
-  };
+		currentChatPage.set(1);
+		await chats.set(await getChatList(localStorage.token, $currentChatPage));
+		scrollPaginationEnabled.set(true);
+	};
 
 	const exportChats = async () => {
 		const blob = new Blob([JSON.stringify(await getAllChats(localStorage.token))], {
@@ -59,22 +59,22 @@
 		saveAs(blob, `chat-export-${Date.now()}.json`);
 	};
 
-  const archiveAllChatsHandler = async () => {
-    await goto('/');
-    await archiveAllChats(localStorage.token).catch((error) => {
-      toast.error(`${error}`);
-    });
+	const archiveAllChatsHandler = async () => {
+		await goto('/');
+		await archiveAllChats(localStorage.token).catch((error) => {
+			toast.error(`${error}`);
+		});
 
-    currentChatPage.set(1);
-    await chats.set(await getChatList(localStorage.token, $currentChatPage));
-    scrollPaginationEnabled.set(true);
-  };
+		currentChatPage.set(1);
+		await chats.set(await getChatList(localStorage.token, $currentChatPage));
+		scrollPaginationEnabled.set(true);
+	};
 
-  const deleteAllChatsHandler = async () => {
-    await goto('/');
-    await deleteAllChats(localStorage.token).catch((error) => {
-      toast.error(`${error}`);
-    });
+	const deleteAllChatsHandler = async () => {
+		await goto('/');
+		await deleteAllChats(localStorage.token).catch((error) => {
+			toast.error(`${error}`);
+		});
 
 		currentChatPage.set(1);
 		await chats.set(await getChatList(localStorage.token, $currentChatPage));
@@ -162,7 +162,7 @@
 			</button>
 		</div>
 
-    <hr class=" border-gray-100 dark:border-gray-850" />
+		<hr class=" border-gray-100 dark:border-gray-850" />
 
 		<div class="flex flex-col">
 			{#if showArchiveConfirm}

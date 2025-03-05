@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { DropdownMenu } from 'bits-ui';
-  import { flyAndScale } from '$lib/utils/transitions';
-  import { getContext, createEventDispatcher } from 'svelte';
+	import { DropdownMenu } from 'bits-ui';
+	import { flyAndScale } from '$lib/utils/transitions';
+	import { getContext, createEventDispatcher } from 'svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -22,12 +22,12 @@
 </script>
 
 <Dropdown
-  bind:show
-  on:change={(e) => {
-    if (e.detail === false) {
-      dispatch('close');
-    }
-  }}
+	bind:show
+	on:change={(e) => {
+		if (e.detail === false) {
+			dispatch('close');
+		}
+	}}
 >
 	<Tooltip content={$i18n.t('More')}>
 		{@render children?.()}

@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { WEBUI_BASE_URL } from '$lib/constants';
-  import { Handle, Position, type NodeProps } from '@xyflow/svelte';
+	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { Handle, Position, type NodeProps } from '@xyflow/svelte';
 
-  import ProfileImage from '../Messages/ProfileImage.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Heart from '$lib/components/icons/Heart.svelte';
+	import ProfileImage from '../Messages/ProfileImage.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Heart from '$lib/components/icons/Heart.svelte';
 
 	type $$Props = NodeProps;
 	interface Props {
@@ -49,11 +49,11 @@
 					src={data?.model?.info?.meta?.profile_image_url ?? ''}
 				/>
 
-        <div class="ml-2">
-          <div class=" flex justify-between items-center">
-            <div class="text-xs text-black dark:text-white font-medium line-clamp-1">
-              {data?.model?.name ?? data?.message?.model ?? 'Assistant'}
-            </div>
+				<div class="ml-2">
+					<div class=" flex justify-between items-center">
+						<div class="text-xs text-black dark:text-white font-medium line-clamp-1">
+							{data?.model?.name ?? data?.message?.model ?? 'Assistant'}
+						</div>
 
 						<button
 							class={data?.message?.favorite ? '' : 'invisible group-hover:visible'}

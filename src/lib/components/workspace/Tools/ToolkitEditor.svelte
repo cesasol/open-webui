@@ -6,14 +6,14 @@
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import CodeEditor from '$lib/components/common/CodeEditor.svelte';
-  import { goto } from '$app/navigation';
-  import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
-  import Badge from '$lib/components/common/Badge.svelte';
-  import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import LockClosed from '$lib/components/icons/LockClosed.svelte';
-  import AccessControlModal from '../common/AccessControlModal.svelte';
+	import CodeEditor from '$lib/components/common/CodeEditor.svelte';
+	import { goto } from '$app/navigation';
+	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
+	import Badge from '$lib/components/common/Badge.svelte';
+	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import LockClosed from '$lib/components/icons/LockClosed.svelte';
+	import AccessControlModal from '../common/AccessControlModal.svelte';
 
 	let formElement = $state(null);
 	let loading = false;
@@ -154,30 +154,30 @@ class Tools:
             return f"Error fetching weather data: {str(e)}"
 `;
 
-  const saveHandler = async () => {
-    loading = true;
-    onSave({
-      id,
-      name,
-      meta,
-      content,
-      access_control: accessControl
-    });
-  };
+	const saveHandler = async () => {
+		loading = true;
+		onSave({
+			id,
+			name,
+			meta,
+			content,
+			access_control: accessControl
+		});
+	};
 
-  const submitHandler = async () => {
-    if (codeEditor) {
-      content = _content;
-      await tick();
+	const submitHandler = async () => {
+		if (codeEditor) {
+			content = _content;
+			await tick();
 
-      const res = await codeEditor.formatPythonCodeHandler();
-      await tick();
+			const res = await codeEditor.formatPythonCodeHandler();
+			await tick();
 
-      content = _content;
-      await tick();
+			content = _content;
+			await tick();
 
-      if (res) {
-        console.log('Code formatted successfully');
+			if (res) {
+				console.log('Code formatted successfully');
 
 				saveHandler();
 			}
@@ -235,7 +235,6 @@ class Tools:
 							<Tooltip content={$i18n.t('e.g. My Tools')} placement="top-start">
 								<input
 									class="w-full text-2xl font-medium bg-transparent outline-hidden font-primary"
-									type="text"
 									placeholder={$i18n.t('Tool Name')}
 									required
 									type="text"
@@ -254,12 +253,12 @@ class Tools:
 							>
 								<LockClosed className="size-3.5" strokeWidth="2.5" />
 
-                <div class="text-sm font-medium shrink-0">
-                  {$i18n.t('Access')}
-                </div>
-              </button>
-            </div>
-          </div>
+								<div class="text-sm font-medium shrink-0">
+									{$i18n.t('Access')}
+								</div>
+							</button>
+						</div>
+					</div>
 
 					<div class=" flex gap-2 px-1 items-center">
 						{#if edit}
@@ -298,9 +297,8 @@ class Tools:
 				<div class="mb-2 flex-1 overflow-auto h-0 rounded-lg">
 					<CodeEditor
 						bind:this={codeEditor}
-						value={content}
-						lang="python"
 						{boilerplate}
+						lang="python"
 						onChange={(e) => {
 							_content = e;
 						}}
@@ -313,49 +311,51 @@ class Tools:
 					/>
 				</div>
 
-        <div class="pb-3 flex justify-between">
-          <div class="flex-1 pr-3">
-            <div class="text-xs text-gray-500 line-clamp-2">
-              <span class=" font-semibold dark:text-gray-200">{$i18n.t('Warning:')}</span>
-              {$i18n.t('Tools are a function calling system with arbitrary code execution')} <br />—
-              <span class=" font-medium dark:text-gray-400">{$i18n.t(`don't install random tools from sources you don't trust.`)}</span>
-            </div>
-          </div>
+				<div class="pb-3 flex justify-between">
+					<div class="flex-1 pr-3">
+						<div class="text-xs text-gray-500 line-clamp-2">
+							<span class=" font-semibold dark:text-gray-200">{$i18n.t('Warning:')}</span>
+							{$i18n.t('Tools are a function calling system with arbitrary code execution')} <br />—
+							<span class=" font-medium dark:text-gray-400"
+								>{$i18n.t(`don't install random tools from sources you don't trust.`)}</span
+							>
+						</div>
+					</div>
 
-          <button
-            class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-            type="submit"
-          >
-            {$i18n.t('Save')}
-          </button>
-        </div>
-      </div>
-    </form>
-  </div>
+					<button
+						class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+						type="submit"
+					>
+						{$i18n.t('Save')}
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
 </div>
 
 <ConfirmDialog
-  bind:show={showConfirm}
-  on:confirm={() => {
-    submitHandler();
-  }}
+	bind:show={showConfirm}
+	on:confirm={() => {
+		submitHandler();
+	}}
 >
-  <div class="text-sm text-gray-500">
-    <div class=" bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 rounded-lg px-4 py-3">
-      <div>{$i18n.t('Please carefully review the following warnings:')}</div>
+	<div class="text-sm text-gray-500">
+		<div class=" bg-yellow-500/20 text-yellow-700 dark:text-yellow-200 rounded-lg px-4 py-3">
+			<div>{$i18n.t('Please carefully review the following warnings:')}</div>
 
-      <ul class=" mt-1 list-disc pl-4 text-xs">
-        <li>
-          {$i18n.t('Tools have a function calling system that allows arbitrary code execution.')}
-        </li>
-        <li>{$i18n.t('Do not install tools from sources you do not fully trust.')}</li>
-      </ul>
-    </div>
+			<ul class=" mt-1 list-disc pl-4 text-xs">
+				<li>
+					{$i18n.t('Tools have a function calling system that allows arbitrary code execution.')}
+				</li>
+				<li>{$i18n.t('Do not install tools from sources you do not fully trust.')}</li>
+			</ul>
+		</div>
 
-    <div class="my-3">
-      {$i18n.t(
-        'I acknowledge that I have read and I understand the implications of my action. I am aware of the risks associated with executing arbitrary code and I have verified the trustworthiness of the source.'
-      )}
-    </div>
-  </div>
+		<div class="my-3">
+			{$i18n.t(
+				'I acknowledge that I have read and I understand the implications of my action. I am aware of the risks associated with executing arbitrary code and I have verified the trustworthiness of the source.'
+			)}
+		</div>
+	</div>
 </ConfirmDialog>

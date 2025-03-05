@@ -43,73 +43,73 @@
 	let playbackRate = $state(1);
 	const speedOptions = [2, 1.75, 1.5, 1.25, 1, 0.75, 0.5];
 
-  const getVoices = async () => {
-    if (TTSEngine === 'browser-kokoro') {
-      if (!TTSModel) {
-        await loadKokoro();
-      }
+	const getVoices = async () => {
+		if (TTSEngine === 'browser-kokoro') {
+			if (!TTSModel) {
+				await loadKokoro();
+			}
 
-      voices = Object.entries(TTSModel.voices).map(([key, value]) => {
-        return {
-          id: key,
-          name: value.name,
-          localService: false
-        };
-      });
-    } else {
-      if ($config.audio.tts.engine === '') {
-        const getVoicesLoop = setInterval(async () => {
-          voices = await speechSynthesis.getVoices();
+			voices = Object.entries(TTSModel.voices).map(([key, value]) => {
+				return {
+					id: key,
+					name: value.name,
+					localService: false
+				};
+			});
+		} else {
+			if ($config.audio.tts.engine === '') {
+				const getVoicesLoop = setInterval(async () => {
+					voices = await speechSynthesis.getVoices();
 
-          // do your loop
-          if (voices.length > 0) {
-            clearInterval(getVoicesLoop);
-          }
-        }, 100);
-      } else {
-        const res = await _getVoices(localStorage.token).catch((e) => {
-          toast.error(`${e}`);
-        });
+					// do your loop
+					if (voices.length > 0) {
+						clearInterval(getVoicesLoop);
+					}
+				}, 100);
+			} else {
+				const res = await _getVoices(localStorage.token).catch((e) => {
+					toast.error(`${e}`);
+				});
 
-        if (res) {
-          console.log(res);
-          voices = res.voices;
-        }
-      }
-    }
-  };
+				if (res) {
+					console.log(res);
+					voices = res.voices;
+				}
+			}
+		}
+	};
 
-  const toggleResponseAutoPlayback = async () => {
-    responseAutoPlayback = !responseAutoPlayback;
-    saveSettings({ responseAutoPlayback: responseAutoPlayback });
-  };
+	const toggleResponseAutoPlayback = async () => {
+		responseAutoPlayback = !responseAutoPlayback;
+		saveSettings({ responseAutoPlayback: responseAutoPlayback });
+	};
 
-  const toggleSpeechAutoSend = async () => {
-    speechAutoSend = !speechAutoSend;
-    saveSettings({ speechAutoSend: speechAutoSend });
-  };
+	const toggleSpeechAutoSend = async () => {
+		speechAutoSend = !speechAutoSend;
+		saveSettings({ speechAutoSend: speechAutoSend });
+	};
 
-  onMount(async () => {
-    playbackRate = $settings.audio?.tts?.playbackRate ?? 1;
-    conversationMode = $settings.conversationMode ?? false;
-    speechAutoSend = $settings.speechAutoSend ?? false;
-    responseAutoPlayback = $settings.responseAutoPlayback ?? false;
+	onMount(async () => {
+		playbackRate = $settings.audio?.tts?.playbackRate ?? 1;
+		conversationMode = $settings.conversationMode ?? false;
+		speechAutoSend = $settings.speechAutoSend ?? false;
+		responseAutoPlayback = $settings.responseAutoPlayback ?? false;
 
-    STTEngine = $settings?.audio?.stt?.engine ?? '';
+		STTEngine = $settings?.audio?.stt?.engine ?? '';
 
-    TTSEngine = $settings?.audio?.tts?.engine ?? '';
-    TTSEngineConfig = $settings?.audio?.tts?.engineConfig ?? {};
+		TTSEngine = $settings?.audio?.tts?.engine ?? '';
+		TTSEngineConfig = $settings?.audio?.tts?.engineConfig ?? {};
 
-    if ($settings?.audio?.tts?.defaultVoice === $config.audio.tts.voice) {
-      voice = $settings?.audio?.tts?.voice ?? $config.audio.tts.voice ?? '';
-    } else {
-      voice = $config.audio.tts.voice ?? '';
-    }
+		if ($settings?.audio?.tts?.defaultVoice === $config.audio.tts.voice) {
+			voice = $settings?.audio?.tts?.voice ?? $config.audio.tts.voice ?? '';
+		} else {
+			voice = $config.audio.tts.voice ?? '';
+		}
 
-    nonLocalVoices = $settings.audio?.tts?.nonLocalVoices ?? false;
+		nonLocalVoices = $settings.audio?.tts?.nonLocalVoices ?? false;
 
-    await getVoices();
-  });
+		await getVoices();
+	});
 
 	const onTTSEngineChange = async () => {
 		if (TTSEngine === 'browser-kokoro') {
@@ -117,16 +117,16 @@
 		}
 	};
 
-  const loadKokoro = async () => {
-    if (TTSEngine === 'browser-kokoro') {
-      voices = [];
+	const loadKokoro = async () => {
+		if (TTSEngine === 'browser-kokoro') {
+			voices = [];
 
-      if (TTSEngineConfig?.dtype) {
-        TTSModel = null;
-        TTSModelProgress = null;
-        TTSModelLoading = true;
+			if (TTSEngineConfig?.dtype) {
+				TTSModel = null;
+				TTSModelProgress = null;
+				TTSModelLoading = true;
 
-        const model_id = 'onnx-community/Kokoro-82M-v1.0-ONNX';
+				const model_id = 'onnx-community/Kokoro-82M-v1.0-ONNX';
 
 				TTSModel = await KokoroTTS.from_pretrained(model_id, {
 					dtype: TTSEngineConfig.dtype, // Options: "fp32", "fp16", "q8", "q4", "q4f16"
@@ -137,9 +137,9 @@
 					}
 				});
 
-        await getVoices();
+				await getVoices();
 
-      // const rawAudio = await tts.generate(inputText, {
+				// const rawAudio = await tts.generate(inputText, {
 				// 	// Use `tts.list_voices()` to list all available voices
 				// 	voice: voice
 				// });
@@ -179,9 +179,9 @@
 		dispatch('save');
 	})}
 >
-  <div class=" space-y-3 overflow-y-scroll max-h-[28rem] lg:max-h-full">
-    <div>
-      <div class=" mb-1 text-sm font-medium">{$i18n.t('STT Settings')}</div>
+	<div class=" space-y-3 overflow-y-scroll max-h-[28rem] lg:max-h-full">
+		<div>
+			<div class=" mb-1 text-sm font-medium">{$i18n.t('STT Settings')}</div>
 
 			{#if $config.audio.stt.engine !== 'web'}
 				<div class=" py-0.5 flex w-full justify-between">
@@ -199,10 +199,10 @@
 				</div>
 			{/if}
 
-      <div class=" py-0.5 flex w-full justify-between">
-        <div class=" self-center text-xs font-medium">
-          {$i18n.t('Instant Auto-Send After Voice Transcription')}
-        </div>
+			<div class=" py-0.5 flex w-full justify-between">
+				<div class=" self-center text-xs font-medium">
+					{$i18n.t('Instant Auto-Send After Voice Transcription')}
+				</div>
 
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -220,8 +220,8 @@
 			</div>
 		</div>
 
-    <div>
-      <div class=" mb-1 text-sm font-medium">{$i18n.t('TTS Settings')}</div>
+		<div>
+			<div class=" mb-1 text-sm font-medium">{$i18n.t('TTS Settings')}</div>
 
 			<div class=" py-0.5 flex w-full justify-between">
 				<div class=" self-center text-xs font-medium">{$i18n.t('Text-to-Speech Engine')}</div>
@@ -256,8 +256,8 @@
 				</div>
 			{/if}
 
-      <div class=" py-0.5 flex w-full justify-between">
-        <div class=" self-center text-xs font-medium">{$i18n.t('Auto-playback response')}</div>
+			<div class=" py-0.5 flex w-full justify-between">
+				<div class=" self-center text-xs font-medium">{$i18n.t('Auto-playback response')}</div>
 
 				<button
 					class="p-1 px-3 text-xs flex rounded-sm transition"
@@ -274,8 +274,8 @@
 				</button>
 			</div>
 
-      <div class=" py-0.5 flex w-full justify-between">
-        <div class=" self-center text-xs font-medium">{$i18n.t('Speech Playback Speed')}</div>
+			<div class=" py-0.5 flex w-full justify-between">
+				<div class=" self-center text-xs font-medium">{$i18n.t('Speech Playback Speed')}</div>
 
 				<div class="flex items-center relative">
 					<select
@@ -290,7 +290,7 @@
 			</div>
 		</div>
 
-    <hr class=" border-gray-100 dark:border-gray-850" />
+		<hr class=" border-gray-100 dark:border-gray-850" />
 
 		{#if TTSEngine === 'browser-kokoro'}
 			{#if TTSModel}
@@ -305,26 +305,26 @@
 								bind:value={voice}
 							/>
 
-              <datalist id="voice-list">
-                {#each voices as voice}
-                  <option value={voice.id}>{voice.name}</option>
-                {/each}
-              </datalist>
-            </div>
-          </div>
-        </div>
-      {:else}
-        <div>
-          <div class=" mb-2.5 text-sm font-medium flex gap-2 items-center">
-            <Spinner className="size-4" />
+							<datalist id="voice-list">
+								{#each voices as voice}
+									<option value={voice.id}>{voice.name}</option>
+								{/each}
+							</datalist>
+						</div>
+					</div>
+				</div>
+			{:else}
+				<div>
+					<div class=" mb-2.5 text-sm font-medium flex gap-2 items-center">
+						<Spinner className="size-4" />
 
-            <div class=" text-sm font-medium shimmer">
-              {$i18n.t('Loading Kokoro.js...')}
-              {TTSModelProgress && TTSModelProgress.status === 'progress'
-                ? `(${Math.round(TTSModelProgress.progress * 10) / 10}%)`
-                : ''}
-            </div>
-          </div>
+						<div class=" text-sm font-medium shimmer">
+							{$i18n.t('Loading Kokoro.js...')}
+							{TTSModelProgress && TTSModelProgress.status === 'progress'
+								? `(${Math.round(TTSModelProgress.progress * 10) / 10}%)`
+								: ''}
+						</div>
+					</div>
 
 					<div class="text-xs text-gray-500">
 						{$i18n.t('Please do not close the settings page while loading the model.')}
@@ -373,23 +373,23 @@
 							bind:value={voice}
 						/>
 
-            <datalist id="voice-list">
-              {#each voices as voice}
-                <option value={voice.id}>{voice.name}</option>
-              {/each}
-            </datalist>
-          </div>
-        </div>
-      </div>
-    {/if}
-  </div>
+						<datalist id="voice-list">
+							{#each voices as voice}
+								<option value={voice.id}>{voice.name}</option>
+							{/each}
+						</datalist>
+					</div>
+				</div>
+			</div>
+		{/if}
+	</div>
 
-  <div class="flex justify-end text-sm font-medium">
-    <button
-      class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
-      type="submit"
-    >
-      {$i18n.t('Save')}
-    </button>
-  </div>
+	<div class="flex justify-end text-sm font-medium">
+		<button
+			class="px-3.5 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full"
+			type="submit"
+		>
+			{$i18n.t('Save')}
+		</button>
+	</div>
 </form>

@@ -4,23 +4,23 @@
 	import { goto } from '$app/navigation';
 	import { onMount, getContext } from 'svelte';
 
-  import dayjs from 'dayjs';
-  import relativeTime from 'dayjs/plugin/relativeTime';
-  import localizedFormat from 'dayjs/plugin/localizedFormat';
-  dayjs.extend(relativeTime);
-  dayjs.extend(localizedFormat);
+	import dayjs from 'dayjs';
+	import relativeTime from 'dayjs/plugin/relativeTime';
+	import localizedFormat from 'dayjs/plugin/localizedFormat';
+	dayjs.extend(relativeTime);
+	dayjs.extend(localizedFormat);
 
-  import { toast } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 
-  import { updateUserRole, getUsers, deleteUserById } from '$lib/apis/users';
+	import { updateUserRole, getUsers, deleteUserById } from '$lib/apis/users';
 
-  import Pagination from '$lib/components/common/Pagination.svelte';
-  import ChatBubbles from '$lib/components/icons/ChatBubbles.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Pagination from '$lib/components/common/Pagination.svelte';
+	import ChatBubbles from '$lib/components/icons/ChatBubbles.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-  import EditUserModal from '$lib/components/admin/Users/UserList/EditUserModal.svelte';
-  import UserChatsModal from '$lib/components/admin/Users/UserList/UserChatsModal.svelte';
-  import AddUserModal from '$lib/components/admin/Users/UserList/AddUserModal.svelte';
+	import EditUserModal from '$lib/components/admin/Users/UserList/EditUserModal.svelte';
+	import UserChatsModal from '$lib/components/admin/Users/UserList/UserChatsModal.svelte';
+	import AddUserModal from '$lib/components/admin/Users/UserList/AddUserModal.svelte';
 
 	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import Badge from '$lib/components/common/Badge.svelte';
@@ -46,38 +46,38 @@
 	let showUserChatsModal = $state(false);
 	let showEditUserModal = $state(false);
 
-  const updateRoleHandler = async (id, role) => {
-    const res = await updateUserRole(localStorage.token, id, role).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
+	const updateRoleHandler = async (id, role) => {
+		const res = await updateUserRole(localStorage.token, id, role).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
 
-    if (res) {
-      users = await getUsers(localStorage.token);
-    }
-  };
+		if (res) {
+			users = await getUsers(localStorage.token);
+		}
+	};
 
-  const deleteUserHandler = async (id) => {
-    const res = await deleteUserById(localStorage.token, id).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
-    if (res) {
-      users = await getUsers(localStorage.token);
-    }
-  };
+	const deleteUserHandler = async (id) => {
+		const res = await deleteUserById(localStorage.token, id).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
+		if (res) {
+			users = await getUsers(localStorage.token);
+		}
+	};
 
 	let sortKey = $state('created_at'); // default sort key
 	let sortOrder = $state('asc'); // default sort order
 
-  function setSortKey(key) {
-    if (sortKey === key) {
-      sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-    } else {
-      sortKey = key;
-      sortOrder = 'asc';
-    }
-  }
+	function setSortKey(key) {
+		if (sortKey === key) {
+			sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
+		} else {
+			sortKey = key;
+			sortOrder = 'asc';
+		}
+	}
 
 	let filteredUsers = $derived(
 		users
@@ -101,10 +101,10 @@
 </script>
 
 <ConfirmDialog
-  bind:show={showDeleteConfirmDialog}
-  on:confirm={() => {
-    deleteUserHandler(selectedUser.id);
-  }}
+	bind:show={showDeleteConfirmDialog}
+	on:confirm={() => {
+		deleteUserHandler(selectedUser.id);
+	}}
 />
 
 {#key selectedUser}
@@ -119,21 +119,17 @@
 {/key}
 
 <AddUserModal
-  bind:show={showAddUserModal}
-  on:save={async () => {
-    users = await getUsers(localStorage.token);
-  }}
+	bind:show={showAddUserModal}
+	on:save={async () => {
+		users = await getUsers(localStorage.token);
+	}}
 />
-<UserChatsModal
-  user={selectedUser}
-  bind:show={showUserChatsModal}
-/>
+<UserChatsModal user={selectedUser} bind:show={showUserChatsModal} />
 <UserChatsModal user={selectedUser} bind:show={showUserChatsModal} />
 
 {#if ($config?.license_metadata?.seats ?? null) !== null && users.length > $config?.license_metadata?.seats}
 	<div class=" mt-1 mb-2 text-xs text-red-500">
 		<Banner
-			className="mx-0"
 			banner={{
 				type: 'error',
 				title: 'License Error',
@@ -141,6 +137,7 @@
 					'Exceeded the number of seats in your license. Please contact support to increase the number of seats.',
 				dismissable: true
 			}}
+			className="mx-0"
 		/>
 	</div>
 {/if}
@@ -273,20 +270,21 @@
 					<div class="flex gap-1.5 items-center">
 						{$i18n.t('Email')}
 
-            {#if sortKey === 'email'}
-              <span class="font-normal">{#if sortOrder === 'asc'}
-                <ChevronUp className="size-2" />
-              {:else}
-                <ChevronDown className="size-2" />
-              {/if}
-              </span>
-            {:else}
-              <span class="invisible">
-                <ChevronUp className="size-2" />
-              </span>
-            {/if}
-          </div>
-        </th>
+						{#if sortKey === 'email'}
+							<span class="font-normal"
+								>{#if sortOrder === 'asc'}
+									<ChevronUp className="size-2" />
+								{:else}
+									<ChevronDown className="size-2" />
+								{/if}
+							</span>
+						{:else}
+							<span class="invisible">
+								<ChevronUp className="size-2" />
+							</span>
+						{/if}
+					</div>
+				</th>
 
 				<th
 					class="px-3 py-1.5 cursor-pointer select-none"
@@ -342,20 +340,21 @@
 					<div class="flex gap-1.5 items-center">
 						{$i18n.t('OAuth ID')}
 
-            {#if sortKey === 'oauth_sub'}
-              <span class="font-normal">{#if sortOrder === 'asc'}
-                <ChevronUp className="size-2" />
-              {:else}
-                <ChevronDown className="size-2" />
-              {/if}
-              </span>
-            {:else}
-              <span class="invisible">
-                <ChevronUp className="size-2" />
-              </span>
-            {/if}
-          </div>
-        </th>
+						{#if sortKey === 'oauth_sub'}
+							<span class="font-normal"
+								>{#if sortOrder === 'asc'}
+									<ChevronUp className="size-2" />
+								{:else}
+									<ChevronDown className="size-2" />
+								{/if}
+							</span>
+						{:else}
+							<span class="invisible">
+								<ChevronUp className="size-2" />
+							</span>
+						{/if}
+					</div>
+				</th>
 
 				<th class="px-3 py-2 text-right" scope="col"></th>
 			</tr>
@@ -394,20 +393,20 @@
 									: `/user.png`}
 							/>
 
-              <div class=" font-medium self-center">{user.name}</div>
-            </div>
-          </td>
-          <td class=" px-3 py-1"> {user.email} </td>
+							<div class=" font-medium self-center">{user.name}</div>
+						</div>
+					</td>
+					<td class=" px-3 py-1"> {user.email} </td>
 
-          <td class=" px-3 py-1">
-            {dayjs(user.last_active_at * 1000).fromNow()}
-          </td>
+					<td class=" px-3 py-1">
+						{dayjs(user.last_active_at * 1000).fromNow()}
+					</td>
 
-          <td class=" px-3 py-1">
-            {dayjs(user.created_at * 1000).format('LL')}
-          </td>
+					<td class=" px-3 py-1">
+						{dayjs(user.created_at * 1000).format('LL')}
+					</td>
 
-          <td class=" px-3 py-1"> {user.oauth_sub ?? ''} </td>
+					<td class=" px-3 py-1"> {user.oauth_sub ?? ''} </td>
 
 					<td class="px-3 py-1 text-right">
 						<div class="flex justify-end w-full">
@@ -485,7 +484,7 @@
 </div>
 
 <div class=" text-gray-500 text-xs mt-1.5 text-right">
-  ⓘ {$i18n.t("Click on the user role button to change a user's role.")}
+	ⓘ {$i18n.t("Click on the user role button to change a user's role.")}
 </div>
 
 <Pagination count={users.length} bind:page />

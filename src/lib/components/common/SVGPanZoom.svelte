@@ -4,22 +4,22 @@
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-  import { toast } from 'svelte-sonner';
+	import { toast } from 'svelte-sonner';
 
-  import panzoom, { type PanZoom } from 'panzoom';
-  import DOMPurify from 'dompurify';
+	import panzoom, { type PanZoom } from 'panzoom';
+	import DOMPurify from 'dompurify';
 
 	import { onMount, getContext } from 'svelte';
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
 
-  import { copyToClipboard } from '$lib/utils';
+	import { copyToClipboard } from '$lib/utils';
 
-  import DocumentDuplicate from '../icons/DocumentDuplicate.svelte';
-  import Tooltip from './Tooltip.svelte';
-  import Clipboard from '../icons/Clipboard.svelte';
-  import Reset from '../icons/Reset.svelte';
-  import ArrowDownTray from '../icons/ArrowDownTray.svelte';
+	import DocumentDuplicate from '../icons/DocumentDuplicate.svelte';
+	import Tooltip from './Tooltip.svelte';
+	import Clipboard from '../icons/Clipboard.svelte';
+	import Reset from '../icons/Reset.svelte';
+	import ArrowDownTray from '../icons/ArrowDownTray.svelte';
 
 	interface Props {
 		className?: string;
@@ -50,22 +50,16 @@
 		console.log(instance.getTransform());
 	};
 
-  const downloadAsSVG = () => {
-    const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
-    saveAs(svgBlob, `diagram.svg`);
-  };
+	const downloadAsSVG = () => {
+		const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
+		saveAs(svgBlob, `diagram.svg`);
+	};
 </script>
 
-<div
-  bind:this={sceneParentElement}
-  class="relative {className}"
->
-  <div
-    bind:this={sceneElement}
-    class="flex h-full max-h-full justify-center items-center"
-  >
-    {@html svg}
-  </div>
+<div bind:this={sceneParentElement} class="relative {className}">
+	<div bind:this={sceneElement} class="flex h-full max-h-full justify-center items-center">
+		{@html svg}
+	</div>
 
 	{#if content}
 		<div class=" absolute top-1 right-1">

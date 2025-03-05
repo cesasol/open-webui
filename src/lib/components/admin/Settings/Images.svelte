@@ -3,22 +3,22 @@
 
 	import { toast } from 'svelte-sonner';
 
-  import { createEventDispatcher, onMount, getContext } from 'svelte';
-  import { config as backendConfig, user } from '$lib/stores';
+	import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { config as backendConfig, user } from '$lib/stores';
 
-  import { getBackendConfig } from '$lib/apis';
-  import {
-    getImageGenerationModels,
-    getImageGenerationConfig,
-    updateImageGenerationConfig,
-    getConfig,
-    updateConfig,
-    verifyConfigUrl
-  } from '$lib/apis/images';
-  import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
-  import Switch from '$lib/components/common/Switch.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  const dispatch = createEventDispatcher();
+	import { getBackendConfig } from '$lib/apis';
+	import {
+		getImageGenerationModels,
+		getImageGenerationConfig,
+		updateImageGenerationConfig,
+		getConfig,
+		updateConfig,
+		verifyConfigUrl
+	} from '$lib/apis/images';
+	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	const dispatch = createEventDispatcher();
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -100,129 +100,129 @@
 		}
 	]);
 
-  const getModels = async () => {
-    models = await getImageGenerationModels(localStorage.token).catch((error) => {
-      toast.error(`${error}`);
-      return null;
-    });
-  };
+	const getModels = async () => {
+		models = await getImageGenerationModels(localStorage.token).catch((error) => {
+			toast.error(`${error}`);
+			return null;
+		});
+	};
 
-  const updateConfigHandler = async () => {
-    const res = await updateConfig(localStorage.token, config)
-      .catch((error) => {
-        toast.error(`${error}`);
-        return null;
-      })
-      .catch((error) => {
-        toast.error(`${error}`);
-        return null;
-      });
+	const updateConfigHandler = async () => {
+		const res = await updateConfig(localStorage.token, config)
+			.catch((error) => {
+				toast.error(`${error}`);
+				return null;
+			})
+			.catch((error) => {
+				toast.error(`${error}`);
+				return null;
+			});
 
-    if (res) {
-      config = res;
-    }
+		if (res) {
+			config = res;
+		}
 
-    if (config.enabled) {
-      backendConfig.set(await getBackendConfig());
-      getModels();
-    }
-  };
+		if (config.enabled) {
+			backendConfig.set(await getBackendConfig());
+			getModels();
+		}
+	};
 
-  const validateJSON = (json) => {
-    try {
-      const obj = JSON.parse(json);
+	const validateJSON = (json) => {
+		try {
+			const obj = JSON.parse(json);
 
-      if (obj && typeof obj === 'object') {
-        return true;
-      }
-    } catch (e) {}
-    return false;
-  };
+			if (obj && typeof obj === 'object') {
+				return true;
+			}
+		} catch (e) {}
+		return false;
+	};
 
-  const saveHandler = async () => {
-    loading = true;
+	const saveHandler = async () => {
+		loading = true;
 
-    if (config?.comfyui?.COMFYUI_WORKFLOW) {
-      if (!validateJSON(config.comfyui.COMFYUI_WORKFLOW)) {
-        toast.error('Invalid JSON format for ComfyUI Workflow.');
-        loading = false;
-        return;
-      }
-    }
+		if (config?.comfyui?.COMFYUI_WORKFLOW) {
+			if (!validateJSON(config.comfyui.COMFYUI_WORKFLOW)) {
+				toast.error('Invalid JSON format for ComfyUI Workflow.');
+				loading = false;
+				return;
+			}
+		}
 
-    if (config?.comfyui?.COMFYUI_WORKFLOW) {
-      config.comfyui.COMFYUI_WORKFLOW_NODES = requiredWorkflowNodes.map((node) => {
-        return {
-          type: node.type,
-          key: node.key,
-          node_ids:
-            node.node_ids.trim() === '' ? [] : node.node_ids.split(',').map((id) => id.trim())
-        };
-      });
-    }
+		if (config?.comfyui?.COMFYUI_WORKFLOW) {
+			config.comfyui.COMFYUI_WORKFLOW_NODES = requiredWorkflowNodes.map((node) => {
+				return {
+					type: node.type,
+					key: node.key,
+					node_ids:
+						node.node_ids.trim() === '' ? [] : node.node_ids.split(',').map((id) => id.trim())
+				};
+			});
+		}
 
-    await updateConfig(localStorage.token, config).catch((error) => {
-      toast.error(`${error}`);
-      loading = false;
-      return null;
-    });
+		await updateConfig(localStorage.token, config).catch((error) => {
+			toast.error(`${error}`);
+			loading = false;
+			return null;
+		});
 
-    await updateImageGenerationConfig(localStorage.token, imageGenerationConfig).catch((error) => {
-      toast.error(`${error}`);
-      loading = false;
-      return null;
-    });
+		await updateImageGenerationConfig(localStorage.token, imageGenerationConfig).catch((error) => {
+			toast.error(`${error}`);
+			loading = false;
+			return null;
+		});
 
-    getModels();
-    dispatch('save');
-    loading = false;
-  };
+		getModels();
+		dispatch('save');
+		loading = false;
+	};
 
-  onMount(async () => {
-    if ($user.role === 'admin') {
-      const res = await getConfig(localStorage.token).catch((error) => {
-        toast.error(`${error}`);
-        return null;
-      });
+	onMount(async () => {
+		if ($user.role === 'admin') {
+			const res = await getConfig(localStorage.token).catch((error) => {
+				toast.error(`${error}`);
+				return null;
+			});
 
-      if (res) {
-        config = res;
-      }
+			if (res) {
+				config = res;
+			}
 
-      if (config.enabled) {
-        getModels();
-      }
+			if (config.enabled) {
+				getModels();
+			}
 
-      if (config.comfyui.COMFYUI_WORKFLOW) {
-        config.comfyui.COMFYUI_WORKFLOW = JSON.stringify(
-          JSON.parse(config.comfyui.COMFYUI_WORKFLOW),
-          null,
-          2
-        );
-      }
+			if (config.comfyui.COMFYUI_WORKFLOW) {
+				config.comfyui.COMFYUI_WORKFLOW = JSON.stringify(
+					JSON.parse(config.comfyui.COMFYUI_WORKFLOW),
+					null,
+					2
+				);
+			}
 
-      requiredWorkflowNodes = requiredWorkflowNodes.map((node) => {
-        const n = config.comfyui.COMFYUI_WORKFLOW_NODES.find((n) => n.type === node.type) ?? node;
+			requiredWorkflowNodes = requiredWorkflowNodes.map((node) => {
+				const n = config.comfyui.COMFYUI_WORKFLOW_NODES.find((n) => n.type === node.type) ?? node;
 
-        console.log(n);
+				console.log(n);
 
-        return {
-          type: n.type,
-          key: n.key,
-          node_ids: typeof n.node_ids === 'string' ? n.node_ids : n.node_ids.join(',')
-        };
-      });
+				return {
+					type: n.type,
+					key: n.key,
+					node_ids: typeof n.node_ids === 'string' ? n.node_ids : n.node_ids.join(',')
+				};
+			});
 
-      const imageConfigRes = await getImageGenerationConfig(localStorage.token).catch((error) => {
-        toast.error(`${error}`);
-        return null;
-      });
+			const imageConfigRes = await getImageGenerationConfig(localStorage.token).catch((error) => {
+				toast.error(`${error}`);
+				return null;
+			});
 
-      if (imageConfigRes) {
-        imageGenerationConfig = imageConfigRes;
-      }
-    }
-  });
+			if (imageConfigRes) {
+				imageGenerationConfig = imageConfigRes;
+			}
+		}
+	});
 </script>
 
 <form
@@ -231,60 +231,60 @@
 		saveHandler();
 	})}
 >
-  <div class=" space-y-3 overflow-y-scroll scrollbar-hidden pr-2">
-    {#if config && imageGenerationConfig}
-      <div>
-        <div class=" mb-1 text-sm font-medium">{$i18n.t('Image Settings')}</div>
+	<div class=" space-y-3 overflow-y-scroll scrollbar-hidden pr-2">
+		{#if config && imageGenerationConfig}
+			<div>
+				<div class=" mb-1 text-sm font-medium">{$i18n.t('Image Settings')}</div>
 
-        <div>
-          <div class=" py-1 flex w-full justify-between">
-            <div class=" self-center text-xs font-medium">
-              {$i18n.t('Image Generation (Experimental)')}
-            </div>
+				<div>
+					<div class=" py-1 flex w-full justify-between">
+						<div class=" self-center text-xs font-medium">
+							{$i18n.t('Image Generation (Experimental)')}
+						</div>
 
-            <div class="px-1">
-              <Switch
-                bind:state={config.enabled}
-                on:change={(e) => {
-                  const enabled = e.detail;
+						<div class="px-1">
+							<Switch
+								bind:state={config.enabled}
+								on:change={(e) => {
+									const enabled = e.detail;
 
-                  if (enabled) {
-                    if (
-                      config.engine === 'automatic1111' &&
-                      config.automatic1111.AUTOMATIC1111_BASE_URL === ''
-                    ) {
-                      toast.error($i18n.t('AUTOMATIC1111 Base URL is required.'));
-                      config.enabled = false;
-                    } else if (
-                      config.engine === 'comfyui' &&
-                      config.comfyui.COMFYUI_BASE_URL === ''
-                    ) {
-                      toast.error($i18n.t('ComfyUI Base URL is required.'));
-                      config.enabled = false;
-                    } else if (config.engine === 'openai' && config.openai.OPENAI_API_KEY === '') {
-                      toast.error($i18n.t('OpenAI API Key is required.'));
-                      config.enabled = false;
-                    } else if (config.engine === 'gemini' && config.gemini.GEMINI_API_KEY === '') {
-                      toast.error($i18n.t('Gemini API Key is required.'));
-                      config.enabled = false;
-                    }
-                  }
+									if (enabled) {
+										if (
+											config.engine === 'automatic1111' &&
+											config.automatic1111.AUTOMATIC1111_BASE_URL === ''
+										) {
+											toast.error($i18n.t('AUTOMATIC1111 Base URL is required.'));
+											config.enabled = false;
+										} else if (
+											config.engine === 'comfyui' &&
+											config.comfyui.COMFYUI_BASE_URL === ''
+										) {
+											toast.error($i18n.t('ComfyUI Base URL is required.'));
+											config.enabled = false;
+										} else if (config.engine === 'openai' && config.openai.OPENAI_API_KEY === '') {
+											toast.error($i18n.t('OpenAI API Key is required.'));
+											config.enabled = false;
+										} else if (config.engine === 'gemini' && config.gemini.GEMINI_API_KEY === '') {
+											toast.error($i18n.t('Gemini API Key is required.'));
+											config.enabled = false;
+										}
+									}
 
-                  updateConfigHandler();
-                }}
-              />
-            </div>
-          </div>
-        </div>
+									updateConfigHandler();
+								}}
+							/>
+						</div>
+					</div>
+				</div>
 
-        {#if config.enabled}
-          <div class=" py-1 flex w-full justify-between">
-            <div class=" self-center text-xs font-medium">{$i18n.t('Image Prompt Generation')}</div>
-            <div class="px-1">
-              <Switch bind:state={config.prompt_generation} />
-            </div>
-          </div>
-        {/if}
+				{#if config.enabled}
+					<div class=" py-1 flex w-full justify-between">
+						<div class=" self-center text-xs font-medium">{$i18n.t('Image Prompt Generation')}</div>
+						<div class="px-1">
+							<Switch bind:state={config.prompt_generation} />
+						</div>
+					</div>
+				{/if}
 
 				<div class=" py-1 flex w-full justify-between">
 					<div class=" self-center text-xs font-medium">{$i18n.t('Image Generation Engine')}</div>
@@ -349,17 +349,17 @@
 							</button>
 						</div>
 
-            <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-              {$i18n.t('Include `--api` flag when running stable-diffusion-webui')}
-              <a
-                class=" text-gray-300 font-medium"
-                href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/discussions/3734"
-                target="_blank"
-              >
-                {$i18n.t('(e.g. `sh webui.sh --api`)')}
-              </a>
-            </div>
-          </div>
+						<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+							{$i18n.t('Include `--api` flag when running stable-diffusion-webui')}
+							<a
+								class=" text-gray-300 font-medium"
+								href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/discussions/3734"
+								target="_blank"
+							>
+								{$i18n.t('(e.g. `sh webui.sh --api`)')}
+							</a>
+						</div>
+					</div>
 
 					<div>
 						<div class=" mb-2 text-sm font-medium">
@@ -371,19 +371,19 @@
 							bind:value={config.automatic1111.AUTOMATIC1111_API_AUTH}
 						/>
 
-            <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-              {$i18n.t('Include `--api-auth` flag when running stable-diffusion-webui')}
-              <a
-                class=" text-gray-300 font-medium"
-                href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/discussions/13993"
-                target="_blank"
-              >
-                {$i18n
-                  .t('(e.g. `sh webui.sh --api --api-auth username_password`)')
-                  .replace('_', ':')}
-              </a>
-            </div>
-          </div>
+						<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+							{$i18n.t('Include `--api-auth` flag when running stable-diffusion-webui')}
+							<a
+								class=" text-gray-300 font-medium"
+								href="https://github.com/AUTOMATIC1111/stable-diffusion-webui/discussions/13993"
+								target="_blank"
+							>
+								{$i18n
+									.t('(e.g. `sh webui.sh --api --api-auth username_password`)')
+									.replace('_', ':')}
+							</a>
+						</div>
+					</div>
 
 					<!-- -Sampler -->
 					<div>
@@ -499,8 +499,8 @@
 						</div>
 					</div>
 
-          <div class="">
-            <div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI Workflow')}</div>
+					<div class="">
+						<div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI Workflow')}</div>
 
 						{#if config.comfyui.COMFYUI_WORKFLOW}
 							<textarea
@@ -521,10 +521,10 @@
 										const file = e.target.files[0];
 										const reader = new FileReader();
 
-                    reader.onload = (e) => {
-                      config.comfyui.COMFYUI_WORKFLOW = e.target.result;
-                      e.target.value = null;
-                    };
+										reader.onload = (e) => {
+											config.comfyui.COMFYUI_WORKFLOW = e.target.result;
+											e.target.value = null;
+										};
 
 										reader.readAsText(file);
 									}}
@@ -543,14 +543,14 @@
 							</div>
 						</div>
 
-            <div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
-              {$i18n.t('Make sure to export a workflow.json file as API format from ComfyUI.')}
-            </div>
-          </div>
+						<div class="mt-2 text-xs text-gray-400 dark:text-gray-500">
+							{$i18n.t('Make sure to export a workflow.json file as API format from ComfyUI.')}
+						</div>
+					</div>
 
-          {#if config.comfyui.COMFYUI_WORKFLOW}
-            <div class="">
-              <div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI Workflow Nodes')}</div>
+					{#if config.comfyui.COMFYUI_WORKFLOW}
+						<div class="">
+							<div class=" mb-2 text-sm font-medium">{$i18n.t('ComfyUI Workflow Nodes')}</div>
 
 							<div class="text-xs flex flex-col gap-1.5">
 								{#each requiredWorkflowNodes as node}
@@ -573,30 +573,30 @@
 											</Tooltip>
 										</div>
 
-                    <div class="w-full">
-                      <Tooltip
-                        content="Comma separated Node Ids (e.g. 1 or 1,2)"
-                        placement="top-start"
-                      >
-                        <input
-                          class="w-full py-1 px-4 rounded-r-lg text-xs bg-transparent outline-hidden"
-                          placeholder="Node Ids"
-                          bind:value={node.node_ids}
-                        />
-                      </Tooltip>
-                    </div>
-                  </div>
-                {/each}
-              </div>
+										<div class="w-full">
+											<Tooltip
+												content="Comma separated Node Ids (e.g. 1 or 1,2)"
+												placement="top-start"
+											>
+												<input
+													class="w-full py-1 px-4 rounded-r-lg text-xs bg-transparent outline-hidden"
+													placeholder="Node Ids"
+													bind:value={node.node_ids}
+												/>
+											</Tooltip>
+										</div>
+									</div>
+								{/each}
+							</div>
 
-              <div class="mt-2 text-xs text-right text-gray-400 dark:text-gray-500">
-                {$i18n.t('*Prompt node ID(s) are required for image generation')}
-              </div>
-            </div>
-          {/if}
-        {:else if config?.engine === 'openai'}
-          <div>
-            <div class=" mb-1.5 text-sm font-medium">{$i18n.t('OpenAI API Config')}</div>
+							<div class="mt-2 text-xs text-right text-gray-400 dark:text-gray-500">
+								{$i18n.t('*Prompt node ID(s) are required for image generation')}
+							</div>
+						</div>
+					{/if}
+				{:else if config?.engine === 'openai'}
+					<div>
+						<div class=" mb-1.5 text-sm font-medium">{$i18n.t('OpenAI API Config')}</div>
 
 						<div class="flex gap-2 mb-1">
 							<input
@@ -606,15 +606,15 @@
 								bind:value={config.openai.OPENAI_API_BASE_URL}
 							/>
 
-              <SensitiveInput
-                placeholder={$i18n.t('API Key')}
-                bind:value={config.openai.OPENAI_API_KEY}
-              />
-            </div>
-          </div>
-        {:else if config?.engine === 'gemini'}
-          <div>
-            <div class=" mb-1.5 text-sm font-medium">{$i18n.t('Gemini API Config')}</div>
+							<SensitiveInput
+								placeholder={$i18n.t('API Key')}
+								bind:value={config.openai.OPENAI_API_KEY}
+							/>
+						</div>
+					</div>
+				{:else if config?.engine === 'gemini'}
+					<div>
+						<div class=" mb-1.5 text-sm font-medium">{$i18n.t('Gemini API Config')}</div>
 
 						<div class="flex gap-2 mb-1">
 							<input
@@ -624,17 +624,17 @@
 								bind:value={config.gemini.GEMINI_API_BASE_URL}
 							/>
 
-              <SensitiveInput
-                placeholder={$i18n.t('API Key')}
-                bind:value={config.gemini.GEMINI_API_KEY}
-              />
-            </div>
-          </div>
-        {/if}
-      </div>
+							<SensitiveInput
+								placeholder={$i18n.t('API Key')}
+								bind:value={config.gemini.GEMINI_API_KEY}
+							/>
+						</div>
+					</div>
+				{/if}
+			</div>
 
-      {#if config?.enabled}
-        <hr class=" border-gray-100 dark:border-gray-850" />
+			{#if config?.enabled}
+				<hr class=" border-gray-100 dark:border-gray-850" />
 
 				<div>
 					<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Default Model')}</div>
@@ -651,17 +651,17 @@
 											bind:value={imageGenerationConfig.MODEL}
 										/>
 
-                    <datalist id="model-list">
-                      {#each models ?? [] as model}
-                        <option value={model.id}>{model.name}</option>
-                      {/each}
-                    </datalist>
-                  </Tooltip>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+										<datalist id="model-list">
+											{#each models ?? [] as model}
+												<option value={model.id}>{model.name}</option>
+											{/each}
+										</datalist>
+									</Tooltip>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
 				<div>
 					<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Image Size')}</div>

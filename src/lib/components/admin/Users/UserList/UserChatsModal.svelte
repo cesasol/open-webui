@@ -6,14 +6,14 @@
 	import { getContext, createEventDispatcher } from 'svelte';
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
-  const dispatch = createEventDispatcher();
-  dayjs.extend(localizedFormat);
+	const dispatch = createEventDispatcher();
+	dayjs.extend(localizedFormat);
 
-  import { getChatListByUserId, deleteChatById, getArchivedChatList } from '$lib/apis/chats';
+	import { getChatListByUserId, deleteChatById, getArchivedChatList } from '$lib/apis/chats';
 
-  import Modal from '$lib/components/common/Modal.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Spinner from '$lib/components/common/Spinner.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Spinner from '$lib/components/common/Spinner.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -27,13 +27,13 @@
 
 	let chats = $state(null);
 
-  const deleteChatHandler = async (chatId) => {
-    const res = await deleteChatById(localStorage.token, chatId).catch((error) => {
-      toast.error(`${error}`);
-    });
+	const deleteChatHandler = async (chatId) => {
+		const res = await deleteChatById(localStorage.token, chatId).catch((error) => {
+			toast.error(`${error}`);
+		});
 
-    chats = await getChatListByUserId(localStorage.token, user.id);
-  };
+		chats = await getChatListByUserId(localStorage.token, user.id);
+	};
 
 	run(() => {
 		if (show) {
@@ -139,11 +139,11 @@
 												</a>
 											</td>
 
-                      <td class=" px-3 py-1 hidden md:flex h-[2.5rem] justify-end">
-                        <div class="my-auto shrink-0">
-                          {dayjs(chat.updated_at * 1000).format('LLL')}
-                        </div>
-                      </td>
+											<td class=" px-3 py-1 hidden md:flex h-[2.5rem] justify-end">
+												<div class="my-auto shrink-0">
+													{dayjs(chat.updated_at * 1000).format('LLL')}
+												</div>
+											</td>
 
 											<td class="px-3 py-1 text-right">
 												<div class="flex justify-end w-full">
@@ -182,16 +182,16 @@
 								{JSON.stringify(chat)}
 							</div>
 						{/each} -->
-          </div>
-        {:else}
-          <div class="text-left text-sm w-full mb-8">
-            {user.name}
-            {$i18n.t('has no conversations.')}
-          </div>
-        {/if}
-      {:else}
-        <Spinner />
-      {/if}
-    </div>
-  </div>
+					</div>
+				{:else}
+					<div class="text-left text-sm w-full mb-8">
+						{user.name}
+						{$i18n.t('has no conversations.')}
+					</div>
+				{/if}
+			{:else}
+				<Spinner />
+			{/if}
+		</div>
+	</div>
 </Modal>

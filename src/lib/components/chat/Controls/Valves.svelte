@@ -3,27 +3,27 @@
 
 	import { toast } from 'svelte-sonner';
 
-  import { config, functions, models, settings, tools, user } from '$lib/stores';
-  import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { config, functions, models, settings, tools, user } from '$lib/stores';
+	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
 
-  import {
-    getUserValvesSpecById as getToolUserValvesSpecById,
-    getUserValvesById as getToolUserValvesById,
-    updateUserValvesById as updateToolUserValvesById,
-    getTools
-  } from '$lib/apis/tools';
-  import {
-    getUserValvesSpecById as getFunctionUserValvesSpecById,
-    getUserValvesById as getFunctionUserValvesById,
-    updateUserValvesById as updateFunctionUserValvesById,
-    getFunctions
-  } from '$lib/apis/functions';
+	import {
+		getUserValvesSpecById as getToolUserValvesSpecById,
+		getUserValvesById as getToolUserValvesById,
+		updateUserValvesById as updateToolUserValvesById,
+		getTools
+	} from '$lib/apis/tools';
+	import {
+		getUserValvesSpecById as getFunctionUserValvesSpecById,
+		getUserValvesById as getFunctionUserValvesById,
+		updateUserValvesById as updateFunctionUserValvesById,
+		getFunctions
+	} from '$lib/apis/functions';
 
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import Spinner from '$lib/components/common/Spinner.svelte';
-  import Valves from '$lib/components/common/Valves.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import Spinner from '$lib/components/common/Spinner.svelte';
+	import Valves from '$lib/components/common/Valves.svelte';
 
-  const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -42,89 +42,89 @@
 	let valvesSpec = $state(null);
 	let valves = $state({});
 
-  let debounceTimer;
+	let debounceTimer;
 
-  const debounceSubmitHandler = async () => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-    }
+	const debounceSubmitHandler = async () => {
+		if (debounceTimer) {
+			clearTimeout(debounceTimer);
+		}
 
-    // Set a new timer
-    debounceTimer = setTimeout(() => {
-      submitHandler();
-    }, 500); // 0.5 second debounce
-  };
+		// Set a new timer
+		debounceTimer = setTimeout(() => {
+			submitHandler();
+		}, 500); // 0.5 second debounce
+	};
 
-  const getUserValves = async () => {
-    loading = true;
-    if (tab === 'tools') {
-      valves = await getToolUserValvesById(localStorage.token, selectedId);
-      valvesSpec = await getToolUserValvesSpecById(localStorage.token, selectedId);
-    } else if (tab === 'functions') {
-      valves = await getFunctionUserValvesById(localStorage.token, selectedId);
-      valvesSpec = await getFunctionUserValvesSpecById(localStorage.token, selectedId);
-    }
+	const getUserValves = async () => {
+		loading = true;
+		if (tab === 'tools') {
+			valves = await getToolUserValvesById(localStorage.token, selectedId);
+			valvesSpec = await getToolUserValvesSpecById(localStorage.token, selectedId);
+		} else if (tab === 'functions') {
+			valves = await getFunctionUserValvesById(localStorage.token, selectedId);
+			valvesSpec = await getFunctionUserValvesSpecById(localStorage.token, selectedId);
+		}
 
-    if (valvesSpec) {
-      // Convert array to string
-      for (const property in valvesSpec.properties) {
-        if (valvesSpec.properties[property]?.type === 'array') {
-          valves[property] = (valves[property] ?? []).join(',');
-        }
-      }
-    }
+		if (valvesSpec) {
+			// Convert array to string
+			for (const property in valvesSpec.properties) {
+				if (valvesSpec.properties[property]?.type === 'array') {
+					valves[property] = (valves[property] ?? []).join(',');
+				}
+			}
+		}
 
-    loading = false;
-  };
+		loading = false;
+	};
 
-  const submitHandler = async () => {
-    if (valvesSpec) {
-      // Convert string to array
-      for (const property in valvesSpec.properties) {
-        if (valvesSpec.properties[property]?.type === 'array') {
-          valves[property] = (valves[property] ?? '').split(',').map((v) => v.trim());
-        }
-      }
+	const submitHandler = async () => {
+		if (valvesSpec) {
+			// Convert string to array
+			for (const property in valvesSpec.properties) {
+				if (valvesSpec.properties[property]?.type === 'array') {
+					valves[property] = (valves[property] ?? '').split(',').map((v) => v.trim());
+				}
+			}
 
-      if (tab === 'tools') {
-        const res = await updateToolUserValvesById(localStorage.token, selectedId, valves).catch(
-          (error) => {
-            toast.error(`${error}`);
-            return null;
-          }
-        );
+			if (tab === 'tools') {
+				const res = await updateToolUserValvesById(localStorage.token, selectedId, valves).catch(
+					(error) => {
+						toast.error(`${error}`);
+						return null;
+					}
+				);
 
-        if (res) {
-          toast.success($i18n.t('Valves updated'));
-          valves = res;
-        }
-      } else if (tab === 'functions') {
-        const res = await updateFunctionUserValvesById(
-          localStorage.token,
-          selectedId,
-          valves
-        ).catch((error) => {
-          toast.error(`${error}`);
-          return null;
-        });
+				if (res) {
+					toast.success($i18n.t('Valves updated'));
+					valves = res;
+				}
+			} else if (tab === 'functions') {
+				const res = await updateFunctionUserValvesById(
+					localStorage.token,
+					selectedId,
+					valves
+				).catch((error) => {
+					toast.error(`${error}`);
+					return null;
+				});
 
-        if (res) {
-          toast.success($i18n.t('Valves updated'));
-          valves = res;
-        }
-      }
-    }
-  };
+				if (res) {
+					toast.success($i18n.t('Valves updated'));
+					valves = res;
+				}
+			}
+		}
+	};
 
 	const init = async () => {
 		loading = true;
 
-    if ($functions === null) {
-      functions.set(await getFunctions(localStorage.token));
-    }
-    if ($tools === null) {
-      tools.set(await getTools(localStorage.token));
-    }
+		if ($functions === null) {
+			functions.set(await getFunctions(localStorage.token));
+		}
+		if ($tools === null) {
+			tools.set(await getTools(localStorage.token));
+		}
 
 		loading = false;
 	};
@@ -199,25 +199,25 @@
 				</div>
 			</div>
 
-      {#if selectedId}
-        <hr class="dark:border-gray-800 my-1 w-full" />
+			{#if selectedId}
+				<hr class="dark:border-gray-800 my-1 w-full" />
 
-        <div class="my-2 text-xs">
-          {#if !loading}
-            <Valves
-              {valvesSpec}
-              bind:valves
-              on:change={() => {
-                debounceSubmitHandler();
-              }}
-            />
-          {:else}
-            <Spinner className="size-5" />
-          {/if}
-        </div>
-      {/if}
-    </div>
-  </form>
+				<div class="my-2 text-xs">
+					{#if !loading}
+						<Valves
+							{valvesSpec}
+							bind:valves
+							on:change={() => {
+								debounceSubmitHandler();
+							}}
+						/>
+					{:else}
+						<Spinner className="size-5" />
+					{/if}
+				</div>
+			{/if}
+		</div>
+	</form>
 {:else}
-  <Spinner className="size-4" />
+	<Spinner className="size-4" />
 {/if}

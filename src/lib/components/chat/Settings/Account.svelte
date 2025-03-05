@@ -1,17 +1,17 @@
 <script lang="ts">
-  import { toast } from 'svelte-sonner';
-  import { onMount, getContext } from 'svelte';
+	import { toast } from 'svelte-sonner';
+	import { onMount, getContext } from 'svelte';
 
-  import { user, config, settings } from '$lib/stores';
-  import { updateUserProfile, createAPIKey, getAPIKey, getSessionUser } from '$lib/apis/auths';
+	import { user, config, settings } from '$lib/stores';
+	import { updateUserProfile, createAPIKey, getAPIKey, getSessionUser } from '$lib/apis/auths';
 
-  import UpdatePassword from './Account/UpdatePassword.svelte';
-  import { getGravatarUrl } from '$lib/apis/utils';
-  import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
-  import { copyToClipboard } from '$lib/utils';
-  import Plus from '$lib/components/icons/Plus.svelte';
-  import Tooltip from '$lib/components/common/Tooltip.svelte';
-  import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
+	import UpdatePassword from './Account/UpdatePassword.svelte';
+	import { getGravatarUrl } from '$lib/apis/utils';
+	import { generateInitialsImage, canvasPixelTest } from '$lib/utils';
+	import { copyToClipboard } from '$lib/utils';
+	import Plus from '$lib/components/icons/Plus.svelte';
+	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 
 	import { getI18nContext } from '$lib/contexts';
 	const i18n = getI18nContext();
@@ -35,60 +35,60 @@
 	let APIKeyCopied = $state(false);
 	let profileImageInputElement: HTMLInputElement = $state();
 
-  const submitHandler = async () => {
-    if (name !== $user.name) {
-      if (profileImageUrl === generateInitialsImage($user.name) || profileImageUrl === '') {
-        profileImageUrl = generateInitialsImage(name);
-      }
-    }
+	const submitHandler = async () => {
+		if (name !== $user.name) {
+			if (profileImageUrl === generateInitialsImage($user.name) || profileImageUrl === '') {
+				profileImageUrl = generateInitialsImage(name);
+			}
+		}
 
-    if (webhookUrl !== $settings?.notifications?.webhook_url) {
-      saveSettings({
-        notifications: {
-          ...$settings.notifications,
-          webhook_url: webhookUrl
-        }
-      });
-    }
+		if (webhookUrl !== $settings?.notifications?.webhook_url) {
+			saveSettings({
+				notifications: {
+					...$settings.notifications,
+					webhook_url: webhookUrl
+				}
+			});
+		}
 
-    const updatedUser = await updateUserProfile(localStorage.token, name, profileImageUrl).catch(
-      (error) => {
-        toast.error(`${error}`);
-      }
-    );
+		const updatedUser = await updateUserProfile(localStorage.token, name, profileImageUrl).catch(
+			(error) => {
+				toast.error(`${error}`);
+			}
+		);
 
-    if (updatedUser) {
-      // Get Session User Info
-      const sessionUser = await getSessionUser(localStorage.token).catch((error) => {
-        toast.error(`${error}`);
-        return null;
-      });
+		if (updatedUser) {
+			// Get Session User Info
+			const sessionUser = await getSessionUser(localStorage.token).catch((error) => {
+				toast.error(`${error}`);
+				return null;
+			});
 
-      await user.set(sessionUser);
-      return true;
-    }
-    return false;
-  };
+			await user.set(sessionUser);
+			return true;
+		}
+		return false;
+	};
 
-  const createAPIKeyHandler = async () => {
-    APIKey = await createAPIKey(localStorage.token);
-    if (APIKey) {
-      toast.success($i18n.t('API Key created.'));
-    } else {
-      toast.error($i18n.t('Failed to create API Key.'));
-    }
-  };
+	const createAPIKeyHandler = async () => {
+		APIKey = await createAPIKey(localStorage.token);
+		if (APIKey) {
+			toast.success($i18n.t('API Key created.'));
+		} else {
+			toast.error($i18n.t('Failed to create API Key.'));
+		}
+	};
 
-  onMount(async () => {
-    name = $user.name;
-    profileImageUrl = $user.profile_image_url;
-    webhookUrl = $settings?.notifications?.webhook_url ?? '';
+	onMount(async () => {
+		name = $user.name;
+		profileImageUrl = $user.profile_image_url;
+		webhookUrl = $settings?.notifications?.webhook_url ?? '';
 
-    APIKey = await getAPIKey(localStorage.token).catch((error) => {
-      console.log(error);
-      return '';
-    });
-  });
+		APIKey = await getAPIKey(localStorage.token).catch((error) => {
+			console.log(error);
+			return '';
+		});
+	});
 </script>
 
 <div class="flex flex-col h-full justify-between text-sm">
@@ -104,46 +104,46 @@
 				reader.onload = (event) => {
 					const originalImageUrl = `${event.target.result}`;
 
-          const img = new Image();
-          img.src = originalImageUrl;
+					const img = new Image();
+					img.src = originalImageUrl;
 
-          img.onload = function () {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+					img.onload = function () {
+						const canvas = document.createElement('canvas');
+						const ctx = canvas.getContext('2d');
 
-            // Calculate the aspect ratio of the image
-            const aspectRatio = img.width / img.height;
+						// Calculate the aspect ratio of the image
+						const aspectRatio = img.width / img.height;
 
-            // Calculate the new width and height to fit within 250x250
-            let newWidth, newHeight;
-            if (aspectRatio > 1) {
-              newWidth = 250 * aspectRatio;
-              newHeight = 250;
-            } else {
-              newWidth = 250;
-              newHeight = 250 / aspectRatio;
-            }
+						// Calculate the new width and height to fit within 250x250
+						let newWidth, newHeight;
+						if (aspectRatio > 1) {
+							newWidth = 250 * aspectRatio;
+							newHeight = 250;
+						} else {
+							newWidth = 250;
+							newHeight = 250 / aspectRatio;
+						}
 
-            // Set the canvas size
-            canvas.width = 250;
-            canvas.height = 250;
+						// Set the canvas size
+						canvas.width = 250;
+						canvas.height = 250;
 
-            // Calculate the position to center the image
-            const offsetX = (250 - newWidth) / 2;
-            const offsetY = (250 - newHeight) / 2;
+						// Calculate the position to center the image
+						const offsetX = (250 - newWidth) / 2;
+						const offsetY = (250 - newHeight) / 2;
 
-            // Draw the image on the canvas
-            ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+						// Draw the image on the canvas
+						ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
 
-            // Get the base64 representation of the compressed image
-            const compressedSrc = canvas.toDataURL('image/jpeg');
+						// Get the base64 representation of the compressed image
+						const compressedSrc = canvas.toDataURL('image/jpeg');
 
-            // Display the compressed image
-            profileImageUrl = compressedSrc;
+						// Display the compressed image
+						profileImageUrl = compressedSrc;
 
-            profileImageInputElement.files = null;
-          };
-        };
+						profileImageInputElement.files = null;
+					};
+				};
 
 				if (
 					files.length > 0 &&
@@ -155,8 +155,8 @@
 			type="file"
 		/>
 
-    <div class="space-y-1">
-      <!-- <div class=" text-sm font-medium">{$i18n.t('Account')}</div> -->
+		<div class="space-y-1">
+			<!-- <div class=" text-sm font-medium">{$i18n.t('Account')}</div> -->
 
 			<div class="flex space-x-5">
 				<div class="flex flex-col">
@@ -194,8 +194,8 @@
 					</div>
 				</div>
 
-        <div class="flex-1 flex flex-col self-center gap-0.5">
-          <div class=" mb-0.5 text-sm font-medium">{$i18n.t('Profile Image')}</div>
+				<div class="flex-1 flex flex-col self-center gap-0.5">
+					<div class=" mb-0.5 text-sm font-medium">{$i18n.t('Profile Image')}</div>
 
 					<div>
 						<button
@@ -221,9 +221,9 @@
 							onclick={async () => {
 								const url = await getGravatarUrl(localStorage.token, $user.email);
 
-                profileImageUrl = url;
-              }}
-            >{$i18n.t('Use Gravatar')}</button>
+								profileImageUrl = url;
+							}}>{$i18n.t('Use Gravatar')}</button
+						>
 
 						<button
 							class=" text-xs text-center text-gray-800 dark:text-gray-400 rounded-lg px-2 py-1"
@@ -235,9 +235,9 @@
 				</div>
 			</div>
 
-      <div class="pt-0.5">
-        <div class="flex flex-col w-full">
-          <div class=" mb-1 text-xs font-medium">{$i18n.t('Name')}</div>
+			<div class="pt-0.5">
+				<div class="flex flex-col w-full">
+					<div class=" mb-1 text-xs font-medium">{$i18n.t('Name')}</div>
 
 					<div class="flex-1">
 						<input
@@ -250,9 +250,9 @@
 				</div>
 			</div>
 
-      <div class="pt-2">
-        <div class="flex flex-col w-full">
-          <div class=" mb-1 text-xs font-medium">{$i18n.t('Notification Webhook')}</div>
+			<div class="pt-2">
+				<div class="flex flex-col w-full">
+					<div class=" mb-1 text-xs font-medium">{$i18n.t('Notification Webhook')}</div>
 
 					<div class="flex-1">
 						<input
@@ -267,11 +267,11 @@
 			</div>
 		</div>
 
-    <div class="py-0.5">
-      <UpdatePassword />
-    </div>
+		<div class="py-0.5">
+			<UpdatePassword />
+		</div>
 
-    <hr class="border-gray-100 dark:border-gray-850 my-4" />
+		<hr class="border-gray-100 dark:border-gray-850 my-4" />
 
 		<div class="flex justify-between items-center text-sm">
 			<div class="  font-medium">{$i18n.t('API keys')}</div>
@@ -284,12 +284,12 @@
 			>
 		</div>
 
-    {#if showAPIKeys}
-      <div class="flex flex-col gap-4">
-        <div class="justify-between w-full">
-          <div class="flex justify-between w-full">
-            <div class="self-center text-xs font-medium">{$i18n.t('JWT Token')}</div>
-          </div>
+		{#if showAPIKeys}
+			<div class="flex flex-col gap-4">
+				<div class="justify-between w-full">
+					<div class="flex justify-between w-full">
+						<div class="self-center text-xs font-medium">{$i18n.t('JWT Token')}</div>
+					</div>
 
 					<div class="flex mt-2">
 						<SensitiveInput readOnly={true} value={localStorage.token} />
@@ -424,14 +424,15 @@
 								>
 									<Plus className=" size-3.5" strokeWidth="2" />
 
-                  {$i18n.t('Create new secret key')}</button>
-              {/if}
-            </div>
-          </div>
-        {/if}
-      </div>
-    {/if}
-  </div>
+									{$i18n.t('Create new secret key')}</button
+								>
+							{/if}
+						</div>
+					</div>
+				{/if}
+			</div>
+		{/if}
+	</div>
 
 	<div class="flex justify-end pt-3 text-sm font-medium">
 		<button
@@ -439,12 +440,12 @@
 			onclick={async () => {
 				const res = await submitHandler();
 
-        if (res) {
-          saveHandler();
-        }
-      }}
-    >
-      {$i18n.t('Save')}
-    </button>
-  </div>
+				if (res) {
+					saveHandler();
+				}
+			}}
+		>
+			{$i18n.t('Save')}
+		</button>
+	</div>
 </div>
