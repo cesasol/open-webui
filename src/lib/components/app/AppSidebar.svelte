@@ -9,7 +9,7 @@
 	<div class="flex justify-center relative">
 		{#if selected === 'home'}
 			<div class="absolute top-0 left-0 flex h-full">
-				<div class="my-auto rounded-r-lg w-1 h-8 bg-black dark:bg-white" />
+				<div class="my-auto rounded-r-lg w-1 h-8 bg-black dark:bg-white"></div>
 			</div>
 		{/if}
 
@@ -34,7 +34,7 @@
 		</Tooltip>
 	</div>
 
-	<div class=" -mt-1 border-[1.5px] border-gray-100 dark:border-gray-900 mx-4" />
+	<div class=" -mt-1 border-[1.5px] border-gray-100 dark:border-gray-900 mx-4"></div>
 
 	<div class="flex justify-center relative group">
 		{#if selected === ''}

@@ -425,7 +425,7 @@
 
 							<div
 								class="absolute top-0 bottom-0 left-0 right-0 bg-white dark:bg-black rounded-lg opacity-0 group-hover:opacity-20 transition"
-							/>
+							></div>
 						</button>
 
 						<div class="flex w-full mt-1 justify-end">

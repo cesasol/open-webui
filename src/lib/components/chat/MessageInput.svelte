@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { run, preventDefault } from 'svelte/legacy';
+
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
 	import { createPicker, getAuthToken } from '$lib/utils/google-drive-picker';
@@ -50,58 +52,67 @@
 
 	const i18n = getI18nContext();
 
-	export let transparentBackground = false;
 
-	export let onChange: Function = () => {};
-	export let createMessagePair: Function;
-	export let stopResponse: Function;
 
-	export let autoScroll = false;
 
-	export let atSelectedModel: Model | undefined = undefined;
-	export let selectedModels: [''];
 
-	let selectedModelIds = [];
-	$: selectedModelIds = atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels;
+	let selectedModelIds = $state([]);
 
-	export let history;
 
-	export let prompt = '';
-	export let files = [];
 
-	export let selectedToolIds = [];
 
-	export let imageGenerationEnabled = false;
-	export let webSearchEnabled = false;
-	export let codeInterpreterEnabled = false;
 
-	$: onChange({
-		prompt,
-		files,
-		selectedToolIds,
-		imageGenerationEnabled,
-		webSearchEnabled
-	});
 
-	let loaded = false;
-	let recording = false;
+	let loaded = $state(false);
+	let recording = $state(false);
 
 	let chatInputContainerElement;
-	let chatInputElement;
+	let chatInputElement = $state();
 
-	let filesInputElement;
-	let commandsElement;
+	let filesInputElement = $state();
+	let commandsElement = $state();
 
-	let inputFiles;
-	let dragged = false;
+	let inputFiles = $state();
+	let dragged = $state(false);
 
 	const user = null;
-	export let placeholder = '';
+	interface Props {
+		transparentBackground?: boolean;
+		onChange?: Function;
+		createMessagePair: Function;
+		stopResponse: Function;
+		autoScroll?: boolean;
+		atSelectedModel?: Model | undefined;
+		selectedModels: [''];
+		history: any;
+		prompt?: string;
+		files?: any;
+		selectedToolIds?: any;
+		imageGenerationEnabled?: boolean;
+		webSearchEnabled?: boolean;
+		codeInterpreterEnabled?: boolean;
+		placeholder?: string;
+	}
 
-	let visionCapableModels = [];
-	$: visionCapableModels = [...(atSelectedModel ? [atSelectedModel] : selectedModels)].filter(
-		(model) => $models.find((m) => m.id === model)?.info?.meta?.capabilities?.vision ?? true
-	);
+	let {
+		transparentBackground = false,
+		onChange = () => {},
+		createMessagePair,
+		stopResponse,
+		autoScroll = $bindable(false),
+		atSelectedModel = $bindable(undefined),
+		selectedModels,
+		history,
+		prompt = $bindable(''),
+		files = $bindable([]),
+		selectedToolIds = $bindable([]),
+		imageGenerationEnabled = $bindable(false),
+		webSearchEnabled = $bindable(false),
+		codeInterpreterEnabled = $bindable(false),
+		placeholder = ''
+	}: Props = $props();
+
+	let visionCapableModels = $state([]);
 
 	const scrollToBottom = () => {
 		const element = document.getElementById('messages-container');
@@ -338,6 +349,23 @@
 			dropzoneElement?.removeEventListener('dragleave', onDragLeave);
 		}
 	});
+	run(() => {
+		selectedModelIds = atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels;
+	});
+	run(() => {
+		onChange({
+			prompt,
+			files,
+			selectedToolIds,
+			imageGenerationEnabled,
+			webSearchEnabled
+		});
+	});
+	run(() => {
+		visionCapableModels = [...(atSelectedModel ? [atSelectedModel] : selectedModels)].filter(
+			(model) => $models.find((m) => m.id === model)?.info?.meta?.capabilities?.vision ?? true
+		);
+	});
 </script>
 
 <FilesOverlay show={dragged} />
@@ -357,7 +385,7 @@
 						>
 							<button
 								class=" bg-white border border-gray-100 dark:border-none dark:bg-white/20 p-1.5 rounded-full pointer-events-auto"
-								on:click={() => {
+								onclick={() => {
 									autoScroll = true;
 									scrollToBottom();
 								}}
@@ -391,8 +419,8 @@
 											<span class="relative flex size-2">
 												<span
 													class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"
-												/>
-												<span class="relative inline-flex rounded-full size-2 bg-yellow-500" />
+												></span>
+												<span class="relative inline-flex rounded-full size-2 bg-yellow-500"></span>
 											</span>
 										</div>
 										<div class="  text-ellipsis line-clamp-1 flex">
@@ -423,8 +451,8 @@
 											<span class="relative flex size-2">
 												<span
 													class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"
-												/>
-												<span class="relative inline-flex rounded-full size-2 bg-blue-500" />
+												></span>
+												<span class="relative inline-flex rounded-full size-2 bg-blue-500"></span>
 											</span>
 										</div>
 										<div class=" translate-y-[0.5px]">{$i18n.t('Search the internet')}</div>
@@ -439,8 +467,8 @@
 											<span class="relative flex size-2">
 												<span
 													class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"
-												/>
-												<span class="relative inline-flex rounded-full size-2 bg-teal-500" />
+												></span>
+												<span class="relative inline-flex rounded-full size-2 bg-teal-500"></span>
 											</span>
 										</div>
 										<div class=" translate-y-[0.5px]">{$i18n.t('Generate an image')}</div>
@@ -455,8 +483,8 @@
 											<span class="relative flex size-2">
 												<span
 													class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
-												/>
-												<span class="relative inline-flex rounded-full size-2 bg-green-500" />
+												></span>
+												<span class="relative inline-flex rounded-full size-2 bg-green-500"></span>
 											</span>
 										</div>
 										<div class=" translate-y-[0.5px]">{$i18n.t('Execute code for analysis')}</div>
@@ -484,7 +512,7 @@
 									<div>
 										<button
 											class="flex items-center dark:text-gray-500"
-											on:click={() => {
+											onclick={() => {
 												atSelectedModel = undefined;
 											}}
 										>
@@ -531,7 +559,7 @@
 						multiple
 						type="file"
 						bind:files={inputFiles}
-						on:change={async () => {
+						onchange={async () => {
 							if (inputFiles && inputFiles.length > 0) {
 								const _inputFiles = Array.from(inputFiles);
 								inputFilesHandler(_inputFiles);
@@ -569,10 +597,10 @@
 					{:else}
 						<form
 							class="w-full flex gap-1.5"
-							on:submit|preventDefault={() => {
+							onsubmit={preventDefault(() => {
 								// check if selectedModels support image input
 								dispatch('submit', prompt);
-							}}
+							})}
 						>
 							<div
 								class="flex-1 flex flex-col relative w-full rounded-3xl px-1 bg-gray-600/5 dark:bg-gray-400/5 dark:text-gray-100"
@@ -619,7 +647,7 @@
 														<button
 															class=" bg-white text-black border border-white rounded-full group-hover:visible invisible transition"
 															type="button"
-															on:click={() => {
+															onclick={() => {
 																files.splice(fileIdx, 1);
 																files = files;
 															}}
@@ -884,7 +912,7 @@
 											placeholder={placeholder ? placeholder : $i18n.t('Send a Message')}
 											rows="1"
 											bind:value={prompt}
-											on:keydown={async (e) => {
+											onkeydown={async (e) => {
 												const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
 
 												console.log('keydown', e);
@@ -1036,15 +1064,15 @@
 													imageGenerationEnabled = false;
 												}
 											}}
-											on:input={async (e) => {
+											oninput={async (e) => {
 												e.target.style.height = '';
 												e.target.style.height = Math.min(e.target.scrollHeight, 320) + 'px';
 											}}
-											on:focus={async (e) => {
+											onfocus={async (e) => {
 												e.target.style.height = '';
 												e.target.style.height = Math.min(e.target.scrollHeight, 320) + 'px';
 											}}
-											on:paste={async (e) => {
+											onpaste={async (e) => {
 												const clipboardData = e.clipboardData || window.clipboardData;
 
 												if (clipboardData && clipboardData.items) {
@@ -1082,7 +1110,7 @@
 													}
 												}
 											}}
-										/>
+										></textarea>
 									{/if}
 								</div>
 
@@ -1165,7 +1193,7 @@
 																? 'bg-blue-100 dark:bg-blue-500/20 text-blue-500 dark:text-blue-400'
 																: 'bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'}"
 															type="button"
-															on:click|preventDefault={() => (webSearchEnabled = !webSearchEnabled)}
+															onclick={preventDefault(() => (webSearchEnabled = !webSearchEnabled))}
 														>
 															<GlobeAlt className="size-5" strokeWidth="1.75" />
 															<span
@@ -1183,8 +1211,8 @@
 																? 'bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400'
 																: 'bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 '}"
 															type="button"
-															on:click|preventDefault={() =>
-																(imageGenerationEnabled = !imageGenerationEnabled)}
+															onclick={preventDefault(() =>
+																(imageGenerationEnabled = !imageGenerationEnabled))}
 														>
 															<Photo className="size-5" strokeWidth="1.75" />
 															<span
@@ -1202,8 +1230,8 @@
 																? 'bg-gray-100 dark:bg-gray-500/20 text-gray-600 dark:text-gray-400'
 																: 'bg-transparent text-gray-600 dark:text-gray-300 border-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 '}"
 															type="button"
-															on:click|preventDefault={() =>
-																(codeInterpreterEnabled = !codeInterpreterEnabled)}
+															onclick={preventDefault(() =>
+																(codeInterpreterEnabled = !codeInterpreterEnabled))}
 														>
 															<CommandLine className="size-5" strokeWidth="1.75" />
 															<span
@@ -1225,7 +1253,7 @@
 													class=" text-gray-600 dark:text-gray-300 hover:text-gray-700 dark:hover:text-gray-200 transition rounded-full p-1.5 mr-0.5 self-center"
 													aria-label="Voice Input"
 													type="button"
-													on:click={async () => {
+													onclick={async () => {
 														try {
 															let stream = await navigator.mediaDevices
 																.getUserMedia({ audio: true })
@@ -1278,7 +1306,7 @@
 																: 'bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100'} transition rounded-full p-1.5 self-center"
 															aria-label="Call"
 															type="button"
-															on:click={async () => {
+															onclick={async () => {
 																if (selectedModels.length > 1) {
 																	toast.error($i18n.t('Select only one model to call'));
 
@@ -1369,7 +1397,7 @@
 												<Tooltip content={$i18n.t('Stop')}>
 													<button
 														class="bg-white hover:bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-800 transition rounded-full p-1.5"
-														on:click={() => {
+														onclick={() => {
 															stopResponse();
 														}}
 													>

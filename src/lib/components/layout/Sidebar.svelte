@@ -703,7 +703,7 @@
 				}}
 			>
 				{#if $temporaryChatEnabled}
-					<div class="absolute z-40 w-full h-full flex justify-center" />
+					<div class="absolute z-40 w-full h-full flex justify-center"></div>
 				{/if}
 
 				{#if !search && $pinnedChats.length > 0}

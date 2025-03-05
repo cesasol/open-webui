@@ -194,7 +194,7 @@
 <div class=" w-full h-full relative flex flex-col bg-gray-50 dark:bg-gray-850">
 	<div class="w-full h-full flex-1 relative">
 		{#if overlay}
-			<div class=" absolute top-0 left-0 right-0 bottom-0 z-10" />
+			<div class=" absolute top-0 left-0 right-0 bottom-0 z-10"></div>
 		{/if}
 
 		<div class="absolute pointer-events-none z-50 w-full flex items-center justify-start p-4">

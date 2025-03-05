@@ -2,18 +2,16 @@
 import js from '@eslint/js';
 import svelte from 'eslint-plugin-svelte';
 import ts from 'typescript-eslint';
-import * as svelteParser from 'svelte-eslint-parser';
-import * as typescriptParser from '@typescript-eslint/parser';
-import * as espree from 'espree';
+import svelteParser from 'svelte-eslint-parser';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
-import { flatConfigs as importPlugin } from 'eslint-plugin-import';
-
+import tsParser from '@typescript-eslint/parser';
 export default [
 	{
 		ignores: [
 			'static',
 			'node_modules',
+			'**/node_modules',
 			'test',
 			'.svelte-kit',
 			'__pycache__',
@@ -22,39 +20,27 @@ export default [
 			'dist'
 		]
 	},
-	{
-		languageOptions: {
-			globals: {
-				...globals.browser
-			}
-		}
-	},
-	importPlugin.recommended,
-	importPlugin.typescript,
+	{ languageOptions: { globals: { ...globals.browser } } },
 	js.configs.recommended,
 	...ts.configs.recommended,
 	...svelte.configs['flat/all'],
 	eslintPluginPrettierRecommended,
 	...svelte.configs['flat/prettier'],
 	{
-		files: ['**/*.svelte'],
+		files: [
+			'**/*.svelte',
+			'*.svelte',
+			// Need to specify the file extension for Svelte 5 with rune symbols
+			'**/*.svelte.js',
+			'*.svelte.js',
+			'**/*.svelte.ts',
+			'*.svelte.ts'
+		],
 		rules: {
 			'svelte/no-unused-class-name': 0,
 			'svelte/block-lang': 0,
 			'svelte/experimental-require-strict-events': 0
 		},
-		languageOptions: {
-			parser: svelteParser,
-			// svelteConfig: svelteConfig,
-			parserOptions: {
-				parser: {
-					// Specify a parser for each lang.
-					ts: typescriptParser,
-					js: espree,
-					typescript: typescriptParser
-				},
-				extraFileExtensions: ['.svelte']
-			}
-		}
+		languageOptions: { parser: svelteParser, parserOptions: { parser: tsParser } }
 	}
 ];

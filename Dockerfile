@@ -15,7 +15,6 @@ ARG USE_RERANKING_MODEL=""
 # Tiktoken encoding name; models to use can be found at https://huggingface.co/models?library=tiktoken
 ARG USE_TIKTOKEN_ENCODING_NAME="cl100k_base"
 
-ARG BUILD_HASH=dev-build
 
 # Can be cuda, rocm or cpu
 ARG RUNTIME_DEVICE=cpu
@@ -38,7 +37,6 @@ RUN corepack enable
 
 # Build layer
 FROM base-front AS front-build
-ENV APP_BUILD_HASH=${BUILD_HASH}
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run build
 
@@ -90,7 +88,6 @@ ENV USE_CPU_DOCKER=true
 
 ######## Final Image ########
 FROM base-${RUNTIME_DEVICE} as build
-ARG BUILD_HASH
 ARG RUNTIME_DEVICE
 ARG RUNTIME_DEVICE
 ARG USE_OLLAMA
@@ -108,8 +105,7 @@ ENV ENV=prod \
     USE_CUDA_DOCKER_VER=${USE_CUDA_VER} \
     USE_ROCM_DOCKER_VER=${USE_ROCM_VER} \
     USE_EMBEDDING_MODEL_DOCKER=${USE_EMBEDDING_MODEL} \
-    USE_RERANKING_MODEL_DOCKER=${USE_RERANKING_MODEL} \
-    WEBUI_BUILD_VERSION=${BUILD_HASH}
+    USE_RERANKING_MODEL_DOCKER=${USE_RERANKING_MODEL}
 
 ENV DOCKER=true
 
@@ -160,6 +156,6 @@ fi
 EOF
 
 EXPOSE 8080
-HEALTHCHECK --interval=60s --start-period=60s CMD curl --silent --fail http://localhost:${PORT:-8080}/health | jq -ne 'input.status == true' || exit 1
+HEALTHCHECK --interval=60s --start-period=60s CMD curl --silent --fail http://localhost:8080/health | jq -ne 'input.status == true' || exit 1
 
 CMD [ "bash", "backend/start.sh"]
